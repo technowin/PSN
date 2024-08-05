@@ -15,7 +15,7 @@ import os
 API_URL='https://complianceaudit.lknconsultants.net/'
 API_URL_SALARY='https://salaryregister.lknconsultants.net/'
 # API_URL='http://192.168.1.21:45455/'
-#ALLOWED_HOSTS = [ '13.233.68.238' ,'complianceoperation.lknconsultants.net' ]
+ALLOWED_HOSTS = ['13.202.157.7']
 # }
 
 # Test Changed
@@ -43,6 +43,7 @@ DATABASES = {
         },
     }
 }
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
