@@ -1,0 +1,140 @@
+
+How to host Django Application using gunicorn & nginx in Production:-
+
+git clone https://github.com/technowin/LKNPSNCompliance
+
+mv LKNPSNCompliance PSN
+
+Username: technowin
+
+Password: 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
+
+cd PSN
+
+git config credential.helper store
+
+git push https://github.com/technowin/LKNPSNCompliance
+
+Username: technowin
+
+Password: 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
+
+sudo apt update
+
+sudo apt install python3-pip python3-dev nginx
+
+sudo pip3 install virtualenv
+
+virtualenv env
+
+source env/bin/activate
+
+pip install -r requirements.txt
+
+pip install django gunicorn
+
+sudo ufw allow 8000
+
+python3 manage.py runserver  172.31.14.215:8000
+
+gunicorn --bind 172.31.14.215:8000 PSN.wsgi
+
+deactivate
+
+sudo vim /etc/systemd/system/gunicorn.socket
+
+Enter i and then paste below part then for save Enter Esc :wq
+
+[Unit]
+Description=gunicorn socket
+
+[Socket]
+ListenStream=/run/gunicorn.sock
+
+[Install]
+WantedBy=sockets.target
+
+sudo vim /etc/systemd/system/gunicorn.service
+
+Enter i and then paste below part then for save Enter Esc :wq
+
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/PSN
+ExecStart=/home/ubuntu/PSN/env/bin/gunicorn \
+          --access-logfile - \
+          --workers 3 \
+          --bind unix:/run/gunicorn.sock \
+          PSN.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+
+sudo systemctl start gunicorn.socket
+sudo systemctl enable gunicorn.socket
+
+sudo vim /etc/nginx/sites-available/PSN
+
+Enter i and then paste below part then for save Enter Esc :wq
+
+server {
+    listen 80;
+    server_name 172.31.14.215;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        root /home/ubuntu/PSN;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn.sock;
+    }
+}
+
+sudo ln -s /etc/nginx/sites-available/PSN /etc/nginx/sites-enabled/
+
+cd /etc/nginx/sites-available/
+
+sudo rm default
+
+cd /etc/nginx/sites-enabled/
+
+sudo rm default
+
+sudo gpasswd -a www-data ubuntu
+
+sudo systemctl restart nginx
+
+sudo service nginx restart
+
+sudo service gunicorn restart
+
+sudo tail -f /var/log/nginx/error.log
+
+sudo nginx -t
+
+
+password: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
+
+username:technowin
+
+pip3 freeze > requirements.txt  (To add new packages to "requirements.txt")
+
+** for daily changes in code **
+
+git pull origin master 
+
+sudo service gunicorn restart
+
+
+** gemini api **
+
+pip install openai
+pip install google-generativeai

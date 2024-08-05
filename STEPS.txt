@@ -1,0 +1,194 @@
+1.  install latest python  https://www.python.org/downloads/
+2.  create a folder for python project 
+3.  open the folder using vs code
+4.  open terminal
+5.  run following lines
+	a. pip install django
+	b. pip install mysql-connector-python
+6.  Now to create a django project run following lines
+	a. django-admin startproject "YOUR PROJECT NAME"
+	b. cd  "YOUR PROJECT NAME"
+	c. python manage.py runserver 
+	(to test if everything is working fine.)
+7.  cntrl+c to stop server.
+8.  django-admin startapp SignUp 
+	(to Create Apps)
+9.  Now to define the apps in system.
+10. Go to Setting Folder inside PSNWebsite and Again Inside PSNWebsite.
+11. Open Setting.py and add your apps in it.
+12. Now Inside Main PSNWebsite folder create a new folder Template.
+13. Now inside Settings.py inside templates object add folder name to DIRS 
+	"DIRS": ['Template'],
+14. Create Html Pages inside this template folder
+15. After Add html now go to signup App folder inside that open views.py
+16. Inside this views.py create a new function for signup pages like def signupaction(request):
+																		return None;
+17. Now Go to PSNWebsite inside PSNWebsite and open urls.py																		
+	
+
+
+- TO CREATE A CHANGE
+	if you want to make changes in the code after a deployment.
+	1. Create a New Branch from search bar on top 
+	2. type >Create Branch and select Create Branch from and select Master
+	3. Now give the branch a name. 
+	4. Now a branch will be created.
+	5. Now make changes in this branch.
+	6. Once the changes are done and ready to deploy, on the left sidebar select the 3rd option.
+	7. In that you will see the changes made by you.
+	8. Now click on plus sign beside changes tab.
+	9. Then Commit changes and publish branch. 
+	10. Then Push Changes.
+	11. Now change branch from bottom left option to Test Branch.
+	12. Then Go to 3rd tab from sidebar and
+		select the 3 dots>Branch>MergeBranch and select the new branch created.
+	13. Now the Test branch has the changes Now push the changes.
+	14. click on 3 dots>Push.
+	15. Now you can pull changes on test server.
+	16. Once Fully Tested if the changes are correct.
+	17. Now Change the branch to Master.
+	18. Now Merge Master Branch with test Branch.
+	19. Push Changes.
+	20. Pull On live Server.
+	21. Now Delete the branch by entering git push origin :{{branchName}}
+	22. In Top Search Bar type >Delete Branch and delete the Created Branch.
+
+
+Important Putty scripts:-
+pip uninstall django
+pip uninstall gunicorn
+sudo apt-get remove python3
+sudo apt-get remove nginx
+sudo apt remove python3-pip python3-dev nginx
+sudo apt purge python3-pip python3-dev nginx
+# sudo apt-get python3
+
+sudo apt update
+sudo apt install python3-pip python3-dev nginx
+# sudo apt install nginx
+
+sudo pip3 install virtualenv
+virtualenv env
+source env/bin/activate
+pip install django gunicorn
+sudo ufw delete allow 8000
+sudo ufw allow 8000
+python3 manage.py runserver  172.31.5.208:8000 
+gunicorn --bind 172.31.5.208:8000 PSN.wsgi
+pip install -r requirements.txt
+deactivate
+sudo vim /etc/systemd/system/gunicorn.socket
+
+[Unit]
+Description=gunicorn socket
+
+[Socket]
+ListenStream=/run/gunicorn.sock
+
+[Install]
+WantedBy=sockets.target
+
+sudo vim /etc/systemd/system/gunicorn.service
+
+
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/PSN
+ExecStart=/home/ubuntu/PSN/env/bin/gunicorn \
+          --access-logfile - \
+          --workers 3 \
+          --bind unix:/run/gunicorn.sock \
+          PSN.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+
+sudo systemctl start gunicorn.socket
+sudo systemctl enable gunicorn.socket
+sudo vim /etc/nginx/sites-available/PSN
+
+server {
+    listen 80;
+    server_name 172.31.5.208;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        root /home/ubuntu/PSN;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn.sock;
+    }
+}
+
+sudo ln -s /etc/nginx/sites-available/PSN /etc/nginx/sites-enabled/
+cd /etc/nginx/sites-available/
+cd /etc/nginx/sites-enabled/
+
+gpasswd -a www-data ubuntu
+
+sudo systemctl restart nginx
+sudo service nginx restart
+sudo service gunicorn restart
+
+sudo tail -f /var/log/nginx/error.log
+sudo vim /etc/nginx/sites-available/PSN
+sudo nginx -t
+sudo systemctl stop nginx
+sudo systemctl start nginx
+
+
+
+sudo gpasswd -a www-data ubuntu
+
+git config credential.helper store
+git push https://github.com/technowin/PSNContentManagement
+Username: technowin
+Password: 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
+
+password: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
+username:technowin
+
+
+13.233.68.238
+
+
+
+
+-- TO GIVE PERMISSION TO USER FOR STATIC FILES
+
+https://stackoverflow.com/questions/25774999/nginx-stat-failed-13-permission-denied
+
+pip3 freeze > requirements.txt 
+source env/bin/activate
+
+
+   $.ajax({
+          type: "POST",
+          url: "",
+          data: { companyId: companyId },
+          beforeSend: function () {},
+          success: function (res) {},
+          error: function (res) {},
+        });
+
+
+		 Db.closeConnection()
+        m = Db.get_connection()
+        cursor=m.cursor()
+        try:
+		except Exception as e:
+            print(f"error: {e}")
+        finally:
+            cursor.close()
+            m.commit()
+            m.close()
+            Db.closeConnection()    
+            return 
