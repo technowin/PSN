@@ -10,7 +10,7 @@ from Account.models import CustomUser
 # Create your models here.
 class company_master(models.Model):
     company_id = models.AutoField(primary_key=True)
-    company_name = models.CharField(max_length=255)
+    company_name = models.TextField(max_length=800)
     company_address =models.CharField(max_length=255,null=True,blank=True)
     pincode =models.CharField(max_length=255,null=True,blank=True)
     contact_person_name =models.CharField(max_length=255,null=True,blank=True)
