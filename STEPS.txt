@@ -151,9 +151,9 @@ sudo gpasswd -a www-data ubuntu
 git config credential.helper store
 git push https://github.com/technowin/PSNContentManagement
 Username: technowin
-Password: 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
+Password: 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
 
-password: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
+password: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
 username:technowin
 
 
