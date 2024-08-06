@@ -1,8 +1,6 @@
 from django.conf import settings
 from PSN.encryption import decrypt_parameter
-from Masters.models import Company
 import Db
-from Masters.models import Role 
 
 def logged_in_user(request):
     user =''
