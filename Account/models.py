@@ -53,7 +53,18 @@ class password_storage(models.Model):
     passwordText =models.CharField(max_length=255,null=True,blank=True)
     class Meta:
         db_table = 'password_storage'
-  
+
+class error_log(models.Model):
+    id = models.AutoField(primary_key=True)
+    method =models.TextField(null=True,blank=True)
+    error =models.TextField(null=True,blank=True)
+    error_date = models.DateTimeField(null=True,blank=True,auto_now_add=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='error_by',blank=True, null=True)
+    class Meta:
+        db_table = 'error_log'
+
+    
+     
 class AssignedCompany(models.Model):
     company_name = models.CharField(max_length=255)
     company_id = models.CharField(max_length=255)
