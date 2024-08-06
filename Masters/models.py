@@ -18,9 +18,9 @@ class company_master(models.Model):
     contact_person_mobile_no =models.EmailField(max_length=255,null=True,blank=True)
     is_active =models.BooleanField(null=True,blank=True,default=True)
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='challan_created',blank=True, null=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='company_created_by',blank=True, null=True)
     updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='challan_updated',blank=True, null=True)
+    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='company_updated_by',blank=True, null=True)
     class Meta:
         db_table = 'company_master'
     def __str__(self):
@@ -33,9 +33,9 @@ class parameter_master(models.Model):
     parameter_name =models.CharField(max_length=255,null=True,blank=True)
     parameter_value =models.CharField(max_length=255,null=True,blank=True)
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='challan_created',blank=True, null=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='parameter_created_by',blank=True, null=True)
     updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='challan_updated',blank=True, null=True)
+    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='parameter_updated_by',blank=True, null=True)
     class Meta:
         db_table = 'parameter_master'
     def __str__(self):
@@ -56,9 +56,9 @@ class site_master(models.Model):
     notification_time=models.TimeField(null=True,blank=True)
     reminder_time = models.TimeField(null=True,blank=True)
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='challan_created',blank=True, null=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='site_created',blank=True, null=True)
     updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='challan_updated',blank=True, null=True)
+    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='site_updated',blank=True, null=True)
     class Meta:
         db_table = 'site_master'
     def __str__(self):
@@ -72,9 +72,9 @@ class sc_employee_master(models.Model):
     current_location =models.CharField(max_length=255,null=True,blank=True)
     employee_status =models.CharField(max_length=255,null=True,blank=True)
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='challan_created',blank=True, null=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='sc_employee_created',blank=True, null=True)
     updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='challan_updated',blank=True, null=True)
+    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='sc_employee_updated',blank=True, null=True)
     class Meta:
         db_table = 'sc_employee_master'
     def __str__(self):
