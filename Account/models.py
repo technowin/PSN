@@ -45,6 +45,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+
+  
+class password_storage(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='user_id_repos',blank=True, null=True,db_column='created_by')
+    passwordText =models.CharField(max_length=255,null=True,blank=True)
+    class Meta:
+        db_table = 'password_storage'
+  
 class AssignedCompany(models.Model):
     company_name = models.CharField(max_length=255)
     company_id = models.CharField(max_length=255)

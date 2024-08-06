@@ -18,9 +18,9 @@ class company_master(models.Model):
     contact_person_mobile_no =models.EmailField(max_length=255,null=True,blank=True)
     is_active =models.BooleanField(null=True,blank=True,default=True)
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='company_created_by',blank=True, null=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='company_created_by',blank=True, null=True,db_column='created_by')
     updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='company_updated_by',blank=True, null=True)
+    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='company_updated_by',blank=True, null=True,db_column='updated_by')
     class Meta:
         db_table = 'company_master'
     def __str__(self):
@@ -33,9 +33,9 @@ class parameter_master(models.Model):
     parameter_name =models.CharField(max_length=255,null=True,blank=True)
     parameter_value =models.CharField(max_length=255,null=True,blank=True)
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='parameter_created_by',blank=True, null=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='parameter_created_by',blank=True, null=True,db_column='created_by')
     updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='parameter_updated_by',blank=True, null=True)
+    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='parameter_updated_by',blank=True, null=True,db_column='updated_by')
     class Meta:
         db_table = 'parameter_master'
     def __str__(self):
@@ -92,9 +92,9 @@ class sc_roaster(models.Model):
     uploaded_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='uploaded_by',blank=True, null=True,db_column='uploaded_by')
     
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='created_by',blank=True, null=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='created_by',blank=True, null=True,db_column='created_by')
     updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='updated_by',blank=True, null=True)
+    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='updated_by',blank=True, null=True,db_column='updated_by')
     class Meta:
         db_table = 'sc_roaster'
     def __str__(self):
