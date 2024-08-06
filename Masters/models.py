@@ -43,7 +43,7 @@ class parameter_master(models.Model):
 
 class site_master(models.Model):
     site_id = models.AutoField(primary_key=True)
-    company_id = models.ForeignKey(company_master, on_delete=models.CASCADE,related_name='company_relation',blank=True, null=True)
+    company = models.ForeignKey(company_master, on_delete=models.CASCADE,related_name='company_relation',blank=True, null=True)
     site_name =models.CharField(max_length=255,null=True,blank=True)
     site_address =models.CharField(max_length=255,null=True,blank=True)
     pincode =models.CharField(max_length=255,null=True,blank=True)
@@ -51,14 +51,14 @@ class site_master(models.Model):
     contact_person_email =models.EmailField(max_length=255,null=True,blank=True)
     contact_person_mobile_no =models.EmailField(max_length=255,null=True,blank=True)
     is_active =models.BooleanField(null=True,blank=True,default=True)
-    roster_type = models.ForeignKey(parameter_master, on_delete=models.CASCADE,related_name='company_relation',blank=True, null=True)
+    roster_type = models.ForeignKey(parameter_master, on_delete=models.CASCADE,related_name='company_relation',blank=True, null=True,db_column='roster_type')
     no_of_days =models.BigIntegerField(null=True,blank=False)
     notification_time=models.TimeField(null=True,blank=True)
     reminder_time = models.TimeField(null=True,blank=True)
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='site_created',blank=True, null=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='site_created',blank=True, null=True,db_column='created_by')
     updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='site_updated',blank=True, null=True)
+    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='site_updated',blank=True, null=True,db_column='updated_by')
     class Meta:
         db_table = 'site_master'
     def __str__(self):
@@ -72,9 +72,9 @@ class sc_employee_master(models.Model):
     current_location =models.CharField(max_length=255,null=True,blank=True)
     employee_status =models.CharField(max_length=255,null=True,blank=True)
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='sc_employee_created',blank=True, null=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='sc_employee_created',blank=True, null=True,db_column='created_by')
     updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='sc_employee_updated',blank=True, null=True)
+    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='sc_employee_updated',blank=True, null=True,db_column='updated_by')
     class Meta:
         db_table = 'sc_employee_master'
     def __str__(self):
@@ -89,7 +89,7 @@ class sc_roaster(models.Model):
     shift_from = models.TimeField(null=True,blank=True)
     shift_to = models.TimeField(null=True,blank=True)
     uploaded_date = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    uploaded_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='uploaded_by',blank=True, null=True)
+    uploaded_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='uploaded_by',blank=True, null=True,db_column='uploaded_by')
     
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='created_by',blank=True, null=True)
