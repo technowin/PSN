@@ -1,23 +1,17 @@
 
 How to host Django Application using gunicorn & nginx in Production:-
 
-git clone https://github.com/technowin/LKNPSNCompliance
-
-mv LKNPSNCompliance PSN
-
-Username: technowin
-
-Password: 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
+git clone https://github.com/technowin/PSN.git
 
 cd PSN
 
 git config credential.helper store
 
-git push https://github.com/technowin/LKNPSNCompliance
+git push https://github.com/technowin/PSN.git
 
 Username: technowin
 
-Password: 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
+Password: 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
 
 sudo apt update
 
@@ -35,9 +29,9 @@ pip install django gunicorn
 
 sudo ufw allow 8000
 
-python3 manage.py runserver  172.31.14.215:8000
+python3 manage.py runserver  172.26.10.7:8000
 
-gunicorn --bind 172.31.14.215:8000 PSN.wsgi
+gunicorn --bind 172.26.10.7:8000 PSN.wsgi
 
 deactivate
 
@@ -85,7 +79,7 @@ Enter i and then paste below part then for save Enter Esc :wq
 
 server {
     listen 80;
-    server_name 172.31.14.215;
+    server_name 172.26.10.7;
 
     location = /favicon.ico { access_log off; log_not_found off; }
     location /static/ {
@@ -121,7 +115,7 @@ sudo tail -f /var/log/nginx/error.log
 sudo nginx -t
 
 
-password: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
+password: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
 
 username:technowin
 
