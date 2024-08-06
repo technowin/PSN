@@ -57,3 +57,15 @@ class Item(models.Model):
 
     def __str__(self):
         return self.name
+
+class FilesTest(models.Model):
+    
+    file_id = models.AutoField(primary_key=True)
+    rec_id =  models.DateField(null=True,blank=True)
+    rec_type =  models.CharField(max_length=255)
+    file_name =  models.CharField(max_length=255)
+    created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='files_created',blank=True, null=True)
+    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='files_updated',blank=True, null=True)
+    class Meta:
+        db_table = 'tbl_fileTest'
