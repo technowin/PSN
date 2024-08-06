@@ -22,7 +22,6 @@ import requests
 import traceback
 
 
-
 def masters(request):
     Db.closeConnection()
     m = Db.get_connection()
