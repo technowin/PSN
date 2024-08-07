@@ -16,7 +16,10 @@ API_URL='https://complianceaudit.lknconsultants.net/'
 API_URL_SALARY='https://salaryregister.lknconsultants.net/'
 # API_URL='http://192.168.1.21:45455/'
 ALLOWED_HOSTS = ['13.202.157.7']
-# }
+
+# SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG = True
+DEBUG = False
 
 # Test Changed
 
@@ -62,11 +65,6 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 SECRET_KEY = 'django-insecure-$vute#e^tqlu5ehd!)vv5m3x!z5^7p%jb9hm9272-!6%0ouz*r'
 SECRET_KEY1 = '5pQsZXhU8vKyv7GxThldGn_JLK9UXVYyZD3GwQxsztY='
 
-
-
-# SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-DEBUG = False
 
 AUTH_USER_MODEL = 'Account.CustomUser'
 
