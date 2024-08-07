@@ -32,20 +32,91 @@
                    </div>
                </div>     
                <div class="card-body">
-                   <table style="width: 100%; table-layout: fixed;"  class="responsive-table"  id="dataTable">
-                       <thead>
-                           <tr>
-                               {% for col in header %}
-                               <th style="font-weight: bold; color: black; {% if col.1 != "" %} width: {{ col.1 }};{% endif %}">{{ col.0 }}</th>
-                               {% endfor %}
-                           </tr>
-                           <tr>
-                             {% for col in header %}
-                                  <th> </th>
-                             {% endfor %}
-                           </tr>
-                       </thead>
+                   <table style="width: 100%; table-layout: fixed;"  class="table"  id="dataTable">
+                        <thead>
+                            <tr>
+                                {% for col in header %}
+                                <th style="font-weight: bold; color: black; {% if col.1 != "" %} width: {{ col.1 }};{% endif %}">{{ col.0 }}</th>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                              {% for col in header %}
+                                   <th> </th>
+                              {% endfor %}
+                            </tr>
+                        </thead>
                        <tbody>
+                         <tr> 
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                         </tr> 
+                         <tr> 
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                         </tr> 
+                         <tr> 
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                         </tr> 
+                         <tr> 
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                         </tr> 
+                         <tr> 
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                         </tr> 
+                         <tr> 
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                         </tr> 
+                         <tr> 
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                          <td>1</td>
+                         </tr> 
+                         
                            {% for row in data %}
                                <tr>
                                    <td>{{ forloop.counter }}</td> 
