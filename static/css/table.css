@@ -39,8 +39,8 @@
   }
 
   .responsive-table thead th {
-    background-color: rgb(135, 206, 250);
-    border: 1px solid rgb(135, 206, 250);
+    background-color: rgb(221, 140, 141);
+    border: 1px solid rgb(221, 140, 141);
     font-weight: normal;
     text-align: center;
     color: white;
@@ -153,14 +153,14 @@
   }
 
   .responsive-table tbody th[scope="row"] {
-    background-color: rgb(135, 206, 250);
+    background-color: rgb(221, 140, 141);
     color: white;
   }
 
   @media (min-width: 30em) {
     .responsive-table tbody th[scope="row"] {
-      border-left: 1px solid rgb(135, 206, 250);
-      border-bottom: 1px solid rgb(135, 206, 250);
+      border-left: 1px solid rgb(221, 140, 141);
+      border-bottom: 1px solid rgb(221, 140, 141);
     }
   }
 
@@ -178,15 +178,15 @@
 
   @media (min-width: 48em) {
     .responsive-table tbody td {
-      border-left: 1px solid rgb(135, 206, 250);
-      border-bottom: 1px solid rgb(135, 206, 250);
+      border-left: 1px solid rgb(221, 140, 141);
+      border-bottom: 1px solid rgb(221, 140, 141);
       text-align: center;
     }
   }
 
   @media (min-width: 48em) {
     .responsive-table tbody td:last-of-type {
-      border-right: 1px solid rgb(135, 206, 250);
+      border-right: 1px solid rgb(221, 140, 141);
     }
   }
 
