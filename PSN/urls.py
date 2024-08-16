@@ -24,6 +24,8 @@ from Masters.views import *
 
 from django.urls import path
 
+from Notification.views import check_shift_for_next_day
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -56,6 +58,8 @@ urlpatterns = [
     path("blank",blank,name='blank'),
     path("charts",charts,name='charts'),  
     path("tables",tables,name='tables'),  
+    
+    path('check_shift/<int:employee_id>/<int:site_id>/', check_shift_for_next_day, name='check_shift_for_next_day'),
     
 
 ]
