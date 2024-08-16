@@ -30,13 +30,14 @@
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/home">
                 <div class="sidebar-brand-icon rotate-n-15">
-                    <i class="fas fa-user"></i>
+                    {% comment %} <i class="fas fa-user"></i> {% endcomment %}
+                    <img src="{% static 'images/psn-logo2.png' %}" alt="" width="65" height = "65" />
                 </div>
-                <div class="sidebar-brand-text mx-3">PSN <sup></sup></div>
+                <div class="sidebar-brand-text mx-3"> <sup></sup></div>
             </a>
 
             <!-- Divider -->
-            <hr class="sidebar-divider my-0">
+            <hr class="sidebar-divider my-1">
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item active">
@@ -64,9 +65,9 @@
                        <h6 class="collapse-header">Masters:</h6>
                        <a class="collapse-item" href="/masters?entity=vm&type=i">Example 1</a>
                        <a class="collapse-item" href="/masters?entity=dm&type=i">Example 2</a>
-                  
+                   
                    </div>
-               </div>
+                </div>
             </li>
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
