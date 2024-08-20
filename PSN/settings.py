@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Account',
     'Masters',
+    'Notification',
     'corsheaders',
 ]
 
