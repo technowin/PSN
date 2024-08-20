@@ -1,21 +1,109 @@
 {% extends "Shared/Layout.html" %} {% block username %}{{username}}{% endblock %}
 {% block content %}
 {% load static %}
+{% csrf_token %}
 
  <!-- Custom styles for this html-->
  <link href="{% static 'css/masters.css' %}" rel="stylesheet" type="text/css" >
  <link href="{% static 'css/table.css' %}" rel="stylesheet" type="text/css" >
+ <link href="{% static 'css/uploadExcel.css' %}" rel="stylesheet" type="text/css" >
+ <link href="{% static 'css/uploadModal.css' %}" rel="stylesheet" type="text/css" >
  
  <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
  <!-- Include DataTables CSS -->
  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
  <!-- Include DataTables JS -->
  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
 
 
  <!-- Begin Page Content -->
 
 {% if type == 'i' %}
+
+
+<div class="modal fade" id="ExcelUpload">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+          <div class="modal-body">
+            {% if entity == 'sm' %}
+            <div class="modal-header">
+              <label class="modal-title">Site Upload</label>
+              <button type="button" class="close" data-dismiss="modal">
+                  <span>&times;</span>
+              </button>
+            </div>
+            <form id="uploadForm" method="POST" action="{% url 'SiteUploadExcel' %}" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="col-md-12">
+                
+                <select id="company_id" name="company_id" class="form-control">
+                  <option value="" selected>Select</option>
+                  {% for item in company_names %}
+                  <option value="{{ item.0 }}">{{ item.1 }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <hr>
+              <span class="formUpload-title">Upload your file</span>
+              <label for="fileUpload-input" class="drop-container">
+                <span class="drop-title">Drop files here</span>
+                or
+                <input type="file" accept=".xlsx, .xls" required id="excelFile" name="excelFile">
+              </label>
+            </form>
+            {% elif entity == 'cm'%}
+            <div class="modal-header">
+              <h5 class="modal-title">Company Upload</h5>
+              <button type="button" class="close" data-dismiss="modal">
+                  <span>&times;</span>
+              </button>
+            </div>
+            <form id="uploadForm" action="{% url 'CompanyUploadExcel' %}" method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              <span class="formupl-title">Upload your file</span>
+              <p class="formupl-paragraph">
+                  File should be an Excel
+              </p>
+              <label for="file-input" class="drop-container">
+                  <span class="drop-title">Drop files here</span>
+                  or
+                  <input type="file" name="excelFile" accept=".xlsx, .xls" required id="excelFile" />
+              </label>
+            </form>
+            {% elif entity == 'em' %}
+            <div class="modal-header">
+              <h5 class="modal-title">Employee Upload</h5>
+              <button type="button" class="close" data-dismiss="modal">
+                  <span>&times;</span>
+              </button>
+            </div>
+            <form id="uploadForm" action="{% url 'EmployeeUploadExcel' %}" method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              <span class="formupl-title">Upload your file</span>
+              <p class="formupl-paragraph">
+                  File should be an Excel
+              </p>
+              <label for="excelFile" class="drop-container">
+                  <span class="drop-title">Drop files here</span>
+                  or
+                  <input id="excelFile" class="file" name="excelFile" type="file" accept=".xlsx, .xls" required />
+              </label>
+            </form>
+            {% endif %}
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary" form="uploadForm">Upload</button>
+          </div>
+      </div>
+  </div>
+</div>
+
 
    <div class="row">
        <div class="col-lg-12">
@@ -25,49 +113,120 @@
                    <div class="col-lg-8">
                        <h3> <strong style="color: #B12121;"> <u>{{name}}</u> </strong></h3>
                    </div>
-                   <div class="col-lg-2">
+                   <div class="col-lg-1">
+                    {% if entity == 'em' %}
+                      <form action="/DownloadExcelSampleEmp" method="post">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                        <button type="submit" class="btn btn-primary">
+                          <i class="fa-solid fa-download"></i>
+                        </button>
+                      </form>
+                    {% elif entity == 'sm' %}
+                      <form action="/DownloadExcelSampleSite" method="post">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                        <button type="submit" class="btn btn-primary">
+                          <i class="fa-solid fa-download"></i>
+                        </button>
+                      </form>
+                    {% elif entity == 'cm' %}
+                      <form action="/DownloadExcelSampleComp" method="post">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                        <button type="submit" class="btn btn-primary">
+                          <i class="fa-solid fa-download"></i>
+                        </button>
+                      </form>
+                    {% endif %}
+                  </div>
+                      
+                   <div class="col-lg-1">
+                    <label for="excelFile">
+                      <label for="excelFile">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ExcelUpload">
+                          <i class="fa-solid fa-cloud-arrow-up"></i>
+                          Upload
+                        </button>
                    </div>
-                   <div class="col-lg-2" style="justify-content:right;align-items:right;">
-                       <button class="Btn"><div class="sign">+</div> <div class="text">Create</div></button>
-                   </div>
-               </div>     
+                    {% if entity == 'sm' %}
+                    <div class="col-lg-1" style="justify-content: right; align-items: right;">
+                        <button class="Btn"><div class="sign">+</div> <div class="text"><a class="text-light" href='/SiteMaster?site_id=0'>Create</a></div></button>
+                    </div>
+                          <div class="col-lg-1" style="justify-content: right; align-items: right;">
+                            <a onclick="showMessage()" href="#">
+                              <span style="color:#B12121; font-size: 1.2rem; font-weight: bold;">Note *</span>
+                          </a>
+                          </div>
+                    {% elif entity == 'cm' %}
+                    <div class="col-lg-2" style="justify-content: right; align-items: right;">
+                        <button class="Btn"><div class="sign">+</div><div class="text"><a class="text-light" href='/CompanyMaster?company_id=0'>Create</a></div></button>
+                    {% elif entity == 'em' %}
+                    <div class="col-lg-2" style="justify-content: right; align-items: right;">
+                        <button class="Btn"><div class="sign">+</div><div class="text"><a class="text-light" href='/EmployeeMaster?id=0'>Create</a></div></button>
+                    {% endif %}
+                {% comment %} </div> {% endcomment %}
+                
+               </div>  
                <div class="card-body">
-                   <table style="width: 100%; table-layout: fixed;"  class="responsive-table"  id="dataTable">
+                <div class="table-responsive">
+                  <table style="width: 100%;"  class="table"  id="dataTable">   
                        <thead>
-                           <tr>
-                               {% for col in header %}
-                               <th style="font-weight: bold; color: black; {% if col.1 != "" %} width: {{ col.1 }};{% endif %}">{{ col.0 }}</th>
-                               {% endfor %}
-                           </tr>
-                           <tr>
-                             {% for col in header %}
+                        <tr>
+                          {% for col in header %}
+                              {% if forloop.first %}
+                                  {# Skip rendering the first column #}
+                              {% else %}
+                                  <th style="font-weight: bold; color: black; {% if col.1 != "" %} width: {{ col.1 }};{% endif %}">{{ col.0 }}</th>
+                              {% endif %}
+                          {% endfor %}
+                      </tr>
+                      <tr>
+                          {% for col in header %}
+                              {% if not forloop.first %}
                                   <th> </th>
-                             {% endfor %}
-                           </tr>
+                              {% endif %}
+                          {% endfor %}
+                      </tr>
+                      
                        </thead>
                        <tbody>
-                           {% for row in data %}
-                               <tr>
-                                   <td>{{ forloop.counter }}</td> 
-                                   {% for cell in row %}
-                                       <td>
-                                           {% if cell|length > 60 %}
-                                               <textarea rows="4" readonly>{{ cell }}</textarea>
-                                           {% else %}
-                                               {{ cell }}
-                                           {% endif %}
-                                       </td>
-                                   {% endfor %}
-                                   <td>
-                                       <button class="edit-button" >
-                                           <svg class="edit-svgIcon" viewBox="0 0 512 512">
-                                               <path d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"></path>
-                                           </svg>
-                                       </button>
-                                   </td>
-                               </tr>
-                           {% endfor %}
-                        </tbody>
+                        {% for row in data %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                {% for cell in row %}
+                                    {% if not forloop.first %}
+                                        <td>
+                                            {% if cell|length > 60 %}
+                                                <textarea rows="4" readonly>{{ cell }}</textarea>
+                                            {% else %}
+                                                {{ cell }}
+                                            {% endif %}
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}
+                                <td>
+                                  {% if entity == 'sm' %}
+                                    <a href="/SiteMaster?site_id={{ row.0 }}" class="edit-button">  
+                                        <svg class="edit-svgIcon" viewBox="0 0 512 512">
+                                            <path d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"></path>
+                                        </svg>
+                                    </a>
+                                    {% elif entity == 'cm' %}
+                                    <a href="/CompanyMaster?company_id={{ row.0 }}" class="edit-button">  
+                                      <svg class="edit-svgIcon" viewBox="0 0 512 512">
+                                          <path d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"></path>
+                                      </svg>
+                                    </a>
+                                    {% elif entity == 'em' %}
+                                    <a href="/EmployeeMaster?id={{ row.0 }}" class="edit-button">  
+                                      <svg class="edit-svgIcon" viewBox="0 0 512 512">
+                                          <path d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"></path>
+                                      </svg>
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    
                    </table>
                </div>
            </div>
@@ -162,5 +321,69 @@
     });
   </script>
 
+  <script>
+    function submitForm() {
+      var fileInput = document.getElementById('excelFile');
+      
+      if (fileInput.files.length === 0) {
+        Swal.fire({
+          title: 'No File Selected!',
+          text: 'Please select a file to upload.',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 3000
+        });
+        return;
+      }
+  
+      document.getElementById('uploadForm').submit();
+    }
+  </script>
+
+  <script>
+    function uploadExcel() {
+        debugger;
+        var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        var company_id = document.getElementById('company_id').value;
+        var fileInput = document.getElementById('file-input');
+  
+        if (!company_id) {
+            Swal.fire({
+                title: 'Company Not Selected!',
+                text: 'Please select a company before uploading the Excel file.',
+                icon: 'warning',
+                showConfirmButton: true
+            });
+            return;
+        }
+  
+        if (!fileInput.files.length) {
+            Swal.fire({
+                title: 'File Not Selected!',
+                text: 'Please select an Excel file before uploading.',
+                icon: 'warning',
+                showConfirmButton: true
+            });
+            return;
+        }
+
+       
+    }
+</script>
+
+<script>
+    function showMessage() {
+      Swal.fire({
+        title: 'Note',
+        html: '<strong style="color: red;">Please note before uploading Excel that Roster Type should be Daily, Weekly, Monthly, Quarterly,Half Yearly or Yearly!</strong>',
+        icon: 'info',
+        confirmButtonText: 'OK'
+    });
+    
+    }
+
+  </script>
+
 <!-- End of Main Content -->
 {% endblock %}
+

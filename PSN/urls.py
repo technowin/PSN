@@ -20,6 +20,7 @@ from django.conf.urls.static import static
 
 from Account.views import *
 
+from Masters.models import site_master
 from Masters.views import *
 
 from django.urls import path
@@ -41,6 +42,18 @@ urlpatterns = [
     # Masters
 
     path('masters/', masters, name='masters'),
+    path("site_master",site_master,name="site_master"),
+    path("SiteUploadExcel",SiteUploadExcel,name="SiteUploadExcel"),
+    path("SiteMaster",SiteMaster,name="SiteMaster"),
+    path("CompanyMaster",CompanyMaster,name="CompanyMaster"),
+    path("EmployeeMaster",EmployeeMaster, name="EmployeeMaster"),
+    path("EmployeeUploadExcel",EmployeeUploadExcel, name="EmployeeUploadExcel"),
+    path("CompanyUploadExcel",CompanyUploadExcel, name="CompanyUploadExcel"),
+    path("DownloadExcelSampleEmp",DownloadExcelSampleEmp, name="DownloadExcelSampleEmp"),
+    path("DownloadExcelSampleComp",DownloadExcelSampleComp, name="DownloadExcelSampleComp"),
+    path("DownloadExcelSampleSite",DownloadExcelSampleSite, name="DownloadExcelSampleSite"),
+    
+    
 
 
     # Bootstarp Pages
