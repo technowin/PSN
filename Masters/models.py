@@ -102,7 +102,8 @@ class application_search(models.Model):
 class sc_roster(models.Model):
     id = models.AutoField(primary_key=True)
     employee_id =models.TextField(null=True,blank=True)
-    site = models.ForeignKey(site_master, on_delete=models.CASCADE,related_name='site',blank=True, null=True)
+    company = models.ForeignKey(company_master, on_delete=models.CASCADE,related_name='company',blank=True, null=True)
+    site =models.TextField(null=True,blank=True)
     shift_date = models.DateField(null=True,blank=True)
     shift_time = models.TextField(null=True,blank=True)
     confirmation = models.BooleanField(null=True,blank=True,default=False)
