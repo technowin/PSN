@@ -11,10 +11,10 @@
           display: flex;
           align-items: center;
           justify-content: flex-start;
-          width: 45px;
-          height: 45px;
+          width: 42px;
+          height: 42px;
+          border-radius: calc(42px/2);
           border: none;
-          border-radius: 50%;
           cursor: pointer;
           position: relative;
           overflow: hidden;
@@ -26,7 +26,7 @@
         /* plus sign */
         .sign {
           width: 100%;
-          font-size: 2em;
+          font-size: 2.2em;
           color: white;
           transition-duration: .3s;
           display: flex;
@@ -40,28 +40,33 @@
           width: 0%;
           opacity: 0;
           color: white;
-          font-size: 1.2em;
+          font-size: 1.4em;
           font-weight: 500;
           transition-duration: .3s;
         }
         /* hover effect on button width */
         .Btn:hover {
-          width: 125px;
-          border-radius: 50px;
+          width: 140px;
+          height: 42px;
           transition-duration: .3s;
         }
         
         .Btn:hover .sign {
           width: 30%;
+          height: 42px;
           transition-duration: .3s;
-          padding-left: 20px;
+          padding-left: 15px;
         }
         /* hover effect button's text */
         .Btn:hover .text {
           opacity: 1;
           width: 70%;
           transition-duration: .3s;
-          padding-right: 20px;
+          padding-right: 15px;
+        }
+        /* button click effect*/
+        .Btn:active {
+          transform: translate(2px ,2px);
         }
         /* button click effect*/
         .Btn:active {
@@ -131,7 +136,94 @@
          transform: translateY(0px);
          transition-duration: 0.3s;
        }
-    
+       .Btn1 {
+        width: 42px;
+        height: 42px;
+        border: none;
+        border-radius: 50%;
+        background-color: #B22223;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        position: relative;
+        transition-duration: .3s;
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.11);
+      }
+      
+      .svgIcon {
+        fill: white;
+      }
+      
+      .icon2 {
+        width: 18px;
+        height: 5px;
+        border-bottom: 2px solid white;
+        border-left: 2px solid white;
+        border-right: 2px solid white;
+      }
+      
+      
+      .Btn1:hover {
+        background-color: #B22223;
+        transition-duration: .3s;
+      }
+      .Btn1:active {
+        transform: translate(2px ,2px);
+      }
+      
+      .Btn1:hover .icon2 {
+        border-bottom: 2px solid rgb(235, 235, 235);
+        border-left: 2px solid rgb(235, 235, 235);
+        border-right: 2px solid rgb(235, 235, 235);
+      }
+      
+      .Btn1:hover .svgIcon {
+        fill: rgb(255, 255, 255);
+        animation: slide-in-top 0.6s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+      }
+      
+      @keyframes slide-in-top {
+        0% {
+          transform: translateY(-10px);
+          opacity: 0;
+        }
+      
+        100% {
+          transform: translateY(0px);
+          opacity: 1;
+        }
+      }
+      
+      .buttonu {
+        --bg: linear-gradient(180deg,
+                  hsla(0, 0%, 100%, .1),
+                  hsla(0, 0%, 100%, 0)),
+                  #B22223;
+        box-shadow: 0 1px 2px #25114f66, 0 0 0 1px hsla(128, 50%, 45%, 0.761);
+        background-color: transparent;
+        height: 38px;
+        border: none;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .25rem .5rem;
+        cursor: pointer;
+        padding-right: 1rem;
+        font-weight: 600;
+        color: #fff;
+        background: var(--bg);
+        white-space: nowrap;
+        border-radius: 6px;
+        border: 1px solid #fff3;
+      }
+
+      .buttonu:active {
+        transform: translate(2px ,2px);
+      }
+
           
    table {
     width: 100%;
@@ -182,4 +274,93 @@
         border-color: #555;
         outline: none;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+
+
+
+
+
+
+
+    .formupl {
+      background-color: #fff;
+      box-shadow: 0 10px 60px rgb(218, 229, 255);
+      border: 1px solid rgb(159, 159, 160);
+      border-radius: 20px;
+      padding: 2rem .7rem .7rem .7rem;
+      text-align: center;
+      font-size: 1.125rem;
+      /* max-width: 390px; */
+    }
+    
+    .formupl-title {
+      color: #000000;
+      font-size: 1.8rem;
+      font-weight: 500;
+    }
+    
+    .formupl-paragraph {
+      margin-top: 10px;
+      font-size: 0.9375rem;
+      color: rgb(105, 105, 105);
+    }
+    
+    .drop-container {
+      background-color: #fff;
+      position: relative;
+      display: flex;
+      gap: 10px;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      margin-top: 2.1875rem;
+      border-radius: 10px;
+      border: 2px dashed rgb(171, 202, 255);
+      color: #444;
+      cursor: pointer;
+      transition: background .2s ease-in-out, border .2s ease-in-out;
+    }
+    
+    .drop-container:hover {
+      background: rgba(0, 140, 255, 0.164);
+      border-color: rgba(17, 17, 17, 0.616);
+    }
+    
+    .drop-container:hover .drop-title {
+      color: #222;
+    }
+    
+    .drop-title {
+      color: #444;
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      transition: color .2s ease-in-out;
+    }
+    
+    #file-input {
+      width: 350px;
+      max-width: 100%;
+      color: #444;
+      padding: 2px;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid rgba(8, 8, 8, 0.288);
+    }
+    
+    #file-input::file-selector-button {
+      margin-right: 20px;
+      border: none;
+      background: #B22223;
+      padding: 10px 20px;
+      border-radius: 10px;
+      color: #fff;
+      cursor: pointer;
+      transition: background .2s ease-in-out;
+    }
+    
+    #file-input::file-selector-button:hover {
+      background: #B22223;
     }

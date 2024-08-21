@@ -43,6 +43,7 @@ urlpatterns = [
     # Masters
 
     path('masters/', masters, name='masters'),
+    path('sample_xlsx/', sample_xlsx, name='sample_xlsx'),
 
 
     # Bootstarp Pages

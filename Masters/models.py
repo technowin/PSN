@@ -71,7 +71,7 @@ class sc_employee_master(models.Model):
     employee_name =models.TextField(null=True,blank=True)
     mobile_no =models.TextField(null=True,blank=True)
     current_location =models.TextField(null=True,blank=True)
-    employee_status =models.TextField(null=True,blank=True)
+    employment_status = models.ForeignKey(parameter_master, on_delete=models.CASCADE,related_name='parameter_data',blank=True, null=True)
     is_active =models.BooleanField(null=True,blank=True,default=True)
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='sc_employee_created',blank=True, null=True,db_column='created_by')
@@ -99,7 +99,7 @@ class application_search(models.Model):
         return self.name
     
     
-class sc_roaster(models.Model):
+class sc_roster(models.Model):
     id = models.AutoField(primary_key=True)
     employee_id =models.TextField(null=True,blank=True)
     site = models.ForeignKey(site_master, on_delete=models.CASCADE,related_name='site',blank=True, null=True)
@@ -114,7 +114,7 @@ class sc_roaster(models.Model):
     updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
     updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='updated_by',blank=True, null=True,db_column='updated_by')
     class Meta:
-        db_table = 'sc_roaster'
+        db_table = 'sc_roster'
     def __str__(self):
         return self.employee_id
     
