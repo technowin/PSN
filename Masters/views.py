@@ -160,7 +160,13 @@ def sample_xlsx(request):
         cursor.callproc("stp_error_log",[fun,str(e),request.user.id])  
         print(f"error: {e}")
         messages.error(request, 'Oops...! Something went wrong!')
-        response = {'result': 'fail','messages ':'something went wrong !'}        
+        response = {'result': 'fail','messages ':'something went wrong !'}  
+    finally:
+        cursor.close()
+        m.commit()
+        m.close()
+        Db.closeConnection()
+        return response      
  
 def SiteUploadExcel(request):
     if request.method == 'POST' and request.FILES.get('excelFile'):
@@ -362,8 +368,6 @@ def SiteMaster(request):
         m.commit()
         m.close()
         Db.closeConnection()
-
-        return response
             
         if request.method=="GET":
             return render(request, "Master/SiteMaster.html", context)
