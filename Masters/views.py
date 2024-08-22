@@ -522,7 +522,6 @@ def employee_master(request):
             new_url = f'/masters?entity=em&type=i'
             return redirect(new_url)
     
-
 def upload_excel(request):
 
     if request.method == 'POST' and request.FILES.get('excelFile'):
@@ -580,7 +579,7 @@ def upload_excel(request):
                     except Exception as e:
                         # Handle the exception if needed
                         print(f"Error inserting site data: {e}")
-            elif entity == 'm':
+            elif entity == 'cm':
                     for _, row in df.iterrows():
                         params = (
                             row.get('company_name', ''),
@@ -617,15 +616,7 @@ def upload_excel(request):
             cursor.close()
             m.close()
             Db.closeConnection()
-
-        if entity == 'sm':
-            new_url = '/masters?entity=sm&type=i'
-            return redirect(new_url)
-        elif entity == 'em':
-            new_url = '/masters?entity=em&type=i'
-            return redirect(new_url)
-        elif entity == 'cm':
-            new_url = '/masters?entity=cm&type=i'
+            new_url = f'/masters?entity={entity}&type=i'
             return redirect(new_url)
 
 
