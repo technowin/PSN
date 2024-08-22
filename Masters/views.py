@@ -1,5 +1,4 @@
 import json
-from msilib.schema import Font
 import pydoc
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
@@ -26,7 +25,6 @@ import traceback
 
 import pandas as pd
 import openpyxl
-from openpyxl.styles import Font
 
 
 import pandas as pd
