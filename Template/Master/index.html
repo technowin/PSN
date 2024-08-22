@@ -26,6 +26,8 @@
 
 {% if type == 'i' %}
 
+
+
 <!-- Roster Modal -->
 <div class="modal fade" id="roster_model_id">
   <div class="modal-dialog modal-dialog-centered" role="document">
@@ -57,7 +59,7 @@
   </div>
 </div>
 
-<div class="modal fade" id="ExcelUpload">
+<div class="modal fade" id="excel_upload">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
         <div class="modal-header">
@@ -70,9 +72,9 @@
           <button type="button" class="close" data-dismiss="modal"> <span>&times;</span></button>
         </div>
         <div class="modal-body">
+         
            <form  class="formupl" id="uploadForm" method="POST" enctype="multipart/form-data" 
-                {% if entity == 'sm' %} action="{% url 'SiteUploadExcel' %}"{% elif entity == 'cm' %} 
-                action="{% url 'CompanyUploadExcel' %}"{% elif entity == 'em' %} action="{% url 'EmployeeUploadExcel' %}"{% endif %}>
+                 action="{% url 'upload_excel' %}?entity={{ entity }}">
                 {% csrf_token %}
                 {% if entity == 'sm' %}
                 <div class="col-md-12 mb-3">
@@ -120,7 +122,7 @@
                    </div>
                    <div class="col-md-2">
                        <!-- Button trigger modal -->
-                       <button class="buttonu" type="button" data-toggle="modal"  data-target="{% if entity == 'r' %}#roster_model_id{% else %}#ExcelUpload{% endif %}">
+                       <button class="buttonu" type="button" data-toggle="modal"  data-target="{% if entity == 'r' %}#roster_model_id{% else %}#excel_upload{% endif %}">
                            <span class="btn__icon">
                                <svg stroke-linejoin="round" stroke-linecap="round" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
                                    <path fill="none" d="M0 0h24v24H0z" stroke="none"></path>
@@ -134,12 +136,12 @@
                    </div>
 
                    <div class="{% if entity == 'sm' %}col-lg-1{% else %}col-lg-2{% endif %}">
-                    <form method="GET" action="{% if entity == 'sm' %}/SiteMaster{% elif entity == 'cm' %}/CompanyMaster{% elif entity == 'em' %}/EmployeeMaster{% endif %}">
+                    <form method="GET" action="{% if entity == 'sm' %}/site_master{% elif entity == 'cm' %}/company_master{% elif entity == 'em' %}/employee_master{% endif %}">
                       <input type="hidden" name="{% if entity == 'sm' %}site_id{% elif entity == 'cm' %}company_id{% elif entity == 'em' %}id{% endif %}" value="0">
                       <button type="submit" class="Btn"><div class="sign">+ </div> <div class="text">Create</div></button>
                     </form>
                   </div>
-                  
+                
                    {% if entity == 'sm' %}
                       <div class="col-lg-1" style="justify-content: right; align-items: right;">
                           <a onclick="showMessage()" href="#">
@@ -184,11 +186,12 @@
                                     {% endif %}
                                 {% endfor %}
                                 <td>
-                                  <a href="{% if entity == 'sm' %}/SiteMaster?site_id={{ row.0 }}{% elif entity == 'cm' %}/CompanyMaster?company_id={{ row.0 }}{% elif entity == 'em' %}/EmployeeMaster?id={{ row.0 }}{% endif %}" class="edit-button">
+                                  <a href="{% if entity == 'sm' %}/site_master?site_id={{ row.0 }}{% elif entity == 'cm' %}/company_master?company_id={{ row.0 }}{% elif entity == 'em' %}/employee_master?id={{ row.0 }}{% endif %}" class="edit-button">
                                     <svg class="edit-svgIcon" viewBox="0 0 512 512">
                                         <path d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"></path>
                                     </svg>
                                   </a>
+                      
                                 </td>
                             </tr>
                         {% endfor %}
@@ -307,37 +310,6 @@
       document.getElementById('uploadForm').submit();
     }
   </script>
-
-  <script>
-    function uploadExcel() {
-        debugger;
-        var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        var company_id = document.getElementById('company_id').value;
-        var fileInput = document.getElementById('file-input');
-  
-        if (!company_id) {
-            Swal.fire({
-                title: 'Company Not Selected!',
-                text: 'Please select a company before uploading the Excel file.',
-                icon: 'warning',
-                showConfirmButton: true
-            });
-            return;
-        }
-  
-        if (!fileInput.files.length) {
-            Swal.fire({
-                title: 'File Not Selected!',
-                text: 'Please select an Excel file before uploading.',
-                icon: 'warning',
-                showConfirmButton: true
-            });
-            return;
-        }
-
-       
-    }
-</script>
 
 <script>
     function showMessage() {

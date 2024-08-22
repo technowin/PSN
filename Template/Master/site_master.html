@@ -1,286 +1,158 @@
 {% extends "Shared/Layout.html" %} {% block username %}{{username}}{% endblock %}
 {% block content %}
 {% load static %}
-{% csrf_token %}
+{% comment %} {% csrf_token %} {% endcomment %}
 
  <!-- Custom styles for this html-->
  <link href="{% static 'css/masters.css' %}" rel="stylesheet" type="text/css" >
  <link href="{% static 'css/table.css' %}" rel="stylesheet" type="text/css" >
- <link href="{% static 'css/loader1.css' %}" rel="stylesheet" type="text/css" >
- <link href="{% static 'css/uploadExcel.css' %}" rel="stylesheet" type="text/css" >
+ <link href="{% static 'css/activebtn.css' %}" rel="stylesheet" type="text/css" >
  
  <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
  <!-- Include DataTables CSS -->
  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
  <!-- Include DataTables JS -->
  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
- <!-- Begin Page Content -->
+ 
 
-   <div class="row">
-    <p>{{site_id}} </p>
-       <div class="col-lg-12">
-           <!-- Index Card -->
-           <div class="card mb-4"style="zoom:80%" >
-               <div class="row">
-                   <div class="col-lg-8">
-                       <h3> <strong style="color: #B12121;"> <u>{{name}}</u> </strong></h3>
-                   </div>
-                   <div class="col-lg-1" style="justify-content:right;align-items:right;">
-                    
-                    <label for="excelFile">
-                      {% comment %} <i class="fa fa-file-excel-o" style="font-size:48px;color:#B02021"></i> {% endcomment %}
-                      
-                      <button class="container-btn-file" onclick="openModal()">
-                        <svg fill="#fff" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 50 50">
-                            <path
-                                d="M28.8125 .03125L.8125 5.34375C.339844 5.433594 0 5.863281 0 6.34375L0 43.65625C0 44.136719 .339844 44.566406 .8125 44.65625L28.8125 49.96875C28.875 49.980469 28.9375 50 29 50C29.230469 50 29.445313 49.929688 29.625 49.78125C29.855469 49.589844 30 49.296875 30 49L30 1C30 .703125 29.855469 .410156 29.625 .21875C29.394531 .0273438 29.105469 -.0234375 28.8125 .03125ZM32 6L32 13L34 13L34 15L32 15L32 20L34 20L34 22L32 22L32 27L34 27L34 29L32 29L32 35L34 35L34 37L32 37L32 44L47 44C48.101563 44 49 43.101563 49 42L49 8C49 6.898438 48.101563 6 47 6ZM36 13L44 
-                                13L44 15L36 15ZM6.6875 15.6875L11.8125 15.6875L14.5 21.28125C14.710938 21.722656 14.898438 22.265625 15.0625 22.875L15.09375 22.875C15.199219 22.511719 15.402344 21.941406 15.6875 21.21875L18.65625 15.6875L23.34375 15.6875L17.75 24.9375L23.5 34.375L18.53125 34.375L15.28125 28.28125C15.160156 28.054688 15.035156 27.636719 14.90625 27.03125L14.875 27.03125C14.8125 27.316406 14.664063 27.761719 14.4375 28.34375L11.1875 34.375L6.1875 34.375L12.15625 25.03125ZM36 20L44 20L44 22L36 22ZM36 27L44 27L44 29L36 29ZM36 35L44 35L44 37L36 37Z"
-                            ></path>
-                        </svg>
-                        Upload
-                    </button>
-                    
+ <body>
+    <div class="container mt-5" style="max-width: 1800px;">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="text-center" style="color:#B12121;"><u>Edit Site Detail</u></h2>
+                <br>
+                    <form method="POST" action="{% url 'site_master' %}">
+                
+                    {% csrf_token %}
 
-                    </div>
-                   
-                  <!-- Modal Structure -->
-          <div class="modal fade" id="fileUploadModal" tabindex="-1" aria-labelledby="fileUploadModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg"> <!-- Adjust modal size if needed -->
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="fileUploadModalLabel">Upload Excel File</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="company_name" class="form-label">Company Name<span style="color:red;"> *</span> :</label>
-                                <select name="companyId" id="company_name" class="form-control">
-                                    <option value="" selected>Select</option>
+                    <input type="hidden" name="site_id" value="{{ site_id }}">
+
+                    <div class="row mb-3">
+
+                        <div class="col-md-3">
+                            <label for="company_id" class="form-label">Company Name<span style="color:red;"> *</span> :</label>
+                            <select name="company_id" id="company_id" class="form-control">
+                                {% if site_id == '0' %}
+                                    <option value="" {% if company_name == '' %}selected{% endif %}>Select</option>
                                     {% for item in company_names %}
-                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                        <option value="{{ item.0 }}" {% if item.0 == employee_status_id %}selected{% endif %}>{{ item.1 }}</option>
                                     {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="roster_type" class="form-label">Roster Type<span style="color:red;"> *</span></label>
-                                <select name="rosterType" id="roster_type" class="form-control">
+                                {% else %}
+                                    <option value="" {% if company_name == '' %}selected{% endif %}>{{ company_name }}</option>
+                                    {% for item in company_names %}
+                                        <option value="{{ item.0 }}" {% if item.0 == company_name %}selected{% endif %}>{{ item.1 }}</option>
+                                    {% endfor %}
+                                {% endif%}
+
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label for="roster_type" class="form-label">Roster Type<span style="color:red;"> *</span> :</label>
+                            <select name="roster_type" id="roster_type" class="form-control">
+                                {% if site_id == '0' %}
                                     <option value="" selected>Select</option>
                                     {% for item in roster_type %}
-                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                        <option value="{{ item.0 }}">{{ item.1 }}</option>
                                     {% endfor %}
-                                </select>
-                            </div>
+                                {% else %}
+                                    <option value="" {% if roster_type == '' %}selected{% endif %}>Select</option>
+                                    {% for item in roster_types %}
+                                        <option value="{{ item.0 }}" {% if item.0 == roster_type %}selected{% endif %}>{{ item.1 }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                            
+                            </select>
+                            
                         </div>
-                        <p>Please select the Excel file you wish to upload.</p>
-                        <input type="file" id="modalExcelFile" name="excelFile" accept=".xls,.xlsx" class="form-control">
+                        <div class="col-md-3">
+                            <label for="site_name" class="form-label">Site Name<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ site_name }}" name="siteName" class="form-control" id="site_name" placeholder="Enter Site Name">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="site_address" class="form-label">Site Address<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ site_address }}" name="siteAddress" class="form-control" id="site_address" placeholder="Enter Address">
+                        </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" onclick="uploadFile()">Upload</button>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label for="contactPersonName" class="form-label">Name<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ contact_person_name }}" name="contactPersonName" class="form-control" id="contactPersonName" placeholder="Enter Contact Person Name">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="contactPersonEmail" class="form-label">Email<span style="color:red;"> *</span> :</label>
+                            <input type="email" value="{{ contact_person_email }}" name="contactPersonEmail" class="form-control" id="contactPersonEmail" placeholder="Enter Email">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="pincode" class="form-label">Pincode<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ pincode }}" name="pincode" class="form-control" id="pincode" placeholder="Enter Pincode">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="Number" class="form-label">Mobile Number<span style="color:red;"> *</span></label>
+                            <input type="number" value="{{ contact_person_mobile_no }}" name="Number" class="form-control" id="Number" placeholder="Enter Mobile Number">
+                        </div>
                     </div>
-                </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label for="FieldDays" class="form-label">Days of Field<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ no_of_days }}" name="FieldDays" class="form-control" id="FieldDays" placeholder="Number of Days">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="notificationTime" class="form-label">Notification Time<span style="color:red;"> *</span> :</label>
+                            <input type="time" value="{{ notification_time }}" name="notificationTime" class="form-control" id="notificationTime">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="ReminderTime" class="form-label">Reminder Time<span style="color:red;"> *</span> :</label>
+                            <input type="time" value="{{ reminder_time }}" name="ReminderTime" class="form-control" id="ReminderTime">
+                        </div>
+                        <div class="col-md-3">  
+                            <label for="activeBtn" class="form-label">Is Active<span style="color:red;"> *</span> :</label>
+                            <br>
+                            <label class="switch">
+                                <input type="checkbox" values ="{{ is_active }}" id="statusSwitch" name="is_active" 
+                                       {% if is_active == "1" %} checked {% endif %} 
+                                       onchange="updateStatus()">
+                                <span class="slider"></span>
+                            </label>
+                            <input type="text" id="statusValue" name="status_value" value="{{ is_active }}" hidden>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" id="submitBtn" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
             </div>
-          </div>
+        </div>
+    </div>
+</body>
 
+<script>
 
-
-                    {% comment %} onchange="uploadExcel()" {% endcomment %}
-                    <div class="col-lg-1" style="justify-content:right;align-items:right;">
-                      
-                  </label>
-                  
-                  </div>
-                   <div class="col-lg-2" style="justify-content:right;align-items:right;">
-                    <button class="Btn"><div class="sign">+</div><div class="text"><a class="text-light" href='/Insert_Site_Master' >Create</a></div></button>
-                  </div>
-               </div>     
-               <div class="card-body">
-                <div class="table-responsive">
-                  <table style="width: 100%;"  class="table"  id="dataTable">
-                       <thead>
-                        <tr>
-                          {% for col in header %}
-                          <th class="{% if forloop.first %}hidden-column{% endif %}" style="font-weight: bold; color: black; {% if col.1 != "" %} width: {{ col.1 }};{% endif %}">{{ col.0 }}</th>
-                          {% comment %} <th style="font-weight: bold; color: black; {% if col.1 != "" %} width: {{ col.1 }};{% endif %}">{{ col.0 }}</th> {% endcomment %}
-                          {% endfor %}
-                        </tr>
-                        <tr>
-                          {% for col in header %}
-                             <th class="{% if forloop.first %}hidden-column{% endif %}"</th>
-                          {% endfor %}
-                        </tr>
-                       </thead>
-                       <tbody>
-                        
-                        {% for row in data %}
-                            <tr>
-                                <td>{{ forloop.counter }}</td> 
-                                {% for cell in row %}
-                                <td class="{% if forloop.first %}hidden-column{% endif %}">
-                                        {% if cell|length > 60 %}
-                                            <textarea rows="4" readonly>{{ cell }}</textarea>
-                                        {% else %}
-                                            {{ cell }}
-                                        {% endif %}
-                                    </td>
-                                {% endfor %}
-                              
-                                <td>
-                                  <a href="EditSiteMaster?site_id={{ row.0 }}" class="edit-button">  
-                                        <svg class="edit-svgIcon" viewBox="0 0 512 512">
-                                            <path d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"></path>
-                                        </svg>
-                                  </a>
-
-                                </td>
-                            </tr>
-                        {% endfor %}
-                     </tbody>
-                   </table>
-                  </div>
-               </div>
-              </div>
-       </div>
-   </div>
-
-
-<script type="text/javascript">
-    $(document).ready(function () {
-      $("#dataTable").DataTable({
-        //order: [[0, 'desc']],
-        initComplete: function () {
-          this.api()
-            .columns()
-            .every(function () {
-              var column = this;
-              var select = $(
-                '<select style="width:100%;border-radius: 10px;background-color:whitesmoke ;color: black;"><option value="">All</option></select>'
-              )
-                .appendTo($(column.header()).empty())
-                .on("change", function () {
-                  var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                  column.search(val ? "^" + val + "$" : "", true, false).draw();
-                });
-              column
-                .data()
-                .unique()
-                .sort()
-                .each(function (d, j) {
-                  var ce = d;
-                  if (
-                    ce.includes("<a") ||
-                    ce.includes("span") ||
-                    ce.includes("<input") ||
-                    ce.includes("select") ||
-                    ce.includes("textarea")
-                  ) {
-                  } else {
-                    select.append('<option value="' + d + '">' + d + "</option>");
-                  }
-                });
-            });
-        },
-        pageLength: 5,
-        lengthMenu: [
-          [5, 10, 25, 50, 100, 200, 300, 400, 500, -1],
-          [5, 10, 25, 50, 100, 200, 300, 400, 500, "All"],
-        ],
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkbox = document.getElementById('statusSwitch');
+        const isActive = checkbox.getAttribute('values');
+        checkbox.checked = (isActive == '1');
+        updateStatus(); 
       });
-    });
-</script>
 
-
-<script>
-
-  function upload_excel(){
-    document.getElementById('excelFileInput').addEventListener('change', function() {
-      document.getElementById('uploadForm').submit();
-  });
-  }
 </script>
 
 <script>
-  function openModal() {
-      // Trigger the Bootstrap modal
-      var myModal = new bootstrap.Modal(document.getElementById('fileUploadModal'), {
-          keyboard: true
-      });
-      myModal.show();
-  }
-
-  function uploadFile() {
-      // Implement your file upload logic here
-      alert('File uploaded successfully!');
-      // Close the modal after upload
-      var modalElement = document.getElementById('fileUploadModal');
-      var modalInstance = bootstrap.Modal.getInstance(modalElement);
-      modalInstance.hide();
-  }
-</script>
-
-<script>
-
-  function uploadExcel(){
-    debugger;
-    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;  
-
-    var form_data = new FormData();
-    var fileInput = document.getElementById('excelFile');
-    form_data.append('excelFile', fileInput.files[0]);
-  
-    $('.loader').show();
+    function updateStatus() {
+        var checkBox = document.getElementById("statusSwitch");
+        var statusValue = document.getElementById("statusValue");
     
-     // showLoader();
-      $.ajax({
-        url: 'Site_Upload_Data',
-        type: 'POST',
-        data: form_data,
-        headers: {
-          'X-CSRFToken': csrftoken
-        },
-        processData: false,
-        contentType: false,
-        success: function(response) {
-          debugger;
-          $('.loader').hide();
-          if( response.status == "1" && response.error_log_count == "0" ){
-            Swal.fire({
-              title: 'Uploaded Successfully!',
-              text: 'Your Data Uploaded Successfully',
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 3000,
-            }).then(() => {
-              location.reload(); 
-            });
-          }else{
-            Swal.fire({
-              title: 'Failed to Upload!',
-              text: 'Please Check The Errors.',
-              icon: 'error',
-              showConfirmButton: false,
-              timer: 3000
-            }).then(() => {
-              location.reload(); // Reload the current page
-            });
-          }
-        },
-        error: function(error) {
-          $('#uploadStatus').html('<p>Error uploading Excel data.</p>');
-          console.log(error);
-        }
-      });
+        // Set the value based on whether the checkbox is checked
+        statusValue.value = checkBox.checked ? "1" : "0";
     }
-
-  
 </script>
 
-
-
-<!-- End of Main Content -->
-{% endblock %}
-
+ {% endblock %} 

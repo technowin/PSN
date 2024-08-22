@@ -26,7 +26,7 @@
                 <h2 class="text-center" style="color:#B12121;"><u>Edit Employee Detail</u></h2>
                 <br>
                 
-                <form method="POST" action="{% url 'EmployeeMaster' %}">
+                <form method="POST" action="{% url 'employee_master' %}">
                 
                     {% csrf_token %}
 
@@ -56,30 +56,30 @@
                     <div class="row mb-3">
 
 
-                             <div class="col-md-3">
-                                <label for="employee_status_id" class="form-label">
-                                  Employment Status<span style="color:red;"> *</span> :
-                                </label>
-                                <select name="employee_status_name" id="employee_status_id" class="form-control">
-                                  {% if id == '0' %}
-                                    <option value="" {% if employee_status_id == '' %}selected{% endif %}>Select</option>
-                                    {% for item in employee_status %}
-                                      <option value="{{ item.0 }}" {% if item.0 == employee_status_id %}selected{% endif %}>
-                                        {{ item.1 }}
-                                      </option>
-                                    {% endfor %}
-                                  {% else %}
-                                    <option value="" {% if employee_status_id == '' %}selected{% endif %}>
-                                      {{ employee_status_id }}
-                                    </option>
-                                    {% for item in employee_status %}
-                                      <option value="{{ item.0 }}" {% if item.0 == employee_status_id %}selected{% endif %}>
-                                        {{ item.1 }}
-                                      </option>
-                                    {% endfor %}
-                                  {% endif %}
-                                </select>
-                              </div>
+                      <div class="col-md-3">
+                        <label for="employee_status_id" class="form-label">
+                          Employment Status<span style="color:red;"> *</span> :
+                        </label>
+                        <select name="employee_status_name" id="employee_status_id" class="form-control">
+                          {% if id == '0' %}
+                            <option value="" {% if employee_status_id == '' %}selected{% endif %}>Select</option>
+                            {% for item in employee_status %}
+                              <option value="{{ item.0 }}" {% if item.0 == employee_status_id %}selected{% endif %}>
+                                {{ item.1 }}
+                              </option>
+                            {% endfor %}
+                          {% else %}
+                            <option value="" {% if employee_status_id == '' %}selected{% endif %}>
+                              {{ employee_status_id }}
+                            </option>
+                            {% for item in employee_status %}
+                              <option value="{{ item.0 }}" {% if item.0 == employee_status_id %}selected{% endif %}>
+                                {{ item.1 }}
+                              </option>
+                            {% endfor %}
+                          {% endif %}
+                        </select>
+                      </div>
                               
                             
                         

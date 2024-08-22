@@ -31,7 +31,7 @@
                 {% comment %} {% if company_id == '0' %}
                     <form method="POST" action="{% url 'InsertCompanyMasterData' %}">
                 {% else %} {% endcomment %}
-                    <form method="POST" action="{% url 'CompanyMaster' %}">
+                    <form method="POST" action="{% url 'company_master' %}">
                 
                     {% csrf_token %}
 

@@ -167,72 +167,8 @@ def sample_xlsx(request):
         m.close()
         Db.closeConnection()
         return response      
- 
-def SiteUploadExcel(request):
-    if request.method == 'POST' and request.FILES.get('excelFile'):
-        excel_file = request.FILES['excelFile']
-        fs = FileSystemStorage()
-        filename = fs.save(excel_file.name, excel_file)
-        uploaded_file_path = fs.path(filename)
-
-        error_log_count = 0
-        response = {'status': '1', 'error_log_count': '0'}  # Default response
-
-        try:
-            df = pd.read_excel(uploaded_file_path)
-            Db.closeConnection()
-            m = Db.get_connection()
-            cursor = m.cursor()
-            company_id = request.POST.get('company_id', '') 
-
-            for _, row in df.iterrows():
-                params = (
-                    row.get('site_name', ''),
-                    row.get('site_address', ''),
-                    row.get('pincode', ''),
-                    row.get('contact_person_name', ''),
-                    row.get('contact_person_email', ''),
-                    row.get('contact_person_mobile_no', ''),
-                    int(row['is_active']) if not pd.isna(row['is_active']) else None,
-                    int(row['no_of_days']) if not pd.isna(row['no_of_days']) else None,
-                    row.get('notification_time', ''),
-                    row.get('reminder_time', ''),
-                    company_id,
-                    row.get('roster_type', ''),
-                )
-
-                messages.success(request, "Data Uploaded successfully...!")
-                
-                try:
-                    cursor.callproc('stp_insert_site_master', params)
-                except Exception as e:
-                    error_log_count += 1
-                    tb = traceback.extract_tb(e.__traceback__)
-                    fun = tb[0].name
-                    print(f"Error inserting row: {e}")
-                    cursor.callproc("stp_error_log", [fun, str(e), request.user.id])  
-                    print(f"error: {e}")
-                    messages.error(request, 'Oops...! Something went wrong!')
         
-                m.commit()
-
-        except Exception as e:
-            tb = traceback.extract_tb(e.__traceback__)
-            fun = tb[0].name
-            cursor.callproc("stp_error_log", [fun, str(e), request.user.id])  
-            print(f"error: {e}")
-            messages.error(request, 'Oops...! Something went wrong!')
-            response = {'status': '0', 'error_log_count': str(error_log_count)}
-
-        finally:
-            cursor.close()
-            m.close()
-            Db.closeConnection()
-
-        new_url = f'/masters?entity=sm&type=i'
-        return redirect(new_url)
-        
-def SiteMaster(request):
+def site_master(request):
     Db.closeConnection()
     m = Db.get_connection()
     cursor=m.cursor()
@@ -370,12 +306,12 @@ def SiteMaster(request):
         Db.closeConnection()
             
         if request.method=="GET":
-            return render(request, "Master/SiteMaster.html", context)
+            return render(request, "Master/site_master.html", context)
         elif request.method=="POST":  
             new_url = f'/masters?entity=sm&type=i'
             return redirect(new_url)
         
-def CompanyMaster(request):
+def company_master(request):
     Db.closeConnection()
     m = Db.get_connection()
     cursor=m.cursor()
@@ -478,12 +414,12 @@ def CompanyMaster(request):
         Db.closeConnection()
             
         if request.method=="GET":
-            return render(request, "Master/CompanyMaster.html", context)
+            return render(request, "Master/company_master.html", context)
         elif request.method == "POST":
             new_url = f'/masters?entity=cm&type=i'
             return redirect(new_url)
         
-def EmployeeMaster(request):
+def employee_master(request):
     Db.closeConnection()
     m = Db.get_connection()
     cursor=m.cursor()
@@ -581,12 +517,14 @@ def EmployeeMaster(request):
         Db.closeConnection()
             
         if request.method=="GET":
-            return render(request, "Master/EmployeeMaster.html", context)
+            return render(request, "Master/employee_master.html", context)
         elif request.method=="POST":  
             new_url = f'/masters?entity=em&type=i'
             return redirect(new_url)
-        
-def EmployeeUploadExcel(request):
+    
+
+def upload_excel(request):
+
     if request.method == 'POST' and request.FILES.get('excelFile'):
         excel_file = request.FILES['excelFile']
         fs = FileSystemStorage()
@@ -601,210 +539,94 @@ def EmployeeUploadExcel(request):
             m = Db.get_connection()
             cursor = m.cursor()
 
-            for _, row in df.iterrows():
-                params = (
-                    row.get('employee_id', ''),
-                    row.get('employee_name', ''),
-                    row.get('mobile_no', ''),
-                    row.get('current_location', ''),
-                    row.get('is_active', '')
-                )
+            entity = request.GET.get('entity', '')
+
+            if entity == 'em':
+                for _, row in df.iterrows():
+                    params = (
+                        row.get('employee_id', ''),
+                        row.get('employee_name', ''),
+                        row.get('mobile_no', ''),
+                        row.get('current_location', ''),
+                        row.get('is_active', '')
+                    )
+                    try:
+                        cursor.callproc('stp_insert_employee_master_excel', params)
+                    except Exception as e:
+                        # Handle the exception if needed
+                        print(f"Error inserting site data: {e}")
+
+            elif entity == 'sm':
+                company_id = request.POST.get('company_id', '')
+
+                for _, row in df.iterrows():
+                    params = (
+                        row.get('site_name', ''),
+                        row.get('site_address', ''),
+                        row.get('pincode', ''),
+                        row.get('contact_person_name', ''),
+                        row.get('contact_person_email', ''),
+                        row.get('contact_person_mobile_no', ''),
+                        int(row['is_active']) if not pd.isna(row['is_active']) else None,
+                        int(row['no_of_days']) if not pd.isna(row['no_of_days']) else None,
+                        row.get('notification_time', ''),
+                        row.get('reminder_time', ''),
+                        company_id,
+                        row.get('roster_type', '')
+                    )
+                    
+                    try:
+                        cursor.callproc('stp_insert_site_master', params)
+                    except Exception as e:
+                        # Handle the exception if needed
+                        print(f"Error inserting site data: {e}")
+            elif entity == 'm':
+                    for _, row in df.iterrows():
+                        params = (
+                            row.get('company_name', ''),
+                            row.get('company_address', ''),
+                            row.get('pincode', ''),
+                            row.get('contact_person_name', ''),
+                            row.get('contact_person_email', ''),
+                            row.get('contact_person_mobile_no', ''),
+                            row.get('is_active', '')
+                        )
                 
-                try:
-                    cursor.callproc('stp_insert_employee_master_excel', params)
+                    try:
+                        cursor.callproc('stp_insert_company_master', params)
+                    except Exception as e:
+                            # Handle the exception if needed
+                            print(f"Error inserting site data: {e}")
+                    
+            messages.success(request, "Data Uploaded successfully!")
 
-                    messages.success(request, "Data Uploaded successfully...!")
 
-                except Exception as e:
-                    error_log_count += 1
-                    tb = traceback.extract_tb(e.__traceback__)
-                    fun = tb[0].name
-                    print(f"Error inserting row: {e}")
-                    cursor.callproc("stp_error_log", [fun, str(e), request.user.id])  
-                    print(f"error: {e}")
-                    messages.error(request, 'Oops...! Something went wrong!')
-                    response = {'result': 'fail', 'messages': 'something went wrong!'}   
-
-            m.commit()
         except Exception as e:
-           tb = traceback.extract_tb(e.__traceback__)
-           fun = tb[0].name
-           cursor.callproc("stp_error_log", [fun, str(e), request.user.id])  
-           print(f"error: {e}")
-           messages.error(request, 'Oops...! Something went wrong!')
-           response = {'result': 'fail', 'messages': 'something went wrong!'}     
+            error_log_count += 1
+            tb = traceback.extract_tb(e.__traceback__)
+            fun = tb[0].name
+            print(f"Error inserting row: {e}")
+            cursor.callproc("stp_error_log", [fun, str(e), request.user.id])  
+            print(f"error: {e}")
+            messages.error(request, 'Oops...! Something went wrong!')
+            response = {'result': 'fail', 'messages': 'something went wrong!'}   
+
+            m.commit()   
 
         finally:
             cursor.close()
             m.close()
             Db.closeConnection()
 
-        new_url = f'/masters?entity=em&type=i'
-        return redirect(new_url)
+        if entity == 'sm':
+            new_url = '/masters?entity=sm&type=i'
+            return redirect(new_url)
+        elif entity == 'em':
+            new_url = '/masters?entity=em&type=i'
+            return redirect(new_url)
+        elif entity == 'cm':
+            new_url = '/masters?entity=cm&type=i'
+            return redirect(new_url)
 
-def CompanyUploadExcel(request):
-    if request.method == 'POST' and request.FILES.get('excelFile'):
-        excel_file = request.FILES['excelFile']
-        fs = FileSystemStorage()
-        filename = fs.save(excel_file.name, excel_file)
-        uploaded_file_path = fs.path(filename)
-
-        error_log_count = 0
-
-        try:
-            df = pd.read_excel(uploaded_file_path)
-            Db.closeConnection()
-            m = Db.get_connection()
-            cursor = m.cursor()
-
-            for _, row in df.iterrows():
-                params = (
-                    row.get('company_name', ''),
-                    row.get('company_address', ''),
-                    row.get('pincode', ''),
-                    row.get('contact_person_name', ''),
-                    row.get('contact_person_email', ''),
-                    row.get('contact_person_mobile_no', ''),
-                    row.get('is_active', '')
-                )
-                
-                try:
-                    cursor.callproc('stp_insert_company_master', params)
-
-                    messages.success(request, "Data Uploaded successfully...!")
-
-                except Exception as e:
-                    error_log_count += 1
-                    tb = traceback.extract_tb(e.__traceback__)
-                    fun = tb[0].name
-                    print(f"Error inserting row: {e}")
-                    cursor.callproc("stp_error_log", [fun, str(e), request.user.id])  
-                    print(f"error: {e}")
-                    messages.error(request, 'Oops...! Something went wrong!')
-                    response = {'result': 'fail', 'messages': 'something went wrong!'}   
-
-            m.commit()
-        except Exception as e:
-           tb = traceback.extract_tb(e.__traceback__)
-           fun = tb[0].name
-           cursor.callproc("stp_error_log", [fun, str(e), request.user.id])  
-           print(f"error: {e}")
-           messages.error(request, 'Oops...! Something went wrong!')
-           response = {'result': 'fail', 'messages': 'something went wrong!'}     
-
-        finally:
-            cursor.close()
-            m.close()
-            Db.closeConnection()
-
-        new_url = f'/masters?entity=cm&type=i'
-        return redirect(new_url)
-    
-def DownloadExcelSampleEmp(request):
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "Sample Sheet"
-
-    header_row = [
-        "employee_id",
-        "employee_name",
-        "mobile_no",
-        "current_location",
-        "is_active",
-    ]
-
-    for col_num, col_title in enumerate(header_row, start=1):
-        cell = ws.cell(row=1, column=col_num, value=col_title)
-        cell.font = Font(bold=True, color="000000")
-
-    # Update column widths to match the number of columns
-    column_widths = [15, 25, 15, 20, 10]
-
-    for i, column_width in enumerate(column_widths, start=1):
-        col_letter = openpyxl.utils.get_column_letter(i)
-        ws.column_dimensions[col_letter].width = column_width
-
-
-    response = HttpResponse(
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-    response["Content-Disposition"] = "attachment; filename=sampleformat.xlsx"
-
-    wb.save(response)
-
-    return response
-
-def DownloadExcelSampleComp(request):
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "Sample Sheet"
-
-    header_row = [
-        "company_name",
-        "company_address",
-        "pincode",
-        "contact_person_name",
-        "contact_person_email",
-        "contact_person_mobile_no",
-        "is_active",
-    ]
-
-    for col_num, col_title in enumerate(header_row, start=1):
-        cell = ws.cell(row=1, column=col_num, value=col_title)
-        cell.font = Font(bold=True, color="000000")
-
-    column_widths = [15, 25, 20, 20, 25, 10, 10]
-
-    for i, column_width in enumerate(column_widths, start=1):
-        col_letter = openpyxl.utils.get_column_letter(i)
-        ws.column_dimensions[col_letter].width = column_width
 
     
-    response = HttpResponse(
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-    response["Content-Disposition"] = "attachment; filename=sampleformat.xlsx"
-
-    wb.save(response)
-
-    return response
-
-def DownloadExcelSampleSite(request):
-
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "Sample Sheet"
-
-    header_row = [
-        "site_name",
-        "site_address",
-        "pincode",
-        "contact_person_name",
-        "contact_person_email",
-        "contact_person_mobile_no",
-        "is_active",
-        "no_of_days",
-        "notifictaion_time",
-        "reminder_time",
-        "roster_type",
-    ]
-
-    for col_num, col_title in enumerate(header_row, start=1):
-        cell = ws.cell(row=1, column=col_num, value=col_title)
-        cell.font = Font(bold=True, color="000000")
-
-    # Update column widths to match the number of columns
-    column_widths = [15, 25, 15, 20, 20, 10 ,8 ,8, 15, 15, 10]
-
-    for i, column_width in enumerate(column_widths, start=1):
-        col_letter = openpyxl.utils.get_column_letter(i)
-        ws.column_dimensions[col_letter].width = column_width
-
-    response = HttpResponse(
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-    response["Content-Disposition"] = "attachment; filename=sampleformat.xlsx"
-
-    wb.save(response)
-
-    return response
