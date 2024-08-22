@@ -15,11 +15,11 @@ import os
 API_URL='https://complianceaudit.lknconsultants.net/'
 API_URL_SALARY='https://salaryregister.lknconsultants.net/'
 # API_URL='http://192.168.1.21:45455/'
-#ALLOWED_HOSTS = ['13.202.157.7']
+ALLOWED_HOSTS = ['13.202.157.7']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-#DEBUG = False
+# DEBUG = True
+DEBUG = False
 
 # Test Changed
 
