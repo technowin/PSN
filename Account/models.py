@@ -6,35 +6,38 @@ from django.db import models
 from django.utils import timezone
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, password=None, **extra_fields):
+    def create_user(self, email, password=None):
         if not email:
             raise ValueError('The Email field must be set')
         email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+        user = self.model(email=email)
         user.password_text = password
         user.set_password(password)
         user.encrypted_password = user.password
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
+    def create_superuser(self, email, password=None):
+        # extra_fields.setdefault('is_staff', True)
+        # extra_fields.setdefault('is_superuser', True)
 
-        return self.create_user(email, password, **extra_fields)
+        return self.create_user(email, password)
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    title = models.CharField(max_length=255)
+    id = models.AutoField(primary_key=True)
+    # title = models.CharField(max_length=255)
     full_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
-    encrypted_password = models.CharField(max_length=128)  # Adjust the max_length as needed
-    phone = models.CharField(max_length=15,unique=True)  # Adjust the max_length as needed
+    # encrypted_password = models.CharField(max_length=128)  # Adjust the max_length as needed
+    password = models.CharField(max_length=128)
+    phone = models.CharField(max_length=15,unique=True) 
+    role_id = models.IntegerField(null=True) # Adjust the max_length as needed
     first_time_login = models.IntegerField(default=1)  # 1 for True, 0 for False
     last_login = models.DateTimeField(default=timezone.now)
-    password_text = models.CharField(max_length=128)  # Store unencrypted password (not recommended)
+    # password_text = models.CharField(max_length=128)  # Store unencrypted password (not recommended)
 
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
+    # is_staff = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 
@@ -89,3 +92,15 @@ class FilesTest(models.Model):
     updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='files_updated',blank=True, null=True)
     class Meta:
         db_table = 'tbl_fileTest'
+
+class Roles(models.Model):
+    id = models.AutoField(primary_key=True)
+    role_id = models.IntegerField(null=True, blank=False)
+    role_name = models.TextField(null=True, blank=True)
+    role_type = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(null=True, blank=True, auto_now_add=True)
+    updated_at = models.DateTimeField(null=True, blank=True, auto_now=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='roles_created', blank=True, null=True, db_column='created_by')
+    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='roles_updated', blank=True, null=True, db_column='updated_by')
+    class Meta:
+        db_table = 'roles'

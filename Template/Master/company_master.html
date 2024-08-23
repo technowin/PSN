@@ -76,8 +76,7 @@
                             <br>
                             <label class="switch">
                                 <input type="checkbox" values ="{{ is_active }}" id="statusSwitch" name="is_active" 
-                                       {% if is_active == "1" %} checked {% endif %} 
-                                       onchange="updateStatus()">
+                                       {% if is_active == "1" %} checked {% endif %} onchange="updateStatus()">
                                 <span class="slider"></span>
                             </label>
                             <input type="text" id="statusValue" name="status_value" value="{{ is_active }}" hidden>
@@ -108,8 +107,6 @@
     function updateStatus() {
         var checkBox = document.getElementById("statusSwitch");
         var statusValue = document.getElementById("statusValue");
-    
-        // Set the value based on whether the checkbox is checked
         statusValue.value = checkBox.checked ? "1" : "0";
     }
 </script>

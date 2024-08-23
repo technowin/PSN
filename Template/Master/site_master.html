@@ -37,16 +37,18 @@
                             <label for="company_id" class="form-label">Company Name<span style="color:red;"> *</span> :</label>
                             <select name="company_id" id="company_id" class="form-control">
                                 {% if site_id == '0' %}
-                                    <option value="" {% if company_name == '' %}selected{% endif %}>Select</option>
+                                <option value="" selected>Select</option>
                                     {% for item in company_names %}
-                                        <option value="{{ item.0 }}" {% if item.0 == employee_status_id %}selected{% endif %}>{{ item.1 }}</option>
+                                        <option value="{{ item.0 }}">{{ item.1 }}</option>
                                     {% endfor %}
                                 {% else %}
-                                    <option value="" {% if company_name == '' %}selected{% endif %}>{{ company_name }}</option>
+                                   <option value="" {% if company_name == '' %}selected{% endif %}>Select</option> 
                                     {% for item in company_names %}
                                         <option value="{{ item.0 }}" {% if item.0 == company_name %}selected{% endif %}>{{ item.1 }}</option>
-                                    {% endfor %}
-                                {% endif%}
+                                    {% endfor %} 
+                                     
+                                {% endif%} 
+
 
                             </select>
                         </div>
