@@ -7,6 +7,8 @@ from django.db import models
 from Account.models import CustomUser
 
 
+
+
 # Create your models here.
 class company_master(models.Model):
     company_id = models.AutoField(primary_key=True)

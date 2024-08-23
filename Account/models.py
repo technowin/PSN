@@ -13,6 +13,7 @@ class CustomUserManager(BaseUserManager):
         user = self.model(email=email, **extra_fields)
         user.password_text = password
         user.set_password(password)
+        user.encrypted_password = user.password
         user.save(using=self._db)
         return user
 
@@ -23,13 +24,17 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    title = models.CharField(max_length=255)
     full_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=15, unique=True)  # Adjust the max_length as needed
+    encrypted_password = models.CharField(max_length=128)  # Adjust the max_length as needed
+    phone = models.CharField(max_length=15,unique=True)
     first_time_login = models.IntegerField(default=1)  # 1 for True, 0 for False
     last_login = models.DateTimeField(default=timezone.now)
+    password_text = models.CharField(max_length=128)
 
     is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 
