@@ -18,22 +18,16 @@ from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph
-
 from Account.utils import decrypt_email, encrypt_email
 import requests
 import traceback
-
-import pandas as pd
-import openpyxl
-
-
 import pandas as pd
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.contrib import messages
 import openpyxl
 from openpyxl.styles import Font
-from django.http import HttpResponse
+
 
 def masters(request):
     Db.closeConnection()
