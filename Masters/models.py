@@ -6,6 +6,18 @@ from django.db import models
 
 from Account.models import CustomUser
 
+     
+class Roles(models.Model):
+    id = models.AutoField(primary_key=True)
+    role_id = models.IntegerField(null=True, blank=False)
+    role_name = models.TextField(null=True, blank=True)
+    role_type = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(null=True, blank=True, auto_now_add=True)
+    updated_at = models.DateTimeField(null=True, blank=True, auto_now=True)
+    created_by = models.ForeignKey('Account.CustomUser', on_delete=models.CASCADE, related_name='roles_created', blank=True, null=True, db_column='created_by')
+    updated_by = models.ForeignKey('Account.CustomUser', on_delete=models.CASCADE, related_name='roles_updated', blank=True, null=True, db_column='updated_by')
+    class Meta:
+        db_table = 'roles'
 
 
 
@@ -137,9 +149,9 @@ class file_checksum(models.Model):
     error_count = models.TextField(null=True, blank=True)
     update_count = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    # created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='checksum_created_by',blank=True, null=True,db_column='created_by')
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='checksum_created_by',blank=True, null=True,db_column='created_by')
     updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    # updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='checksum_updated_by',blank=True, null=True,db_column='updated_by')
+    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='checksum_updated_by',blank=True, null=True,db_column='updated_by')
 
     class Meta:
         db_table = 'file_checksum'
@@ -159,9 +171,9 @@ class file_errorlog(models.Model):
     status = models.TextField(null=True, blank=True)
     checksum = models.ForeignKey(file_checksum, on_delete=models.CASCADE,related_name='checksum1_created_by',blank=True, null=True)
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    # created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='file_errorlog_created_by',blank=True, null=True,db_column='created_by')
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='file_errorlog_created_by',blank=True, null=True,db_column='created_by')
     updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    # updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='file_errorlog_updated_by',blank=True, null=True,db_column='updated_by')
+    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='file_errorlog_updated_by',blank=True, null=True,db_column='updated_by')
 
     class Meta:
         db_table = 'file_errorlog'

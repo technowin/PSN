@@ -5,6 +5,8 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 from django.utils import timezone
 
+
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -24,6 +26,7 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=255)
     full_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
@@ -35,6 +38,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    role = models.ForeignKey('Masters.Roles', on_delete=models.CASCADE, related_name='role_idd', blank=True, null=True)
 
     objects = CustomUserManager()
 
@@ -90,15 +94,4 @@ class FilesTest(models.Model):
     updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='files_updated',blank=True, null=True)
     class Meta:
         db_table = 'tbl_fileTest'
-        
-class Roles(models.Model):
-    id = models.AutoField(primary_key=True)
-    role_id = models.IntegerField(null=True, blank=False)
-    role_name = models.TextField(null=True, blank=True)
-    role_type = models.TextField(null=True, blank=True)
-    created_at = models.DateTimeField(null=True, blank=True, auto_now_add=True)
-    updated_at = models.DateTimeField(null=True, blank=True, auto_now=True)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='roles_created', blank=True, null=True, db_column='created_by')
-    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='roles_updated', blank=True, null=True, db_column='updated_by')
-    class Meta:
-        db_table = 'roles'
+   
