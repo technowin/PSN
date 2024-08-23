@@ -132,3 +132,14 @@ sudo service gunicorn restart
 
 pip install openai
 pip install google-generativeai
+
+
+In Python Django, you can migrate the database using the following steps:
+
+1. Make migrations: First, generate the migration files that describe the changes to your models.
+
+python manage.py makemigrations
+
+2. Apply the migrations: Next, apply the generated migrations to update your database schema.
+
+python manage.py migrate

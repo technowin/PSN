@@ -102,7 +102,7 @@ class application_search(models.Model):
 class sc_roster(models.Model):
     id = models.AutoField(primary_key=True)
     employee_id =models.TextField(null=True,blank=True)
-    company = models.ForeignKey(company_master, on_delete=models.CASCADE,related_name='company',blank=True, null=True)
+    company = models.ForeignKey(company_master, on_delete=models.CASCADE,related_name='roster_company',blank=True, null=True)
     site =models.TextField(null=True,blank=True)
     shift_date = models.DateField(null=True,blank=True)
     shift_time = models.TextField(null=True,blank=True)
@@ -112,12 +112,54 @@ class sc_roster(models.Model):
     uploaded_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='uploaded_by',blank=True, null=True,db_column='uploaded_by')
     
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='created_by',blank=True, null=True,db_column='created_by')
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='roster_created_by',blank=True, null=True,db_column='created_by')
     updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
-    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='updated_by',blank=True, null=True,db_column='updated_by')
+    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='roster_updated_by',blank=True, null=True,db_column='updated_by')
     class Meta:
         db_table = 'sc_roster'
     def __str__(self):
         return self.employee_id
-    
-    
+
+class file_checksum(models.Model):
+    checksum_id = models.AutoField(primary_key=True)
+    upload_for =models.TextField(null=True,blank=True)
+    company = models.ForeignKey(company_master, on_delete=models.CASCADE,related_name='checksum_company',blank=True, null=True)
+    site =models.TextField(null=True,blank=True)
+    month = models.TextField(null=True, blank=True)
+    year = models.TextField(null=True, blank=True)
+    file_name = models.TextField(null=True, blank=True)
+    checksum_description = models.TextField(null=True, blank=True)
+    uploaded_date = models.DateTimeField(null=True, blank=True)
+    operation_type = models.TextField(null=True, blank=True)
+    status = models.TextField(null=True, blank=True)
+    error_count = models.TextField(null=True, blank=True)
+    update_count = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
+    # created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='checksum_created_by',blank=True, null=True,db_column='created_by')
+    updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
+    # updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='checksum_updated_by',blank=True, null=True,db_column='updated_by')
+
+    class Meta:
+        db_table = 'file_checksum'
+
+
+class file_errorlog(models.Model):
+    error_id = models.AutoField(primary_key=True)
+    upload_for =models.TextField(null=True,blank=True)
+    company = models.ForeignKey(company_master, on_delete=models.CASCADE,related_name='errorlog_company',blank=True, null=True)
+    site =models.TextField(null=True,blank=True)
+    month = models.TextField(null=True, blank=True)
+    year = models.TextField(null=True, blank=True)
+    file_name = models.TextField(null=True, blank=True)
+    error_description = models.TextField(null=True, blank=True)
+    uploaded_date = models.DateTimeField(null=True, blank=True)
+    operation_type = models.TextField(null=True, blank=True)
+    status = models.TextField(null=True, blank=True)
+    checksum = models.ForeignKey(file_checksum, on_delete=models.CASCADE,related_name='checksum1_created_by',blank=True, null=True)
+    created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
+    # created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='file_errorlog_created_by',blank=True, null=True,db_column='created_by')
+    updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
+    # updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='file_errorlog_updated_by',blank=True, null=True,db_column='updated_by')
+
+    class Meta:
+        db_table = 'file_errorlog'
