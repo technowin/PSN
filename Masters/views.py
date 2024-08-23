@@ -1,5 +1,4 @@
 import json
-from msilib.schema import Font
 import pydoc
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
@@ -19,23 +18,15 @@ from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph
-
 from Account.utils import decrypt_email, encrypt_email
 import requests
 import traceback
-
-import pandas as pd
-import openpyxl
-from openpyxl.styles import Font
-
-
 import pandas as pd
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.contrib import messages
 import openpyxl
 from openpyxl.styles import Font
-from django.http import HttpResponse
 
 def masters(request):
     Db.closeConnection()
@@ -518,7 +509,6 @@ def employee_master(request):
             new_url = f'/masters?entity=em&type=i'
             return redirect(new_url)
     
-
 def upload_excel(request):
 
     if request.method == 'POST' and request.FILES.get('excelFile'):
@@ -611,6 +601,7 @@ def upload_excel(request):
                     'Is Active': 'is_active',
                 }, inplace=True)
                     
+
                     for _, row in df.iterrows():
                         params = (
                             row.get('company_name', ''),
@@ -647,9 +638,8 @@ def upload_excel(request):
             cursor.close()
             m.close()
             Db.closeConnection()
-
-        new_url = f'/masters?entity={entity}&type=i'
-        return redirect(new_url)
+            new_url = f'/masters?entity={entity}&type=i'
+            return redirect(new_url)
 
 
 

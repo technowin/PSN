@@ -23,7 +23,9 @@
     <div class="container mt-5" style="max-width: 1800px;">
         <div class="card">
             <div class="card-body">
-                <h2 class="text-center" style="color:#B12121;"><u>Edit Company Detail</u></h2>
+                <h2 class="text-center" style="color:#B12121;">
+                    <u>{% if company_id == '0' %} Create {% else %} Edit {% endif %} Company Master</u>
+                </h2>
                 <br>
 
                 <input type="hidden" name="company_id" value="{{ company_id }}">
