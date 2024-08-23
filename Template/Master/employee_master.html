@@ -66,7 +66,7 @@
                                     <option value="{{ item.0 }}">{{ item.1 }}</option>
                                   {% endfor %}
                             {% else %}
-                               <option value="" {% if employee_status_id == '' %}{% endif %}>Select</option> 
+                               <option value="" {% if employee_status_id == '' %}Selected{% endif %}>Select</option> 
                                 {% for item in employee_status %}
                                     <option value="{{ item.0 }}" {% if item.0 == employee_status_id %}selected{% endif %}>{{ item.1 }}</option>
                                 {% endfor %} 
