@@ -4,15 +4,11 @@ from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate, login ,logout,get_user_model
-import openpyxl
 from Account.forms import RegistrationForm
 from Account.models import AssignedCompany, CustomUser
-# import mysql.connector as sql
 import Db 
 import bcrypt
 from django.contrib.auth.decorators import login_required
-# from .models import SignUpModel
-# from .forms import SignUpForm
 from PSN.encryption import *
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
@@ -26,7 +22,9 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.contrib import messages
 import openpyxl
-from openpyxl.styles import Font
+from openpyxl.styles import Font, Border, Side
+import calendar
+from datetime import datetime, timedelta
 
 def masters(request):
     Db.closeConnection()
@@ -56,38 +54,29 @@ def masters(request):
             cursor.callproc("stp_get_masters",[entity,type,'data'])
             for result in cursor.stored_results():
                 data = list(result.fetchall())
-
-            # Call stored procedure to get company names
             cursor.callproc("stp_get_company_names")
             for result in cursor.stored_results():
                 company_names = list(result.fetchall())
 
-            m.commit()
-
         if request.method=="POST":
-            para = []
             entity = request.POST.get('entity', '')
             type = request.POST.get('type', '')
-            
             cursor.callproc("stp_post_masters",[entity,type,user])
             for result in cursor.stored_results():
                     datalist = list(result.fetchall())
             if datalist[0][0] == "inserted":
-                messages = 'Data inserted successfully !'
+                msg = 'Data inserted successfully !'
             elif datalist[0][0] == "updated":
-                messages = 'Data updated successfully !'
-            else : messages =  ' something went wrong !'
+                msg = 'Data updated successfully !'
+            else : msg =  ' something went wrong !'
             
-            response = {'result': datalist[0][0],'messages':messages}                       
-            messages.success(request, messages)
+            messages.success(request, msg)
                  
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
         fun = tb[0].name
         cursor.callproc("stp_error_log",[fun,str(e),request.user.id])  
-        print(f"error: {e}")
         messages.error(request, 'Oops...! Something went wrong!')
-        response = {'result': 'fail','messages ':'something went wrong !'}        
     finally:
         cursor.close()
         m.commit()
@@ -96,7 +85,15 @@ def masters(request):
         if request.method=="GET":
             return render(request,'Master/index.html', {'entity':entity,'type':type,'name':name,'header':header,'data':data,'company_names': company_names,'pre_url':pre_url})
         elif request.method=="POST":  
-            return JsonResponse(response,safe=False)
+            new_url = f'/masters?entity={entity}&type={type}'
+            return redirect(new_url) 
+        
+def gen_roster_xlsx_col(columns,month_input):
+    year, month = map(int, month_input.split('-'))
+    _, num_days = calendar.monthrange(year, month)
+    date_columns = [(datetime(year, month, day)).strftime('%d-%m-%Y') for day in range(1, num_days + 1)]
+    columns.extend(date_columns)
+    return columns
         
 def sample_xlsx(request):
     Db.closeConnection()
@@ -108,7 +105,6 @@ def sample_xlsx(request):
         if request.user.is_authenticated ==True:                
                 global user
                 user = request.user.id   
-        # Create a new workbook and select the active worksheet
         workbook = openpyxl.Workbook()
         sheet = workbook.active
         sheet.title = 'Sample Format'
@@ -116,49 +112,123 @@ def sample_xlsx(request):
         if request.method=="GET":
             entity = request.GET.get('entity', '')
             type = request.GET.get('type', '')
-        # Define the column headers
+        if request.method=="POST":
+            entity = request.POST.get('entity', '')
+            type = request.POST.get('type', '')
+        
         cursor.callproc("stp_get_masters", [entity, type, 'sample_xlsx'])
         for result in cursor.stored_results():
             columns = [col[0] for col in result.fetchall()]
-        # columns = ['Column 1', 'Column 2', 'Column 3', 'Column 4', 'Column 5', 'Column 6']
-        # Set the headers in bold
+        # columns = ['Column 1', 'Column 2', 'Column 3']
+        if entity == "r":
+            month = request.POST.get('month', '')
+            columns = gen_roster_xlsx_col(columns,month)
+
+        black_border = Border(
+            left=Side(border_style="thin", color="000000"),
+            right=Side(border_style="thin", color="000000"),
+            top=Side(border_style="thin", color="000000"),
+            bottom=Side(border_style="thin", color="000000")
+        )
+        
         for col_num, header in enumerate(columns, 1):
             cell = sheet.cell(row=1, column=col_num)
             cell.value = header
             cell.font = Font(bold=True)
-        # Auto-fit the column widths
+            cell.border = black_border
+        
         for col in sheet.columns:
             max_length = 0
-            column = col[0].column_letter  # Get the column letter
+            column = col[0].column_letter  
             for cell in col:
-                try:
-                    if len(str(cell.value)) > max_length:
-                        max_length = len(str(cell.value))
-                except Exception as e:
-                    print(f"Error calculating width: {e}")
-
-            adjusted_width = max_length + 2  # Add some padding
-            sheet.column_dimensions[column].width = adjusted_width  # Make the headers bold
-            # Set the response with the correct content type for an Excel file
-            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-            response['Content-Disposition'] = 'attachment; filename=sample_format.xlsx'
-            # Save the workbook to the response
-            workbook.save(response)
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+                    
+        adjusted_width = max_length + 2 
+        sheet.column_dimensions[column].width = adjusted_width  
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename=sample_format.xlsx'
+        workbook.save(response)
     
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
         fun = tb[0].name
         cursor.callproc("stp_error_log",[fun,str(e),request.user.id])  
-        print(f"error: {e}")
         messages.error(request, 'Oops...! Something went wrong!')
-        response = {'result': 'fail','messages ':'something went wrong !'}  
     finally:
         cursor.close()
         m.commit()
         m.close()
         Db.closeConnection()
         return response      
-        
+  
+def roster_upload(request):
+    Db.closeConnection()
+    m = Db.get_connection()
+    cursor = m.cursor()
+    if request.method == 'POST' and request.FILES.get('roster_file'):
+        try:
+            excel_file = request.FILES['roster_file']
+            file_name = excel_file.name
+            df = pd.read_excel(excel_file)
+
+            entity = request.POST.get('entity', '')
+            type = request.POST.get('type', '')
+            company_id = request.POST.get('company_id', '')
+            month_input  =str(request.POST.get('month_year', ''))
+            new_url = f'/masters?entity={entity}&type={type}'
+            
+            total_row_inserted = 0
+            count_error_log = 0
+            deleted_count = 0
+            inserted_error_id_list = []
+            rows_inserted = 0
+            inserted_error_id = 0
+
+            if entity == 'r':
+                year, month = map(int, month_input.split('-'))
+                _, num_days = calendar.monthrange(year, month)
+                date_columns = [(datetime(year, month, day)).strftime('%d-%m-%Y') for day in range(1, num_days + 1)]
+                cursor.callproc("stp_get_masters", [entity, type, 'sample_xlsx'])
+                for result in cursor.stored_results():
+                    start_columns = [col[0] for col in result.fetchall()]
+
+                if not all(col in df.columns for col in start_columns + date_columns):
+                    # raise ValueError("The uploaded Excel file does not contain the required columns.")
+                    messages.error(request, 'Oops...! The uploaded Excel file does not contain the required columns.!')
+                    return redirect(new_url)
+
+                # cursor.callproc("stp_delete_roster",[company_id, month, year])
+                # for result in cursor.stored_results():
+                #     datalist = list(result.fetchall())
+                #     deleted_count = datalist[0][0]
+
+                for index, row in df.iterrows():
+                    employee_id = row.get('Employee Id', '')
+                    employee_name = row.get('Employee Name', '')
+                    worksite  = row.get('Worksite', '')
+                    for date_col in date_columns:
+                        shift_date = datetime.strptime(date_col, '%d-%m-%Y').date()
+                        shift_time = row.get(date_col, '')  
+                        params = (str(employee_id),employee_name,int(company_id),worksite,shift_date,shift_time)
+                        cursor.callproc('stp_upload_roster', params)
+
+                messages.success(request, "Data Uploaded successfully!")
+
+        except Exception as e:
+            tb = traceback.extract_tb(e.__traceback__)
+            fun = tb[0].name
+            cursor.callproc("stp_error_log", [fun, str(e), request.user.id])  
+            messages.error(request, 'Oops...! Something went wrong!')
+            m.commit()   
+
+        finally:
+            cursor.close()
+            m.close()
+            Db.closeConnection()
+            new_url = f'/masters?entity={entity}&type={type}'
+            return redirect(new_url)     
+
 def site_master(request):
     Db.closeConnection()
     m = Db.get_connection()

@@ -45,6 +45,7 @@ urlpatterns = [
 
     path('masters/', masters, name='masters'),
     path('sample_xlsx/', sample_xlsx, name='sample_xlsx'),
+    path("roster_upload",roster_upload, name="roster_upload"),
     path("company_master",company_master,name="company_master"),
     path("employee_master",employee_master, name="employee_master"),
     path("upload_excel",upload_excel, name="upload_excel"),
