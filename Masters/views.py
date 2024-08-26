@@ -36,6 +36,7 @@ def masters(request):
     name = ''
     entity = ''
     type = ''
+    company_names =[]
     try:
         if request.user.is_authenticated ==True:                
                 global user
@@ -54,9 +55,10 @@ def masters(request):
             cursor.callproc("stp_get_masters",[entity,type,'data'])
             for result in cursor.stored_results():
                 data = list(result.fetchall())
-            cursor.callproc("stp_get_company_names")
-            for result in cursor.stored_results():
-                company_names = list(result.fetchall())
+            # cursor.callproc("stp_get_company_names",['company'])
+            # for result in cursor.stored_results():
+            #     company_names = list(result.fetchall())
+       
 
         if request.method=="POST":
             entity = request.POST.get('entity', '')
@@ -196,7 +198,7 @@ def roster_upload(request):
                 if not all(col in df.columns for col in start_columns + date_columns):
                     # raise ValueError("The uploaded Excel file does not contain the required columns.")
                     messages.error(request, 'Oops...! The uploaded Excel file does not contain the required columns.!')
-                    return redirect(new_url)
+                    return redirect(f'/masters?entity={entity}&type={type}')
 
                 # cursor.callproc("stp_delete_roster",[company_id, month, year])
                 # for result in cursor.stored_results():
@@ -211,7 +213,7 @@ def roster_upload(request):
                         shift_date = datetime.strptime(date_col, '%d-%m-%Y').date()
                         shift_time = row.get(date_col, '')  
                         params = (str(employee_id),employee_name,int(company_id),worksite,shift_date,shift_time)
-                        cursor.callproc('stp_upload_roster', params)
+                        cursor.callproc('stp_insert_roster', params)
 
                 messages.success(request, "Data Uploaded successfully!")
 
@@ -295,12 +297,12 @@ def site_master(request):
                 contactPersonName = request.POST.get('contactPersonName', '')
                 contactPersonEmail = request.POST.get('contactPersonEmail', '')
                 contactPersonMobileNo = request.POST.get('Number', '')  
-                is_active = request.POST.get('status_value', '') 
-                noOfDays = request.POST.get('FieldDays', '')  
-                notificationTime = request.POST.get('notificationTime', '')
-                ReminderTime = request.POST.get('ReminderTime', '')
+                # is_active = request.POST.get('status_value', '') 
+                # noOfDays = request.POST.get('FieldDays', '')  
+                # notificationTime = request.POST.get('notificationTime', '')
+                # ReminderTime = request.POST.get('ReminderTime', '')
                 companyId = request.POST.get('company_id', '')  
-                rosterType = request.POST.get('roster_type', '')
+                # rosterType = request.POST.get('roster_type', '')
                
 
                 params = [
@@ -310,12 +312,12 @@ def site_master(request):
                     contactPersonName, 
                     contactPersonEmail, 
                     contactPersonMobileNo, 
-                    is_active,
-                    noOfDays, 
-                    notificationTime, 
-                    ReminderTime, 
-                    companyId,
-                    rosterType
+                    # is_active,
+                    # noOfDays, 
+                    # notificationTime, 
+                    # ReminderTime, 
+                    companyId
+                    # rosterType
                 ]
                 
                 cursor.callproc("stp_insert_site_master", params)
@@ -419,7 +421,7 @@ def company_master(request):
                 contact_person_name = request.POST.get('contact_person_name', '')
                 contact_person_email = request.POST.get('contact_person_email', '')
                 contact_person_mobile_no = request.POST.get('contact_person_mobile_no', '') 
-                is_active = request.POST.get('status_value', '') 
+                # is_active = request.POST.get('status_value', '') 
 
                 params = [
                     company_name, 
@@ -427,8 +429,8 @@ def company_master(request):
                     pincode, 
                     contact_person_name,
                     contact_person_email,
-                    contact_person_mobile_no,
-                    is_active
+                    contact_person_mobile_no
+                    # is_active
                 ]
                 
                 cursor.callproc("stp_insert_company_master", params)
@@ -525,16 +527,16 @@ def employee_master(request):
                 employeeName = request.POST.get('employee_name', '')
                 mobileNo = request.POST.get('mobile_no', '')
                 currentLocation = request.POST.get('current_location', '')
-                employeeStatus = request.POST.get('employee_status_name', '')
-                activebtn = request.POST.get('status_value', '')
+                # employeeStatus = request.POST.get('employee_status_name', '')
+                # activebtn = request.POST.get('status_value', '')
 
                 params = [
                     employeeId, 
                     employeeName, 
                     mobileNo, 
-                    currentLocation,
-                    employeeStatus,
-                    activebtn
+                    currentLocation
+                    # employeeStatus,
+                    # activebtn
                 ]
                 
                 cursor.callproc("stp_insert_employee_master", params)
@@ -583,133 +585,50 @@ def upload_excel(request):
 
     if request.method == 'POST' and request.FILES.get('excelFile'):
         excel_file = request.FILES['excelFile']
-        fs = FileSystemStorage()
-        filename = fs.save(excel_file.name, excel_file)
-        uploaded_file_path = fs.path(filename)
-
-        error_log_count = 0
-
         try:
-            df = pd.read_excel(uploaded_file_path)
+            df = pd.read_excel(excel_file)
             Db.closeConnection()
             m = Db.get_connection()
             cursor = m.cursor()
-
-            entity = request.GET.get('entity', '')
+            entity = request.POST.get('entity', '')
+            type = request.POST.get('type', '')
+            cursor.callproc("stp_get_masters", [entity, type, 'sample_xlsx'])
+            for result in cursor.stored_results():
+                columns = [col[0] for col in result.fetchall()]
+            if not all(col in df.columns for col in columns):
+                messages.error(request, 'Oops...! The uploaded Excel file does not contain the required columns.!')
+                return redirect(f'/masters?entity={entity}&type={type}')
 
             if entity == 'em':
-                df.rename(columns={
-                    'Employee Id': 'employee_id',
-                    'Employee Name': 'employee_name',
-                    'Mobile No': 'mobile_no',
-                    'Current Location': 'current_location',
-                    'Is Active': 'is_active'
-                }, inplace=True)
-
-                for _, row in df.iterrows():
-                    params = (
-                        row.get('employee_id', ''),
-                        row.get('employee_name', ''),
-                        row.get('mobile_no', ''),
-                        row.get('current_location', ''),
-                        row.get('is_active', '')
-                    )
-                    try:
-                        cursor.callproc('stp_insert_employee_master_excel', params)
-                    except Exception as e:
-                        # Handle the exception if needed
-                        print(f"Error inserting employee data: {e}")
-
-
+                for index, row in df.iterrows():
+                    params = tuple(str(row.get(column, '')) for column in columns)
+                    cursor.callproc('stp_insert_employee_master', params)
+                   
             elif entity == 'sm':
                 company_id = request.POST.get('company_id', '')
-                df.rename(columns={
-                    'Site Name': 'site_name',
-                    'Site Address': 'site_address',
-                    'Pincode': 'pincode',
-                    'Contact Person Name': 'contact_person_name',
-                    'Contact Person Email': 'contact_person_email',
-                    'Contact Person Mobile No': 'contact_person_mobile_no',
-                    'Is Active': 'is_active',
-                    'No of Days': 'no_of_days',
-                    'Notifiication Time': 'notification_time',
-                    'Reminder Time': 'reminder_time',
-                    'Roster Type': 'roster_type'
-                }, inplace=True)
-
-                for _, row in df.iterrows():
-                    
-                    params = (
-                        row.get('site_name', ''),
-                        row.get('site_address', ''),
-                        row.get('pincode', ''),
-                        row.get('contact_person_name', ''),
-                        row.get('contact_person_email', ''),
-                        row.get('contact_person_mobile_no', ''),
-                        int(row['is_active']) if not pd.isna(row['is_active']) else None,
-                        int(row['no_of_days']) if not pd.isna(row['no_of_days']) else None,
-                        row.get('notification_time', ''),
-                        row.get('reminder_time', ''),
-                        company_id,  
-                        row.get('roster_type', '')
-                    )
-                    
-                    try:
-                        cursor.callproc('stp_insert_site_master', params)
-                    except Exception as e:
-                        # Handle the exception if needed
-                        print(f"Error inserting site data: {e}")
-            elif entity == 'cm':
-                    
-                    df.rename(columns={
-                    'Company Name': 'company_name',
-                    'Company Address': 'company_address',
-                    'Pincode': 'pincode',
-                    'Contact Person Name': 'contact_person_name',
-                    'Contact Person Email': 'contact_person_email',
-                    'Contact Person Mobile No': 'contact_person_mobile_no',
-                    'Is Active': 'is_active',
-                }, inplace=True)
-                    
-
-                    for _, row in df.iterrows():
-                        params = (
-                            row.get('company_name', ''),
-                            row.get('company_address', ''),
-                            row.get('pincode', ''),
-                            row.get('contact_person_name', ''),
-                            row.get('contact_person_email', ''),
-                            row.get('contact_person_mobile_no', ''),
-                            row.get('is_active', '')
-                        )
+                for index, row in df.iterrows():
+                    params = tuple(str(row.get(column, '')) for column in columns)
+                    params += (str(company_id),)
+                    cursor.callproc('stp_insert_site_master', params)
                 
-                    try:
-                        cursor.callproc('stp_insert_company_master', params)
-                    except Exception as e:
-                            # Handle the exception if needed
-                            print(f"Error inserting site data: {e}")
-                    
+            elif entity == 'cm':
+                for index, row in df.iterrows():
+                    params = tuple(str(row.get(column, '')) for column in columns)
+                    cursor.callproc('stp_insert_company_master', params)
+                   
             messages.success(request, "Data Uploaded successfully!")
 
-
         except Exception as e:
-            error_log_count += 1
             tb = traceback.extract_tb(e.__traceback__)
             fun = tb[0].name
-            print(f"Error inserting row: {e}")
             cursor.callproc("stp_error_log", [fun, str(e), request.user.id])  
-            print(f"error: {e}")
             messages.error(request, 'Oops...! Something went wrong!')
-            response = {'result': 'fail', 'messages': 'something went wrong!'}   
-
             m.commit()   
-
         finally:
             cursor.close()
             m.close()
             Db.closeConnection()
-            new_url = f'/masters?entity={entity}&type=i'
-            return redirect(new_url)
+            return redirect(f'/masters?entity={entity}&type=i')
 
 
 

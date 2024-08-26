@@ -49,50 +49,48 @@
                             <input type="number" value="{{ mobile_no }}" name="mobile_no" class="form-control" id="MobileNumber" placeholder="Enter Person Mobile Number">
                         </div>
                         <div class="col-md-3">
-                            <label for="Location" class="form-label">Location<span style="color:red;"> *</span> :</label>
+                            <label for="Location" class="form-label">Worksite<span style="color:red;"> *</span> :</label>
                             <input type="text" value="{{ current_location }}" name="current_location" class="form-control" id="Location" placeholder="Enter Location">
                         </div>
                     </div>
                     
-
-                    <div class="row mb-3">
-
-                      <div class="col-md-3">
-                        <label for="employee_status_id" class="form-label">Employeee Status<span style="color:red;"> *</span> :</label>
-                        <select name="employee_status_name" id="employee_status_id" class="form-control">
-                            {% if id == '0' %}
-                            <option value="" selected>Select</option>
-                                  {% for item in employee_status %}
-                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
-                                  {% endfor %}
-                            {% else %}
-                               <option value="" {% if employee_status_id == '' %}Selected{% endif %}>Select</option> 
-                                {% for item in employee_status %}
-                                    <option value="{{ item.0 }}" {% if item.0 == employee_status_id %}selected{% endif %}>{{ item.1 }}</option>
-                                {% endfor %} 
-                                 
-                            {% endif%} 
-
-
-                        </select>
-                    </div>
-
-                      
-                        <div class="col-md-3">  
-                            <label for="activeBtn" class="form-label">Is Active<span style="color:red;"> *</span> :</label>
-                            <br>
-                            <label class="switch">
-                                <input type="checkbox" values ="{{ is_active }}" id="statusSwitch" name="is_active" 
-                                       {% if is_active == "1" %} checked {% endif %} 
-                                       onchange="updateStatus()">
-                                <span class="slider"></span>
-                            </label>
-                            <input type="text" id="statusValue" name="status_value" value="{{ is_active }}" hidden>
+                    {% if id != '0' %}
+                        <div class="row mb-3">
+                        
+                            <div class="col-md-3">
+                                    <label for="employee_status_id" class="form-label">Employeee Status<span style="color:red;"> *</span> :</label>
+                                    <select name="employee_status_name" id="employee_status_id" class="form-control">
+                                        {% if id == '0' %}
+                                        <option value="" selected>Select</option>
+                                              {% for item in employee_status %}
+                                                <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                              {% endfor %}
+                                        {% else %}
+                                           <option value="" {% if employee_status_id == '' %}Selected{% endif %}>Select</option> 
+                                            {% for item in employee_status %}
+                                                <option value="{{ item.0 }}" {% if item.0 == employee_status_id %}selected{% endif %}>{{ item.1 }}</option>
+                                            {% endfor %}  
+                                        {% endif%}    
+                                    </select>
+                            </div>
+                        
+                        
+                            <div class="col-md-3">  
+                                <label for="activeBtn" class="form-label">Is Active<span style="color:red;"> *</span> :</label>
+                                <br>
+                                <label class="switch">
+                                    <input type="checkbox" values ="{{ is_active }}" id="statusSwitch" name="is_active" 
+                                           {% if is_active == "1" %} checked {% endif %} 
+                                           onchange="updateStatus()">
+                                    <span class="slider"></span>
+                                </label>
+                                <input type="text" id="statusValue" name="status_value" value="{{ is_active }}" hidden>
+                            </div>
                         </div>
-                          
-                    </div>
-                    
-                    <input type="hidden" id="hiddenActiveStatus" name="employee_status" value="0">
+                        <input type="hidden" id="hiddenActiveStatus" name="employee_status" value="0">
+
+                    {% endif %}
+
                     
 
                     <div class="text-center">

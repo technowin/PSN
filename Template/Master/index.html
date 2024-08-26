@@ -124,8 +124,10 @@
         <div class="modal-body">
          
            <form  class="formupl" id="uploadForm" method="POST" enctype="multipart/form-data" 
-                 action="{% url 'upload_excel' %}?entity={{ entity }}">
+                 action="{% url 'upload_excel' %}">
                 {% csrf_token %}
+                <input type="hidden" name="entity" value="{{ entity }}">
+                <input type="hidden" name="type" value="{{ type }}">
                 {% if entity == 'sm' %}
                 <div class="col-md-12 mb-3">
                   <select id="company_id" name="company_id" class="form-control" required>

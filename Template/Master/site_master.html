@@ -55,7 +55,7 @@
                             </select>
                         </div>
                         
-                        <div class="col-md-3">
+                        <!-- <div class="col-md-3">
                             <label for="roster_type" class="form-label">Roster Type<span style="color:red;"> *</span> :</label>
                             <select name="roster_type" id="roster_type" class="form-control">
                                 {% if site_id == '0' %}
@@ -73,7 +73,7 @@
                             
                             </select>
                             
-                        </div>
+                        </div> -->
                         <div class="col-md-3">
                             <label for="site_name" class="form-label">Site Name<span style="color:red;"> *</span> :</label>
                             <input type="text" value="{{ site_name }}" name="siteName" class="form-control" id="site_name" placeholder="Enter Site Name">
@@ -104,6 +104,7 @@
                     </div>
 
                     <div class="row mb-3">
+                        <!--
                         <div class="col-md-3">
                             <label for="FieldDays" class="form-label">Days of Field<span style="color:red;"> *</span> :</label>
                             <input type="text" value="{{ no_of_days }}" name="FieldDays" class="form-control" id="FieldDays" placeholder="Number of Days">
@@ -115,18 +116,20 @@
                         <div class="col-md-3">
                             <label for="ReminderTime" class="form-label">Reminder Time<span style="color:red;"> *</span> :</label>
                             <input type="time" value="{{ reminder_time }}" name="ReminderTime" class="form-control" id="ReminderTime">
-                        </div>
-                        <div class="col-md-3">  
-                            <label for="activeBtn" class="form-label">Is Active<span style="color:red;"> *</span> :</label>
-                            <br>
-                            <label class="switch">
-                                <input type="checkbox" values ="{{ is_active }}" id="statusSwitch" name="is_active" 
-                                       {% if is_active == "1" %} checked {% endif %} 
-                                       onchange="updateStatus()">
-                                <span class="slider"></span>
-                            </label>
-                            <input type="text" id="statusValue" name="status_value" value="{{ is_active }}" hidden>
-                        </div>
+                        </div>-->
+                        {% if site_id != '0' %}
+                            <div class="col-md-3">  
+                                <label for="activeBtn" class="form-label">Is Active<span style="color:red;"> *</span> :</label>
+                                <br>
+                                <label class="switch">
+                                    <input type="checkbox" values ="{{ is_active }}" id="statusSwitch" name="is_active" 
+                                           {% if is_active == "1" %} checked {% endif %} 
+                                           onchange="updateStatus()">
+                                    <span class="slider"></span>
+                                </label>
+                                <input type="text" id="statusValue" name="status_value" value="{{ is_active }}" hidden>
+                            </div>
+                        {% endif %}
                     </div>
 
                     <div class="text-center">
