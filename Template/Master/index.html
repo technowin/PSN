@@ -113,7 +113,7 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">
+          <h5 class="modal-title" style="color:black">
             {% if entity == 'sm' %} Site Upload
             {% elif entity == 'cm' %} Company Upload
             {% elif entity == 'em' %} Employee Upload
@@ -240,7 +240,10 @@
                                     {% endif %}
                                 {% endfor %}
                                 <td>
-                                  <a href="{% if entity == 'sm' %}/site_master?site_id={{ row.0 }}{% elif entity == 'cm' %}/company_master?company_id={{ row.0 }}{% elif entity == 'em' %}/employee_master?id={{ row.0 }}{% endif %}" class="edit-button">
+                                  <a href="{% if entity == 'sm' %}/site_master?site_id={{ row.0 }}
+                                  {% elif entity == 'cm' %}/company_master?company_id={{ row.0 }}
+                                   {% elif entity == 'em' %}/employee_master?id={{ row.0 }}
+                                    {% elif entity == 'r' %}/masters?month={{ row.0 }}&entity={{entity}}&type=ed&empid={{row.1}}{% endif %}" class="edit-button">
                                     <svg class="edit-svgIcon" viewBox="0 0 512 512">
                                         <path d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"></path>
                                     </svg>
@@ -259,27 +262,51 @@
 
 
 {% elif type == 'cr' %}
-
     <div class="row">
       <div class="col-lg-12">
           <!-- Create Card -->
           <div class="card mb-4"style="zoom:90%" >
-    
+
           </div>
       </div>
     </div>
-
 {% elif type == 'ed' %}
-
-    <div class="row">
-      <div class="col-lg-12">
-          <!-- Edit Card -->
-          <div class="card mb-4"style="zoom:90%" >
-    
-          </div>
-      </div>
+  {% if entity == 'r' %}
+    <!-- Edit Card -->
+  <div class="card mb-4"style="zoom:90%" >
+    <div class="card-body">
+      <h2 class="text-center" style="color:#B12121;">
+        <u> Edit Roster</u>
+      </h2>
+      <hr>
+      <form method="POST" action="{% url 'masters' %}">      
+        {% csrf_token %}
+        <input type="hidden" name="employee_id" value="{{ row.2 }}">
+        <div class="row col-md-12">
+          {% for row in header %}
+            <div class="col-md-3">
+              <label class="form-label">{{row.0}} :</label>
+              <input type="text" value="{{row.1}}" class="form-control" readonly>
+            </div>
+          {% endfor %}
+        </div>
+<br>
+        <div class="row col-md-12">
+            {% for row in data %}
+              <div class="col-md-2">
+                <label class="form-label">{{row.0}} :</label>
+                <input type="text" value="{{row.1}}" name="shift_time[]" class="form-control" >
+              </div>
+            {% endfor %}
+        </div>
+        <hr>
+        <div class="text-center">
+          <button type="submit" id="submitBtn" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
     </div>
-
+  </div>
+  {% endif %}
 {% endif %}
 
 {% load static %}

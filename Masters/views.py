@@ -70,6 +70,19 @@ def masters(request):
             cursor.callproc("stp_get_company_names")
             for result in cursor.stored_results():
                 company_names = list(result.fetchall())
+            if entity == 'r' and type == 'ed':
+                month_year =str(request.GET.get('month', ''))
+                if month_year == '':
+                    year,month = '',''
+                else: year,month = month_year.split('-')
+                employee_id = request.GET.get('empid', '')
+                cursor.callproc("stp_get_edit_roster",[employee_id,month,year,'1'])
+                for result in cursor.stored_results():
+                    data = list(result.fetchall())
+                cursor.callproc("stp_get_edit_roster",[employee_id,month,year,'2'])
+                for result in cursor.stored_results():
+                    header = list(result.fetchall())
+                
        
 
         if request.method=="POST":
@@ -217,7 +230,7 @@ def roster_upload(request):
                 #     datalist = list(result.fetchall())
                 #     deleted_count = datalist[0][0]
 
-                for index, row in df.iterrows():
+                for row in df.iterrows():
                     employee_id = row.get('Employee Id', '')
                     employee_name = row.get('Employee Name', '')
                     worksite  = row.get('Worksite', '')
