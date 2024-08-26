@@ -35,9 +35,10 @@ urlpatterns = [
 
     path("", Login,name='Account'),
     path("Login", Login,name='Login'),
+    path('Applogin', LoginView.as_view(), name='Applogin'),
     path("home", home,name='home'),
     path("logout",logoutView,name='logout'),
-    path("register",register,name='register'),
+    path("register",RegistrationView.as_view(),name='register'),
     path("forgot_password",forgot_password,name='forgot_password'),
     path('search/', search, name='search'),
 
