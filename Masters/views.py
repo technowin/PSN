@@ -144,8 +144,8 @@ def sample_xlsx(request):
                 if len(str(cell.value)) > max_length:
                     max_length = len(str(cell.value))
                     
-        adjusted_width = max_length + 2 
-        sheet.column_dimensions[column].width = adjusted_width  
+            adjusted_width = max_length + 2 
+            sheet.column_dimensions[column].width = adjusted_width  
         response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename=sample_format.xlsx'
         workbook.save(response)
