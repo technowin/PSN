@@ -612,17 +612,17 @@ def upload_excel(request):
                 return redirect(f'/masters?entity={entity}&type={type}')
 
             if entity == 'em':
-                for index, row in df.iterrows():
+                for row in df.iterrows():
                     params = tuple(str(row.get(column, '')) for column in columns)
                     cursor.callproc('stp_insert_employee_master', params)      
             elif entity == 'sm':
                 company_id = request.POST.get('company_id', '')
-                for index, row in df.iterrows():
+                for row in df.iterrows():
                     params = tuple(str(row.get(column, '')) for column in columns)
                     params += (str(company_id),)
                     cursor.callproc('stp_insert_site_master', params)
             elif entity == 'cm':
-                for index, row in df.iterrows():
+                for row in df.iterrows():
                     params = tuple(str(row.get(column, '')) for column in columns)
                     cursor.callproc('stp_insert_company_master', params)
                    
