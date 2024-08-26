@@ -51,7 +51,13 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-
+class OTPVerification(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    otp_text = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        db_table = 'otp_verification'
+        
 class password_storage(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='user_id_repos',blank=True, null=True,db_column='created_by')

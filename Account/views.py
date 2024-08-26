@@ -1,11 +1,14 @@
 import json
+import random
+import string
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render,redirect
+from django.shortcuts import get_object_or_404, render,redirect
 from django.contrib.auth import authenticate, login ,logout,get_user_model
 from Account.forms import RegistrationForm
-from Account.models import AssignedCompany, CustomUser
+from Account.models import AssignedCompany, CustomUser, OTPVerification, password_storage
 # import mysql.connector as sql
+from Account.serializers import *
 import Db 
 import bcrypt
 from django.contrib.auth.decorators import login_required
@@ -20,11 +23,40 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph
 from Account.utils import decrypt_email, encrypt_email
 import requests
 import traceback
-
-
-
+from rest_framework.views import APIView
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.views.decorators.csrf import csrf_exempt
+
+class LoginView(APIView):
+    authentication_classes = []
+    def post(self, request):
+        try:
+            serializer = LoginSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+            email = serializer.validated_data['email']
+            password = serializer.validated_data['password']
+
+            # Manually check the provided username and password
+            user = get_object_or_404(CustomUser, email=email)
+
+            if user.check_password(password):
+                login(request, user)
+                serializer = UserSerializer(user).data
+                
+                refresh = RefreshToken.for_user(user)
+                return JsonResponse({'access_token': str(refresh.access_token),'refresh_token': str(refresh),'data':serializer}, status=status.HTTP_200_OK,safe=False)
+                # return JsonResponse(serializer, status=status.HTTP_200_OK,safe=False)
+            else:
+                return JsonResponse({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED,safe=False)
+        except Exception as e:
+            print(str(e))
+            return Response( status=status.HTTP_400_BAD_REQUEST)
+
+
 @csrf_exempt
 # Create your views here.
 def Login(request):
@@ -63,9 +95,48 @@ def Login(request):
 
 def home(request):
     return render(request,'Account/home.html') 
+def generate_otp(length=6):
+    return ''.join(random.choices(string.digits, k=length))
 
-def register(request):
-    return render(request,'Account/register.html') 
+class RegistrationView(APIView):
+    def post(self, request):
+        try:
+            data = request.data.copy()
+            
+            # Check if role_id is provided, otherwise set default value to 1
+            role_id = data.pop('role_id', 1)
+
+            # Check if is_active is provided, otherwise set default value to False
+            is_active = data.pop('is_active', True)
+            serializer = RegistrationSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            raw_password = serializer.validated_data.get('password')
+            user = CustomUser.objects.create(**serializer.validated_data)
+            # user.set_password(raw_password)
+            user.username = user.email
+            user.is_active = is_active  # Default is_active value
+            user.role_id =role_id  # Default role_id value
+            user.save()
+            password_storage.objects.create(user=user, passwordText=raw_password)
+            otp = generate_otp()
+            
+            # Save OTP to database
+            otp_instance = OTPVerification.objects.create(user=user, otp_text=otp)
+            
+            # Send OTP via email
+            # send_mail(
+            #     'OTP Verification',
+            #     f'Your OTP is: {otp}',
+            #     'sender@example.com',
+            #     [user.email],
+            #     fail_silently=False,
+            # )
+            serializer = UserSerializer(user).data
+            return JsonResponse(serializer, status=status.HTTP_200_OK,safe=False)
+        except Exception as e:
+            print(str(e))
+            return Response( status=status.HTTP_400_BAD_REQUEST)
+
 
 def forgot_password(request):
     return render(request,'Account/forgot-password.html') 
