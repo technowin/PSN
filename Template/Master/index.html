@@ -187,14 +187,14 @@
                            <span class="btn__text">Upload</span>
                        </button>                  
                    </div>
-
-                   <div class="{% if entity == 'sm' %}col-lg-1{% else %}col-lg-2{% endif %}">
-                    <form method="GET" action="{% if entity == 'sm' %}/site_master{% elif entity == 'cm' %}/company_master{% elif entity == 'em' %}/employee_master{% endif %}">
-                      <input type="hidden" name="{% if entity == 'sm' %}site_id{% elif entity == 'cm' %}company_id{% elif entity == 'em' %}id{% endif %}" value="0">
-                      <button type="submit" class="Btn"><div class="sign">+ </div> <div class="text">Create</div></button>
-                    </form>
-                  </div>
-                
+                   {% if entity != 'r' %}
+                      <div class="{% if entity == 'sm' %}col-lg-1{% else %}col-lg-2{% endif %}">
+                       <form method="GET" action="{% if entity == 'sm' %}/site_master{% elif entity == 'cm' %}/company_master{% elif entity == 'em' %}/employee_master{% endif %}">
+                         <input type="hidden" name="{% if entity == 'sm' %}site_id{% elif entity == 'cm' %}company_id{% elif entity == 'em' %}id{% endif %}" value="0">
+                         <button type="submit" class="Btn"><div class="sign">+ </div> <div class="text">Create</div></button>
+                       </form>
+                      </div>
+                  {% endif %}     
                    {% if entity == 'sm' %}
                       <div class="col-lg-1" style="justify-content: right; align-items: right;">
                           <a onclick="showMessage()" href="#">
