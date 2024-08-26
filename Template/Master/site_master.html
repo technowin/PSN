@@ -36,7 +36,7 @@
                     <div class="row mb-3">
 
                         <div class="col-md-3">
-                            <label for="company_id" class="form-label">Company Name<span style="color:red;"> *</span> :</label>
+                            <label for="company_id" class="form-label">Company<span style="color:red;"> *</span> :</label>
                             <select name="company_id" id="company_id" class="form-control">
                                 {% if site_id == '0' %}
                                 <option value="" selected>Select</option>
@@ -86,11 +86,11 @@
 
                     <div class="row mb-3">
                         <div class="col-md-3">
-                            <label for="contactPersonName" class="form-label">Name<span style="color:red;"> *</span> :</label>
+                            <label for="contactPersonName" class="form-label">Contact Person Name<span style="color:red;"> *</span> :</label>
                             <input type="text" value="{{ contact_person_name }}" name="contactPersonName" class="form-control" id="contactPersonName" placeholder="Enter Contact Person Name">
                         </div>
                         <div class="col-md-3">
-                            <label for="contactPersonEmail" class="form-label">Email<span style="color:red;"> *</span> :</label>
+                            <label for="contactPersonEmail" class="form-label">Contact Person Email<span style="color:red;"> *</span> :</label>
                             <input type="email" value="{{ contact_person_email }}" name="contactPersonEmail" class="form-control" id="contactPersonEmail" placeholder="Enter Email">
                         </div>
                         <div class="col-md-3">
@@ -98,7 +98,7 @@
                             <input type="text" value="{{ pincode }}" name="pincode" class="form-control" id="pincode" placeholder="Enter Pincode">
                         </div>
                         <div class="col-md-3">
-                            <label for="Number" class="form-label">Mobile Number<span style="color:red;"> *</span></label>
+                            <label for="Number" class="form-label">Contact Person Mobile<span style="color:red;"> *</span></label>
                             <input type="number" value="{{ contact_person_mobile_no }}" name="Number" class="form-control" id="Number" placeholder="Enter Mobile Number">
                         </div>
                     </div>

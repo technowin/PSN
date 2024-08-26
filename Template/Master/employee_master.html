@@ -35,7 +35,6 @@
                     <input type="hidden" value="{{ id }}" name="id" >
 
                     <div class="row mb-3">
-
                         <div class="col-md-3">
                             <label for="EmployeeNumber" class="form-label">Employee No.<span style="color:red;"> *</span> :</label>
                             <input type="text" value="{{ employee_id }}" name="employee_id" class="form-control" id="EmployeeNumber" placeholder="Enter Employee Id">
@@ -56,7 +55,6 @@
                     
                     {% if id != '0' %}
                         <div class="row mb-3">
-                        
                             <div class="col-md-3">
                                     <label for="employee_status_id" class="form-label">Employeee Status<span style="color:red;"> *</span> :</label>
                                     <select name="employee_status_name" id="employee_status_id" class="form-control">
@@ -73,8 +71,6 @@
                                         {% endif%}    
                                     </select>
                             </div>
-                        
-                        
                             <div class="col-md-3">  
                                 <label for="activeBtn" class="form-label">Is Active<span style="color:red;"> *</span> :</label>
                                 <br>

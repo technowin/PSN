@@ -48,7 +48,7 @@ def masters(request):
     name = ''
     entity = ''
     type = ''
-    company_names =[]
+    
     try:
         if request.user.is_authenticated ==True:                
                 global user
@@ -67,9 +67,9 @@ def masters(request):
             cursor.callproc("stp_get_masters",[entity,type,'data'])
             for result in cursor.stored_results():
                 data = list(result.fetchall())
-            # cursor.callproc("stp_get_company_names",['company'])
-            # for result in cursor.stored_results():
-            #     company_names = list(result.fetchall())
+            cursor.callproc("stp_get_company_names")
+            for result in cursor.stored_results():
+                company_names = list(result.fetchall())
        
 
         if request.method=="POST":
