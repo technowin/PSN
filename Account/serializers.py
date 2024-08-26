@@ -15,14 +15,14 @@ class UserSerializer(serializers.ModelSerializer):
                 return None
         return None
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
+    email = serializers.CharField()
     password = serializers.CharField()
 
 class RegistrationSerializer(serializers.Serializer):
     # id = serializers.CharField()
     email = serializers.EmailField()
     password = serializers.CharField()
-    name = serializers.CharField()
+    full_name = serializers.CharField()
     phone = serializers.CharField()
     is_active = serializers.CharField(allow_blank=True, allow_null=True, required=False)
     role_id = serializers.CharField(allow_blank=True, allow_null=True, required=False)

@@ -30,18 +30,23 @@ from Notification.views import check_shift_for_next_day
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # APP URLS
+    
+    path('Applogin', LoginView.as_view(), name='Applogin'),
+    path("register",RegistrationView.as_view(),name='register'),
+    path('home_fetch', RosterDataAPIView.as_view(), name='home_fetch'),
+    
     
     # Account
 
     path("", Login,name='Account'),
     path("Login", Login,name='Login'),
-    path('Applogin', LoginView.as_view(), name='Applogin'),
     path("home", home,name='home'),
     path("logout",logoutView,name='logout'),
-    path("register",RegistrationView.as_view(),name='register'),
+    
+    
     path("forgot_password",forgot_password,name='forgot_password'),
     path('search/', search, name='search'),
-
     # Masters
 
     path('masters/', masters, name='masters'),

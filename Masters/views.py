@@ -25,6 +25,18 @@ import openpyxl
 from openpyxl.styles import Font, Border, Side
 import calendar
 from datetime import datetime, timedelta
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Q, Count
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import AccessToken
+from django.utils import timezone
+from .models import sc_roster, sc_employee_master, CustomUser 
+
 
 def masters(request):
     Db.closeConnection()
@@ -712,5 +724,76 @@ def upload_excel(request):
             return redirect(new_url)
 
 
+class RosterDataAPIView(APIView):
+    # Ensure the user is authenticated using JWT
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
+    def get(self, request):
+        # Extract user ID from the JWT token
+        user = request.user  # This will get the user from the JWT token
+
+        # Call the function to get the roster data
+        roster_data = self.get_roster_data(user.id)
+
+        return Response(roster_data)
+
+    def get_roster_data(self, user_id):
+        # Step 1: Get the user by user_id
+        user = CustomUser.objects.get(id=user_id)
+        
+        # Step 2: Get the phone number of the user
+        phone_number = user.phone
+
+        # Step 3: Get the employee_id from sc_employee_master using the phone number
+        try:
+            employee = sc_employee_master.objects.get(mobile_no=phone_number)
+        except sc_employee_master.DoesNotExist:
+            return {
+                'error': 'Employee not found'
+            }
+        employee_id = employee.employee_id
+
+        # Step 4: Get the current date and the first date of the current month
+        current_date = timezone.now().date()
+
+        # Step 5: Query sc_roster for the current month and categorize the data
+        current_roster_qs = sc_roster.objects.filter(
+            employee_id=employee_id,
+            shift_date__gte=current_date
+        )
+
+        previous_roster_qs = sc_roster.objects.filter(
+            employee_id=employee_id,
+            shift_date__lt=current_date
+        )
+
+        marked_roster_qs = sc_roster.objects.filter(
+            employee_id=employee_id,
+            confirmation=True
+        )
+
+        unmarked_roster_qs = sc_roster.objects.filter(
+            employee_id=employee_id,
+            confirmation=False
+        )
+
+        # Count the number of rows in each query set
+        current_roster_count = current_roster_qs.count()
+        previous_roster_count = previous_roster_qs.count()
+        marked_roster_count = marked_roster_qs.count()
+        unmarked_roster_count = unmarked_roster_qs.count()
+
+        # Return the counts and the lists
+        return {
+            'Current Roster Count': current_roster_count,
+            'Current Roster List': list(current_roster_qs.values()),  # Using .values() to serialize queryset
+            'Previous Roster Count': previous_roster_count,
+            'Previous Roster List': list(previous_roster_qs.values()),  # Using .values() to serialize queryset
+            'Marked Roster Count': marked_roster_count,
+            'Marked Roster List': list(marked_roster_qs.values()),  # Using .values() to serialize queryset
+            'Unmarked Roster Count': unmarked_roster_count,
+            'Unmarked Roster List': list(unmarked_roster_qs.values()),  # Using .values() to serialize queryset
+            'All Current Date and After List': list(current_roster_qs.values())  # Same as Current Roster List
+        }
     

@@ -29,6 +29,34 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.views.decorators.csrf import csrf_exempt
+
+class LoginView(APIView):
+    authentication_classes = []
+    def post(self, request):
+        try:
+            serializer = LoginSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+            email = serializer.validated_data['email']
+            password = serializer.validated_data['password']
+
+            # Manually check the provided username and password
+            user = get_object_or_404(CustomUser, email=email)
+
+            if user.check_password(password):
+                login(request, user)
+                serializer = UserSerializer(user).data
+                
+                refresh = RefreshToken.for_user(user)
+                return JsonResponse({'access_token': str(refresh.access_token),'refresh_token': str(refresh),'data':serializer}, status=status.HTTP_200_OK,safe=False)
+                # return JsonResponse(serializer, status=status.HTTP_200_OK,safe=False)
+            else:
+                return JsonResponse({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED,safe=False)
+        except Exception as e:
+            print(str(e))
+            return Response( status=status.HTTP_400_BAD_REQUEST)
+
+
 @csrf_exempt
 # Create your views here.
 def Login(request):
@@ -70,31 +98,6 @@ def home(request):
 def generate_otp(length=6):
     return ''.join(random.choices(string.digits, k=length))
 
-class LoginView(APIView):
-    def post(self, request):
-        try:
-            serializer = LoginSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-
-            username = serializer.validated_data['username']
-            password = serializer.validated_data['password']
-
-            # Manually check the provided username and password
-            user = get_object_or_404(CustomUser, username=username)
-
-            if user.check_password(password):
-                login(request, user)
-                serializer = UserSerializer(user).data
-                
-                refresh = RefreshToken.for_user(user)
-                return JsonResponse({'access_token': str(refresh.access_token),'refresh_token': str(refresh),'data':serializer}, status=status.HTTP_200_OK,safe=False)
-                # return JsonResponse(serializer, status=status.HTTP_200_OK,safe=False)
-            else:
-                return JsonResponse({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED,safe=False)
-        except Exception as e:
-            print(str(e))
-            return Response( status=status.HTTP_400_BAD_REQUEST)
-
 class RegistrationView(APIView):
     def post(self, request):
         try:
@@ -109,12 +112,12 @@ class RegistrationView(APIView):
             serializer.is_valid(raise_exception=True)
             raw_password = serializer.validated_data.get('password')
             user = CustomUser.objects.create(**serializer.validated_data)
-            user.set_password(raw_password)
+            # user.set_password(raw_password)
             user.username = user.email
             user.is_active = is_active  # Default is_active value
             user.role_id =role_id  # Default role_id value
             user.save()
-            password_storage.objects.create(user=user, raw_password=raw_password)
+            password_storage.objects.create(user=user, passwordText=raw_password)
             otp = generate_otp()
             
             # Save OTP to database
