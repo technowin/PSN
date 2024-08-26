@@ -371,7 +371,11 @@
 input[type="text"], 
 input[type="number"], 
 input[type="email"], 
-input[type="time"]{
+input[type="month"], 
+input[type="date"], 
+input[type="time"], 
+input[type="checkbox"], 
+input[type="file"]{
     border-radius: 10px; 
     border: 1px solid #ccc; 
     color: #000;
@@ -385,7 +389,11 @@ input[type="time"]{
 input[type="text"]:focus, 
 input[type="number"]:focus, 
 input[type="email"]:focus, 
+input[type="month"]:focus, 
+input[type="date"]:focus, 
 input[type="time"]:focus, 
+input[type="checkbox"]:focus, 
+input[type="file"]:focus, 
 select[name="company_id"]:focus {
     border-color: #8b0000; 
     outline: none; 
