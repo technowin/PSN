@@ -33,7 +33,7 @@ DATABASES = {
         #'ENGINE': 'django.db.backends.mysql',
         'ENGINE': 'mysql.connector.django',
         # 'NAME': 'LKN_PSN',      # Replace with your database name
-        'NAME': 'psn_db',      # Replace with your database name
+        'NAME': 'psn_test_db',      # Replace with your database name
         # 'NAME': 'PSN_live_shubham',      # Replace with your database name
         'USER': 'root',      # Replace with your database user
         #'PASSWORD': 'Shrims8@2420',  # Password for live RDS

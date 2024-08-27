@@ -129,13 +129,16 @@
                 <input type="hidden" name="entity" value="{{ entity }}">
                 <input type="hidden" name="type" value="{{ type }}">
                 {% if entity == 'sm' %}
-                <div class="col-md-12 mb-3">
-                  <select id="company_id" name="company_id" class="form-control" required>
-                    <option value="" selected>Select</option>
-                    {% for item in company_names %}
-                    <option value="{{ item.0 }}">{{ item.1 }}</option>
-                    {% endfor %}
-                  </select>
+                <div class="d-flex justify-content-center align-items-center">
+                  <div class="col-md-6 mb-3">
+                    <label for="company_id" class="form-label">Company</label>
+                    <select id="company_id" name="company_id" class="form-control" required>
+                      <option value="" selected>Select</option>
+                      {% for item in company_names %}
+                      <option value="{{ item.0 }}">{{ item.1 }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
                 </div>
                 <hr>
                 {% endif %}
@@ -196,11 +199,11 @@
                       </div>
                   {% endif %}     
                    {% if entity == 'sm' %}
-                      <div class="col-lg-1" style="justify-content: right; align-items: right;">
+                     <!-- <div class="col-lg-1" style="justify-content: right; align-items: right;">
                           <a onclick="showMessage()" href="#">
                               <span style="color:#B12121; font-size: 1.2rem; font-weight: bold;">Note *</span>
                           </a>
-                      </div>
+                      </div>-->
                    {% endif %}              
                </div>  
                <div class="card-body">
@@ -281,7 +284,8 @@
       <hr>
       <form method="POST" action="{% url 'masters' %}">      
         {% csrf_token %}
-        <input type="hidden" name="employee_id" value="{{ row.2 }}">
+        <input type="hidden" name="entity" value="{{ entity }}">
+        <input type="hidden" name="type" value="{{ type }}">
         <div class="row col-md-12">
           {% for row in header %}
             <div class="col-md-3">
@@ -290,12 +294,13 @@
             </div>
           {% endfor %}
         </div>
-<br>
+        <br>
         <div class="row col-md-12">
             {% for row in data %}
               <div class="col-md-2">
-                <label class="form-label">{{row.0}} :</label>
-                <input type="text" value="{{row.1}}" name="shift_time[]" class="form-control" >
+                <input type="hidden" name="ids[]" value="{{ row.0 }}">
+                <label class="form-label">{{row.1}} :</label>
+                <input type="text" value="{{row.2}}" name="shifts[]" class="form-control">
               </div>
             {% endfor %}
         </div>
