@@ -11,7 +11,7 @@ def check_shift_for_next_day(request, employee_id, site_id):
     try:
         site = site_master.objects.get(site_id=site_id)
         
-        shift = sc_roaster.objects.get(employee_id=employee_id, site=site, shift_date=tomorrow)
+        shift = sc_roster.objects.get(employee_id=employee_id, site=site, shift_date=tomorrow)
         
         response_data = {
             'has_shift': True,
@@ -19,7 +19,7 @@ def check_shift_for_next_day(request, employee_id, site_id):
             'shift_from': shift.shift_from.strftime('%H:%M'),
             'shift_to': shift.shift_to.strftime('%H:%M'),
         }
-    except sc_roaster.DoesNotExist:
+    except sc_roster.DoesNotExist:
         response_data = {'has_shift': False}
     
     return JsonResponse(response_data)

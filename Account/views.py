@@ -137,6 +137,25 @@ class RegistrationView(APIView):
             print(str(e))
             return Response( status=status.HTTP_400_BAD_REQUEST)
 
+class CustomTokenRefreshView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        refresh = request.GET.get('refresh')  # Retrieve the 'refresh' parameter from the query string
+
+        if not refresh:  # If 'refresh' parameter not found in query string, try to retrieve from request body
+            refresh = request.data.get('refresh')
+
+        if refresh:
+            try:
+                refresh_token = RefreshToken(refresh)
+                access_token = str(refresh_token.access_token)
+                # Generate a new refresh token
+                new_refresh_token = str(refresh_token.access_token)
+                return Response({'access-token': access_token, 'refresh-token': str(refresh_token)})
+            except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'error': 'Refresh token not provided'}, status=status.HTTP_400_BAD_REQUEST)
 
 def forgot_password(request):
     return render(request,'Account/forgot-password.html') 
