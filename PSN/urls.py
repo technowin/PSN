@@ -31,7 +31,7 @@ from Notification.views import check_shift_for_next_day
 urlpatterns = [
     path('admin/', admin.site.urls),
     # APP URLS
-    
+    path('refresh-token', CustomTokenRefreshView.as_view(), name='refresh-token'),
     path('Applogin', LoginView.as_view(), name='Applogin'),
     path("register",RegistrationView.as_view(),name='register'),
     path('home_fetch', RosterDataAPIView.as_view(), name='home_fetch'),
