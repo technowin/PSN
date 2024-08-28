@@ -655,14 +655,14 @@ class RosterDataAPIView(APIView):
 
         # Return the counts and the lists
         return {
-            'Current Roster Count': current_roster_count,
-            'Current Roster List': list(current_roster_qsser.data ),  # Using .values() to serialize queryset
-            'Previous Roster Count': previous_roster_count,
-            'Previous Roster List': list(previous_roster_qsser.data),  # Using .values() to serialize queryset
-            'Marked Roster Count': marked_roster_count,
-            'Marked Roster List': list(marked_roster_qsser.data),  # Using .values() to serialize queryset
-            'Unmarked Roster Count': unmarked_roster_count,
-            'Unmarked Roster List': list(unmarked_roster_qsser.data),  # Using .values() to serialize queryset
-            'All Current Date and After List': list(current_roster_qsser.data)  # Same as Current Roster List
+            'current_roster_count': current_roster_count,
+            'current_roster_list': list(current_roster_qsser.data ),  # Using .values() to serialize queryset
+            'previous_roster_count': previous_roster_count,
+            'previous_roster_list': list(previous_roster_qsser.data),  # Using .values() to serialize queryset
+            'marked_roster_count': marked_roster_count,
+            'marked_roster_list': list(marked_roster_qsser.data),  # Using .values() to serialize queryset
+            'unmarked_roster_count': unmarked_roster_count,
+            'unmarked_roster_list': list(unmarked_roster_qsser.data),  # Using .values() to serialize queryset
+            'roster_list': list(current_roster_qsser.data)  # Same as Current Roster List
         }
     
