@@ -43,12 +43,9 @@ def masters(request):
     m = Db.get_connection()
     cursor=m.cursor()
     pre_url = request.META.get('HTTP_REFERER')
-    header = []
-    data = []
-    name = ''
-    entity = ''
-    type = ''
-    
+    header, data = [], []
+    entity, type, name = '', '', ''
+
     try:
         if request.user.is_authenticated ==True:                
                 global user
@@ -204,12 +201,8 @@ def roster_upload(request):
             month_input  =str(request.POST.get('month_year', ''))
             new_url = f'/masters?entity={entity}&type={type}'
             
-            total_row_inserted = 0
-            count_error_log = 0
-            deleted_count = 0
+            total_row_inserted = count_error_log = deleted_count = rows_inserted = inserted_error_id = 0
             inserted_error_id_list = []
-            rows_inserted = 0
-            inserted_error_id = 0
 
             if entity == 'r':
                 year, month = map(int, month_input.split('-'))
@@ -238,8 +231,13 @@ def roster_upload(request):
                         shift_time = row.get(date_col, '')  
                         params = (str(employee_id),employee_name,int(company_id),worksite,shift_date,shift_time)
                         cursor.callproc('stp_insert_roster', params)
+                        for result in cursor.stored_results():
+                            r = list(result.fetchall())
+                        if r[0][0] == "success":
+                            messages.success(request, "Data Uploaded successfully!")
+                        else : messages.error(request, str(r[0][0]))
 
-                messages.success(request, "Data Uploaded successfully!")
+                
 
         except Exception as e:
             tb = traceback.extract_tb(e.__traceback__)
