@@ -5,10 +5,11 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate, login ,logout,get_user_model
 from Account.forms import RegistrationForm
-from Account.models import AssignedCompany, CustomUser
+from Account.models import *
 import Db 
 import bcrypt
 from django.contrib.auth.decorators import login_required
+from Masters.serializers import ScRosterSerializer
 from PSN.encryption import *
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
@@ -762,38 +763,44 @@ class RosterDataAPIView(APIView):
             employee_id=employee_id,
             shift_date__gte=current_date
         )
+        
+        current_roster_qsser = ScRosterSerializer(current_roster_qs, many=True)
 
         previous_roster_qs = sc_roster.objects.filter(
             employee_id=employee_id,
             shift_date__lt=current_date
         )
+        previous_roster_qsser = ScRosterSerializer(previous_roster_qs, many=True)
 
         marked_roster_qs = sc_roster.objects.filter(
             employee_id=employee_id,
-            confirmation=True
+            confirmation__isnull=False 
         )
+        marked_roster_qsser = ScRosterSerializer(marked_roster_qs, many=True)
 
         unmarked_roster_qs = sc_roster.objects.filter(
             employee_id=employee_id,
-            confirmation=False
+            confirmation__isnull=True ,
+            shift_date__lt=current_date
         )
+        unmarked_roster_qsser = ScRosterSerializer(unmarked_roster_qs, many=True)
 
         # Count the number of rows in each query set
-        current_roster_count = current_roster_qs.count()
-        previous_roster_count = previous_roster_qs.count()
-        marked_roster_count = marked_roster_qs.count()
-        unmarked_roster_count = unmarked_roster_qs.count()
+        current_roster_count = len(current_roster_qsser.data)
+        previous_roster_count = len(previous_roster_qsser.data)
+        marked_roster_count = len(marked_roster_qsser.data)
+        unmarked_roster_count = len(unmarked_roster_qsser.data)
 
         # Return the counts and the lists
         return {
             'Current Roster Count': current_roster_count,
-            'Current Roster List': list(current_roster_qs.values()),  # Using .values() to serialize queryset
+            'Current Roster List': list(current_roster_qsser.data ),  # Using .values() to serialize queryset
             'Previous Roster Count': previous_roster_count,
-            'Previous Roster List': list(previous_roster_qs.values()),  # Using .values() to serialize queryset
+            'Previous Roster List': list(previous_roster_qsser.data),  # Using .values() to serialize queryset
             'Marked Roster Count': marked_roster_count,
-            'Marked Roster List': list(marked_roster_qs.values()),  # Using .values() to serialize queryset
+            'Marked Roster List': list(marked_roster_qsser.data),  # Using .values() to serialize queryset
             'Unmarked Roster Count': unmarked_roster_count,
-            'Unmarked Roster List': list(unmarked_roster_qs.values()),  # Using .values() to serialize queryset
-            'All Current Date and After List': list(current_roster_qs.values())  # Same as Current Roster List
+            'Unmarked Roster List': list(unmarked_roster_qsser.data),  # Using .values() to serialize queryset
+            'All Current Date and After List': list(current_roster_qsser.data)  # Same as Current Roster List
         }
     
