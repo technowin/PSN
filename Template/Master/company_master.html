@@ -55,11 +55,11 @@
                             <input type="text" value="{{ company_address }}" name="company_address" class="form-control" id="site_address" placeholder="Enter Address">
                         </div>
                         <div class="col-md-3">
-                            <label for="contactPersonName" class="form-label">Contact Name<span style="color:red;"> *</span> :</label>
+                            <label for="contactPersonName" class="form-label">Contact Person Name<span style="color:red;"> *</span> :</label>
                             <input type="text" value="{{ contact_person_name }}" name="contact_person_name" class="form-control" id="contactPersonName" placeholder="Enter Contact Person Name">
                         </div>
                         <div class="col-md-3">
-                            <label for="contactPersonEmail" class="form-label">Email<span style="color:red;"> *</span> :</label>
+                            <label for="contactPersonEmail" class="form-label">Contact Person Email<span style="color:red;"> *</span> :</label>
                             <input type="email" value="{{ contact_person_email }}" name="contact_person_email" class="form-control" id="contactPersonEmail" placeholder="Enter Email">
                         </div>
                     </div>
@@ -70,19 +70,21 @@
                             <input type="text" value="{{ pincode }}" name="pincode" class="form-control" id="pincode" placeholder="Enter Pincode">
                         </div>
                         <div class="col-md-3">
-                            <label for="Number" class="form-label">Number<span style="color:red;"> *</span> :</label>
+                            <label for="Number" class="form-label">Contact Person Mobile<span style="color:red;"> *</span> :</label>
                             <input type="number" value="{{ contact_person_mobile_no }}" name="contact_person_mobile_no" class="form-control" id="Number" placeholder="Enter Mobile Number">
                         </div>
-                        <div class="col-md-3">  
-                            <label for="activeBtn" class="form-label">Is Active<span style="color:red;"> *</span> :</label>
-                            <br>
-                            <label class="switch">
-                                <input type="checkbox" values ="{{ is_active }}" id="statusSwitch" name="is_active" 
-                                       {% if is_active == "1" %} checked {% endif %} onchange="updateStatus()">
-                                <span class="slider"></span>
-                            </label>
-                            <input type="text" id="statusValue" name="status_value" value="{{ is_active }}" hidden>
-                        </div>
+                        {% if company_id != '0' %}
+                            <div class="col-md-3">  
+                                <label for="activeBtn" class="form-label">Is Active<span style="color:red;"> *</span> :</label>
+                                <br>
+                                <label class="switch">
+                                    <input type="checkbox" values ="{{ is_active }}" id="statusSwitch" name="is_active" 
+                                           {% if is_active == "1" %} checked {% endif %} onchange="updateStatus()">
+                                    <span class="slider"></span>
+                                </label>
+                                <input type="text" id="statusValue" name="status_value" value="{{ is_active }}" hidden>
+                            </div>
+                        {% endif %}
                     </div>
 
                     <div class="text-center">
