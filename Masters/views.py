@@ -690,16 +690,16 @@ class confirm_schedule(APIView):
     def post(self, request):
         try:
             data= request.data
-            roster_id = request.data.get('id')
-            confirmation = request.data.get('confirmation') == '1'
-            user = request.user
-            roster = sc_roster.objects.get(id=roster_id)
-            roster.confirmation = confirmation
-            roster.updated_at = timezone.now()
-            roster.updated_by = user
-            roster.save()
+            # roster_id = request.data.get('id')
+            # confirmation = request.data.get('confirmation') == '1'
+            # user = request.user
+            # roster = sc_roster.objects.get(id=roster_id)
+            # roster.confirmation = confirmation
+            # roster.updated_at = timezone.now()
+            # roster.updated_by = user
+            # roster.save()
 
-            return Response({'success': 'Confirmation updated successfully.'}, status=200)
+            return Response({'success': 'Confirmation updated successfully.','data':data}, status=200)
         except sc_roster.DoesNotExist:
             return Response({'error': 'Roster not found.'}, status=404)
         except Exception as e:
