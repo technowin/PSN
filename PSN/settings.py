@@ -40,8 +40,8 @@ DATABASES = {
         # 'PASSWORD': 'ddL7c=5vsjTd8c',  # Password for VM
         'PASSWORD': 'Mysql_7319',  # Replace with your database password
         # 'HOST': '52.172.154.80',       # IP FOR RDS
-        'HOST': '13.202.157.7',       # IP FOR TEST
-        #'HOST': '127.0.0.1',       # IP FOR LOCAL VM
+        # 'HOST': '13.202.157.7',       # IP FOR TEST
+        'HOST': '127.0.0.1',       # IP FOR LOCAL VM
         'PORT': '3306',            # Replace with your database port
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
