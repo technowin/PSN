@@ -234,7 +234,7 @@ def roster_upload(request):
                         cursor.callproc('stp_insert_roster', params)
                         for result in cursor.stored_results():
                             r = list(result.fetchall())
-                        if r[0][0] == "error":
+                        if r[0][0] not in ("success", "updated"):
                             if worksite not in worksites:
                                 worksites.append(worksite)
                             error_message = str(r[0][0])
@@ -243,7 +243,7 @@ def roster_upload(request):
                             messages.error(request, "Errors occurred during upload. Please check error logs.")
                     if r[0][0] == "success": success_count += 1
                     elif r[0][0] == "updated": update_count += 1  
-                    elif r[0][0] == "error": error_count += 1
+                    else: error_count += 1
                 checksum_msg = f"Total Rows Processed: {total_rows}, Successful Entries: {success_count}, Updates: {update_count}, Errors: {error_count}"
                 cursor.callproc('stp_update_checksum', ('roster',company_id,', '.join(worksites),month,year,file_name,checksum_msg,error_count,update_count,checksum_id))
                 if error_count == 0:
