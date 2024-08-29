@@ -698,8 +698,9 @@ class confirm_schedule(APIView):
             roster.updated_at = timezone.now()
             roster.updated_by = user
             roster.save()
+            ser = ScRosterSerializer(roster)
 
-            return Response({'success': 'Confirmation updated successfully.','data':roster}, status=200)
+            return Response({'success': 'Confirmation updated successfully.','data':ser.data}, status=200)
         except sc_roster.DoesNotExist:
             return Response({'error': 'Roster not found.'}, status=404)
         except Exception as e:
