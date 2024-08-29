@@ -200,10 +200,10 @@ def roster_upload(request):
             type = request.POST.get('type', '')
             company_id = request.POST.get('company_id', '')
             month_input  =str(request.POST.get('month_year', ''))
-            new_url = f'/masters?entity={entity}&type={type}'
-            
-            total_row_inserted = count_error_log = deleted_count = rows_inserted = inserted_error_id = 0
-            inserted_error_id_list = []
+            total_rows = len(df)
+            update_count = error_count = success_count = 0
+            checksum_id = None
+            worksites = []
 
             if entity == 'r':
                 year, month = map(int, month_input.split('-'))
@@ -214,32 +214,43 @@ def roster_upload(request):
                     start_columns = [col[0] for col in result.fetchall()]
 
                 if not all(col in df.columns for col in start_columns + date_columns):
-                    # raise ValueError("The uploaded Excel file does not contain the required columns.")
                     messages.error(request, 'Oops...! The uploaded Excel file does not contain the required columns.!')
                     return redirect(f'/masters?entity={entity}&type={type}')
-
-                # cursor.callproc("stp_delete_roster",[company_id, month, year])
-                # for result in cursor.stored_results():
-                #     datalist = list(result.fetchall())
-                #     deleted_count = datalist[0][0]
-
+                
+                cursor.callproc('stp_insert_checksum', ('roster',company_id,month,year,file_name))
+                for result in cursor.stored_results():
+                    c = list(result.fetchall())
+                checksum_id = c[0][0]
+                
                 for index,row in df.iterrows():
                     employee_id = row.get('Employee Id', '')
                     employee_name = row.get('Employee Name', '')
                     worksite  = row.get('Worksite', '')
+                    
                     for date_col in date_columns:
                         shift_date = datetime.strptime(date_col, '%d-%m-%Y').date()
                         shift_time = row.get(date_col, '')  
-                        params = (str(employee_id),employee_name,int(company_id),worksite,shift_date,shift_time)
+                        params = (str(employee_id),employee_name,int(company_id),worksite,shift_date,shift_time,checksum_id)
                         cursor.callproc('stp_insert_roster', params)
                         for result in cursor.stored_results():
                             r = list(result.fetchall())
-                        if r[0][0] == "success":
-                            messages.success(request, "Data Uploaded successfully!")
-                        else : messages.error(request, str(r[0][0]))
-
-                
-
+                        if r[0][0] not in ("success", "updated"):
+                            if worksite not in worksites:
+                                worksites.append(worksite)
+                            error_message = str(r[0][0])
+                            error_params = ('roster', company_id,worksite,file_name,shift_date,error_message,checksum_id)
+                            cursor.callproc('stp_insert_error_log', error_params)
+                            messages.error(request, "Errors occurred during upload. Please check error logs.")
+                    if r[0][0] == "success": success_count += 1
+                    elif r[0][0] == "updated": update_count += 1  
+                    else: error_count += 1
+                checksum_msg = f"Total Rows Processed: {total_rows}, Successful Entries: {success_count}, Updates: {update_count}, Errors: {error_count}"
+                cursor.callproc('stp_update_checksum', ('roster',company_id,', '.join(worksites),month,year,file_name,checksum_msg,error_count,update_count,checksum_id))
+                if error_count == 0:
+                    messages.success(request, "All data uploaded successfully!")
+                else:
+                    messages.warning(request, f"The upload processed {total_rows} rows, resulting in {success_count} successful entries, {update_count} updates, and {error_count} errors; please check the error logs for details.")
+                    
         except Exception as e:
             tb = traceback.extract_tb(e.__traceback__)
             fun = tb[0].name
@@ -252,6 +263,9 @@ def roster_upload(request):
             m.close()
             Db.closeConnection()
             return redirect(f'/masters?entity={entity}&type={type}')     
+        
+def insert_checksum(checksum_description, file_name, company_id, worksite, month, year, error_count, cursor):
+    cursor.callproc('stp_insert_checksum', (company_id,worksite,month,year,file_name,checksum_description,error_count))
 
 def site_master(request):
     Db.closeConnection()
