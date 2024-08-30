@@ -421,3 +421,71 @@ select[name="company_id"]:focus,select[name="roster_type"]:focus {
     color: #000;
 }
 
+.btn_err {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition-duration: .3s;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
+  background-color: black;
+}
+
+/* warning icon */
+.sign_err {
+  width: 100%;
+  transition-duration: .3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sign_err svg {
+  width: 35px;
+}
+
+.sign_err svg path {
+  fill: white;
+}
+/* text */
+.text_err {
+  position: absolute;
+  right: 0%;
+  width: 0%;
+  opacity: 0;
+  color: white;
+  font-size: 1.2em;
+  font-weight: 600;
+  transition-duration: .3s;
+}
+/* hover effect on button width */
+.btn_err:hover {
+  width: 170px;
+  background-color: rgb(255, 69, 69);
+
+  border-radius: 40px;
+  transition-duration: .3s;
+}
+
+.btn_err:hover .sign_err {
+  width: 30%;
+  transition-duration: .3s;
+  padding-left: 20px;
+}
+/* hover effect button's text */
+.btn_err:hover .text_err {
+  opacity: 1;
+  width: 70%;
+  transition-duration: .3s;
+  padding-right: 10px;
+}
+/* button click effect */
+.btn_err:active {
+  transform: translate(2px ,2px);
+}
