@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from datetime import timedelta
 API_URL='https://complianceaudit.lknconsultants.net/'
 API_URL_SALARY='https://salaryregister.lknconsultants.net/'
 # API_URL='http://192.168.1.21:45455/'
@@ -27,7 +28,26 @@ DEBUG = False
 
 # Test Changed
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=2),  # Change the access token expiry time to 2 days
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),  # Keep the refresh token expiry time as 30 days
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'UPDATE_LAST_LOGIN': False,
+}
 
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'notify_users_2pm': {
+        'task': 'your_app.tasks.check_and_notify_all_users',
+        'schedule': crontab(hour=14, minute=0),  # Run every day at 2 PM
+    },
+    'notify_users_7pm': {
+        'task': 'your_app.tasks.check_and_notify_all_users',
+        'schedule': crontab(hour=19, minute=0),  # Run every day at 7 PM
+    },
+}
 DATABASES = {
     'default': {
         #'ENGINE': 'django.db.backends.mysql',

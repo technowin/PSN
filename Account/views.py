@@ -29,7 +29,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.views.decorators.csrf import csrf_exempt
-
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 class LoginView(APIView):
     authentication_classes = []
     def post(self, request):
@@ -92,7 +93,23 @@ def Login(request):
     if request.method=="GET":
        return render(request,'Account/login.html',{'Error': Error,'next':next})                 
     return render(request,'Account/login.html',{'Error': Error}) 
+class register_device_token(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    def post(self, request):
+        try:
+            user = request.user
+            device_token = request.data.get('device_token')
 
+            if device_token:
+                user.device_token = device_token
+                user.save()
+                return Response({"message": "Device token registered successfully."}, status=200)
+            else:
+                return Response({"message": "Device token not provided."}, status=400)
+        except Exception as e:
+            print(str(e))
+            return Response( status=status.HTTP_400_BAD_REQUEST)
 def home(request):
     return render(request,'Account/home.html') 
 def generate_otp(length=6):

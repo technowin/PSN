@@ -33,6 +33,7 @@ urlpatterns = [
     # APP URLS
     path('refresh-token', CustomTokenRefreshView.as_view(), name='refresh-token'),
     path('Applogin', LoginView.as_view(), name='Applogin'),
+    path('register_device_token', register_device_token.as_view(), name='register_device_token'),
     path("register",RegistrationView.as_view(),name='register'),
     path('home_fetch', RosterDataAPIView.as_view(), name='home_fetch'),
     path('confirm_schedule', confirm_schedule.as_view(), name='confirm_schedule'),
