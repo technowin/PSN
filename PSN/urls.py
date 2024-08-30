@@ -35,6 +35,7 @@ urlpatterns = [
     path('Applogin', LoginView.as_view(), name='Applogin'),
     path("register",RegistrationView.as_view(),name='register'),
     path('home_fetch', RosterDataAPIView.as_view(), name='home_fetch'),
+    path('confirm_schedule', confirm_schedule.as_view(), name='confirm_schedule'),
     
     
     # Account

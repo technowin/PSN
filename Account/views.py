@@ -54,7 +54,7 @@ class LoginView(APIView):
                 return JsonResponse({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED,safe=False)
         except Exception as e:
             print(str(e))
-            return Response( status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Invalid credentials  '+str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @csrf_exempt
