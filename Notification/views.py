@@ -7,7 +7,7 @@ from Masters.models import *
 from celery import shared_task
 from django.utils import timezone
 from datetime import timedelta
-from .models import CustomUser, sc_employee_master, sc_roster
+
 import requests
 # Create your views here.
 def check_shift_for_next_day(request, employee_id, site_id):
