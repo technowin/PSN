@@ -323,12 +323,12 @@
 {% elif type == 'err' %}
   {% if entity == 'r' %}
      <!-- Error Logs -->
-     <div class="card mb-4"style="zoom:90%" >
+     <div class="card mb-4" style="zoom:90%" >
        <div class="card-body">
-          <h2 class="text-center" style="color:#B12121;">
+          <h1 class="text-center" style="color:#B12121;font-weight:bold">
            <u> Error Logs</u>
          </h2>
-         <hr> 
+        
          <div class="table-responsive">
             <table style="width: 100%;"  class="table"  id="dataTable">   
                <thead>
@@ -347,14 +347,15 @@
                 {% for row in data %}
                     <tr style="color:black">
                         {% for cell in row %}
-                                <td>
-                                    {% if cell|length > 60 %}
-                                        <!-- <textarea rows="4" readonly>{{ cell }}</textarea>  -->
-                                        {{ cell }}
-                                    {% else %}
-                                        {{ cell }}
-                                    {% endif %}
-                                </td>
+                          <td>
+                            {% if 'Employee' in cell or 'Worksite' in cell %}
+                                <span class="badge badge-danger" style="font-size: 16px;">{{ cell }}</span>
+                            {% elif 'Total' in cell %}
+                                <span class="badge badge-dark" style="font-size: 16px;">{{ cell }}</span>
+                            {% else %}
+                                {{ cell }}
+                            {% endif %}
+                          </td>
                         {% endfor %}
                     </tr>
                 {% endfor %}
