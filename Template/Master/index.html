@@ -163,7 +163,7 @@
            <!-- Index Card -->
            <div class="card mb-4"style="zoom:90%" >
                <div class="row">
-                   <div class="col-md-7">
+                   <div class="{% if entity == 'r' %}col-md-7{% else %}col-md-5{% endif %}">
                        <h3> <strong style="color: #B12121;"> <u>{{name}}</u> </strong></h3>
                    </div>
                    <div class="col-md-1">
@@ -173,7 +173,7 @@
                         <span class="icon2"></span>
                       </a>
                     </div>
-                   <div class="col-md-2">
+                   <div class="col-sm-2">
                        <!-- Button trigger modal -->
                        <button class="buttonu" type="button" data-toggle="modal"  data-target="{% if entity == 'r' %}#roster_model_id{% else %}#excel_upload{% endif %}">
                            <span class="btn__icon">
@@ -188,7 +188,7 @@
                        </button>                  
                    </div>
                    {% if entity == 'r' %}
-                    <div class="col-md-2">
+                    <div class="col-sm-2">
                       <form method="GET" action="/masters">
                         <input type="hidden" name="entity" value="{{ entity }}">
                         <input type="hidden" name="type" value="err">
@@ -201,12 +201,24 @@
                       </form>
                     </div>
                   {% else %}   
-                    <div class="{% if entity == 'sm' %}col-lg-1{% else %}col-lg-2{% endif %}">
-                      <form method="GET" action="{% if entity == 'sm' %}/site_master{% elif entity == 'cm' %}/company_master{% elif entity == 'em' %}/employee_master{% endif %}">
-                        <input type="hidden" name="{% if entity == 'sm' %}site_id{% elif entity == 'cm' %}company_id{% elif entity == 'em' %}id{% endif %}" value="0">
-                        <button type="submit" class="Btn"><div class="sign">+ </div> <div class="text">Create</div></button>
-                      </form>
-                     </div>
+                    <div class="col-sm-2">
+                     <form method="GET" action="{% if entity == 'sm' %}/site_master{% elif entity == 'cm' %}/company_master{% elif entity == 'em' %}/employee_master{% endif %}">
+                       <input type="hidden" name="{% if entity == 'sm' %}site_id{% elif entity == 'cm' %}company_id{% elif entity == 'em' %}id{% endif %}" value="0">
+                       <button type="submit" class="Btn"><div class="sign">+ </div> <div class="text">Create</div></button>
+                     </form>
+                    </div>
+                    <div class="col-sm-2">
+                     <form method="GET" action="/masters">
+                       <input type="hidden" name="entity" value="{{ entity }}">
+                       <input type="hidden" name="type" value="err">
+                       <button class="btn_err">
+                        <div class="sign_err">
+                          <svg viewBox="0 0 512 512"><path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 392c-17.67 0-32-14.33-32-32 0-17.67 14.33-32 32-32s32 14.33 32 32c0 17.67-14.33 32-32 32zm32-128c0 17.67-14.33 32-32 32s-32-14.33-32-32V176c0-17.67 14.33-32 32-32s32 14.33 32 32v96z"/></svg>
+                        </div>
+                        <div class="text_err">Error Logs</div>
+                       </button> 
+                     </form>
+                    </div>
                   {% endif %}     
                    {% if entity == 'sm' %}
                      <!-- <div class="col-lg-1" style="justify-content: right; align-items: right;">
@@ -321,9 +333,8 @@
     </div>
   {% endif %}
 {% elif type == 'err' %}
-  {% if entity == 'r' %}
      <!-- Error Logs -->
-     <div class="card mb-4" style="zoom:90%" >
+     <div class="card mb-4" style="zoom:85%" >
        <div class="card-body">
           <h1 class="text-center" style="color:#B12121;font-weight:bold">
            <u> Error Logs</u>
@@ -346,9 +357,10 @@
                <tbody>
                 {% for row in data %}
                     <tr style="color:black">
+                        <td>{{ forloop.counter }}</td>
                         {% for cell in row %}
                           <td>
-                            {% if 'Employee' in cell or 'Worksite' in cell %}
+                            {% if 'Employee' in cell or 'Worksite' in cell or 'The employee with ID' in cell or 'The worksite' in cell or 'The company' in cell%}
                                 <span class="badge badge-danger" style="font-size: 16px;">{{ cell }}</span>
                             {% elif 'Total' in cell %}
                                 <span class="badge badge-dark" style="font-size: 16px;">{{ cell }}</span>
@@ -364,7 +376,6 @@
        </div>
      </div>
 
-  {% endif %}
 {% endif %}
 
 {% load static %}

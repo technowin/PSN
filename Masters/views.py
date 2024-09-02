@@ -556,37 +556,73 @@ def upload_excel(request):
 
     if request.method == 'POST' and request.FILES.get('excelFile'):
         excel_file = request.FILES['excelFile']
+        file_name = excel_file.name
+        df = pd.read_excel(excel_file)
+        total_rows = len(df)
+        update_count = error_count = success_count = 0
+        checksum_id = None
+        r=None
         try:
-            df = pd.read_excel(excel_file)
             Db.closeConnection()
             m = Db.get_connection()
             cursor = m.cursor()
             entity = request.POST.get('entity', '')
             type = request.POST.get('type', '')
+            company_id = request.POST.get('company_id', None)
             cursor.callproc("stp_get_masters", [entity, type, 'sample_xlsx'])
             for result in cursor.stored_results():
                 columns = [col[0] for col in result.fetchall()]
             if not all(col in df.columns for col in columns):
                 messages.error(request, 'Oops...! The uploaded Excel file does not contain the required columns.!')
                 return redirect(f'/masters?entity={entity}&type={type}')
+            upload_for = {'em': 'employee master','sm': 'site master','cm': 'company master','r': 'roster'}[entity]
+            cursor.callproc('stp_insert_checksum', (upload_for,company_id,str(datetime.now().month),str(datetime.now().year),file_name))
+            for result in cursor.stored_results():
+                c = list(result.fetchall())
+            checksum_id = c[0][0]
 
             if entity == 'em':
                 for index,row in df.iterrows():
                     params = tuple(str(row.get(column, '')) for column in columns)
-                    cursor.callproc('stp_insert_employee_master', params)      
+                    cursor.callproc('stp_insert_employee_master', params)
+                    for result in cursor.stored_results():
+                            r = list(result.fetchall())
+                    if r[0][0] not in ("success", "updated"):
+                        cursor.callproc('stp_insert_error_log', [upload_for, company_id,'',file_name,datetime.now().date(),str(r[0][0]),checksum_id])
+                    if r[0][0] == "success": success_count += 1 
+                    elif r[0][0] == "updated": update_count += 1  
+                    else: error_count += 1
             elif entity == 'sm':
-                company_id = request.POST.get('company_id', '')
                 for index,row in df.iterrows():
                     params = tuple(str(row.get(column, '')) for column in columns)
                     params += (str(company_id),)
                     cursor.callproc('stp_insert_site_master', params)
+                    for result in cursor.stored_results():
+                            r = list(result.fetchall())
+                    if r[0][0] not in ("success", "updated"):
+                        cursor.callproc('stp_insert_error_log', [upload_for, company_id,'',file_name,datetime.now().date(),str(r[0][0]),checksum_id])
+                    if r[0][0] == "success": success_count += 1 
+                    elif r[0][0] == "updated": update_count += 1  
+                    else: error_count += 1
             elif entity == 'cm':
                 for index,row in df.iterrows():
                     params = tuple(str(row.get(column, '')) for column in columns)
                     cursor.callproc('stp_insert_company_master', params)
+                    for result in cursor.stored_results():
+                            r = list(result.fetchall())
+                    if r[0][0] not in ("success", "updated"):
+                        cursor.callproc('stp_insert_error_log', [upload_for, company_id,'',file_name,datetime.now().date(),str(r[0][0]),checksum_id])
+                    if r[0][0] == "success": success_count += 1 
+                    elif r[0][0] == "updated": update_count += 1  
+                    else: error_count += 1
+            checksum_msg = f"Total Rows Processed: {total_rows}, Successful Entries: {success_count}" f"{f', Updates: {update_count}' if update_count > 0 else ''}" f"{f', Errors: {error_count}' if error_count > 0 else ''}"
+            cursor.callproc('stp_update_checksum', (upload_for,company_id,'',str(datetime.now().month),str(datetime.now().year),file_name,checksum_msg,error_count,update_count,checksum_id))
+            if error_count == 0 and update_count == 0 and success_count > 0:
+                messages.success(request, f"All data uploaded successfully!.")
+            elif error_count == 0 and success_count == 0 and update_count > 0:
+                messages.warning(request, f"All data updated successfully!.")
+            else:messages.warning(request, f"The upload processed {total_rows} rows, resulting in {success_count} successful entries"  f"{f', {update_count} updates' if update_count > 0 else ''}" f", and {error_count} errors; please check the error logs for details.")
                    
-            messages.success(request, "Data Uploaded successfully!")
-
         except Exception as e:
             tb = traceback.extract_tb(e.__traceback__)
             fun = tb[0].name
