@@ -43,6 +43,8 @@ from google.oauth2 import service_account
 from google.auth.transport.requests import Request
 from rest_framework import status
 
+from Masters.serializers import ScRosterSerializer
+
 class check_and_notify_user(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -70,10 +72,11 @@ class check_and_notify_user(APIView):
 
 class check_and_notify_all_users(APIView):
     
-    def post(self, request):
+    def get(self, request):
         users = CustomUser.objects.all()
         current_time = timezone.now()
-
+        errors = []
+        success = []
         for user in users:
             employee = sc_employee_master.objects.filter(mobile_no=user.phone).first()
 
@@ -81,20 +84,27 @@ class check_and_notify_all_users(APIView):
                 continue
 
             next_day = current_time.date() + timedelta(days=1)
-            shifts = sc_roster.objects.filter(employee_id=employee.employee_id, shift_date=next_day)
-            errors = []
+            shifts = sc_roster.objects.filter(employee_id=employee.employee_id, shift_date=next_day,confirmation__isnull=True )
+            
+            
             if shifts.exists():
-                a = send_push_notification(user)
+                shift = shifts.first() 
+                serializer = ScRosterSerializer(shift)
+                
+                shift_data = serializer.data
+                a = send_push_notification(user,shift_data)
                 if(a!= "success"):
-                    errors.append(f"Error sending notification to  {a}")
+                    errors.append(f"Error sending notification to {user.full_name} - {a}")
+                else :
+                    success.append(f"successfully sent notification to {user.full_name} - {a}")
         if len(errors)>0:
-            return Response({'error':errors}, status=status.HTTP_200_OK)
+            return Response({'error':errors,'success':success}, status=status.HTTP_200_OK)
         else:
-            return Response({'success':"sent successfully"}, status=status.HTTP_200_OK)
+            return Response({'success':success}, status=status.HTTP_200_OK)
             
                     
 
-def send_push_notification(user):
+def send_push_notification(user,shift_data):
     try:
         
         # Retrieve and decode the base64-encoded credentials
@@ -129,7 +139,7 @@ def send_push_notification(user):
         if not user_device_token:
             print("No device token found for user.")
             return  f"error sending no device for user"
-    
+        serialized_shift_data = json.dumps(shift_data)
         # Construct the notification payload
         payload = {
             "message":{
@@ -141,7 +151,8 @@ def send_push_notification(user):
                     # 'sound': 'default'
                 },
                 'data': {
-                    'type': 'shift_reminder'
+                    'type': 'shift_reminder',
+                    'shift_data':serialized_shift_data,
                 }
             }
         }
