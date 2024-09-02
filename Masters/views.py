@@ -246,8 +246,10 @@ def roster_upload(request):
                     else: error_count += 1
                 checksum_msg = f"Total Rows Processed: {total_rows}, Successful Entries: {success_count}, Updates: {update_count}, Errors: {error_count}"
                 cursor.callproc('stp_update_checksum', ('roster',company_id,', '.join(worksites),month,year,file_name,checksum_msg,error_count,update_count,checksum_id))
-                if error_count == 0 and update_count == 0:
-                    messages.success(request, "All data uploaded successfully!")
+                if error_count == 0 and update_count == 0 and success_count > 0:
+                    messages.success(request, f"All data uploaded successfully!.")
+                elif error_count == 0 and success_count == 0 and update_count > 0:
+                    messages.warning(request, f"All data updated successfully!.")
                 else:
                     messages.warning(request, f"The upload processed {total_rows} rows, resulting in {success_count} successful entries, {update_count} updates, and {error_count} errors; please check the error logs for details.")
                     
