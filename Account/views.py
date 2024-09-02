@@ -134,7 +134,7 @@ class RegistrationView(APIView):
             serializer.is_valid(raise_exception=True)
             raw_password = serializer.validated_data.get('password')
             user = CustomUser.objects.create(**serializer.validated_data)
-            # user.set_password(raw_password)
+            user.set_password(raw_password)
             user.username = user.email
             user.is_active = is_active  # Default is_active value
             user.role_id =role_id  # Default role_id value
