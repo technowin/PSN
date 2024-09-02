@@ -40,12 +40,15 @@ class LoginView(APIView):
 
             email = serializer.validated_data['email']
             password = serializer.validated_data['password']
+            device_token = serializer.validated_data['device_token']
 
             # Manually check the provided username and password
             user = get_object_or_404(CustomUser, email=email)
 
             if user.check_password(password):
                 login(request, user)
+                user.device_token  = device_token
+                user.save()
                 serializer = UserSerializer(user).data
                 
                 refresh = RefreshToken.for_user(user)
@@ -116,6 +119,7 @@ def generate_otp(length=6):
     return ''.join(random.choices(string.digits, k=length))
 
 class RegistrationView(APIView):
+    authentication_classes=[]
     def post(self, request):
         try:
             data = request.data.copy()
@@ -125,6 +129,7 @@ class RegistrationView(APIView):
 
             # Check if is_active is provided, otherwise set default value to False
             is_active = data.pop('is_active', True)
+            device_token = data.pop('device_token', True)
             serializer = RegistrationSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             raw_password = serializer.validated_data.get('password')
@@ -133,6 +138,7 @@ class RegistrationView(APIView):
             user.username = user.email
             user.is_active = is_active  # Default is_active value
             user.role_id =role_id  # Default role_id value
+            user.device_token = device_token
             user.save()
             password_storage.objects.create(user=user, passwordText=raw_password)
             otp = generate_otp()
