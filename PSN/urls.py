@@ -21,6 +21,7 @@ from Account.views import *
 # from Masters.models import site_master
 from Masters.views import *
 from Masters.views import site_master as sm
+from Masters.views import company_master as cm
 from django.urls import path
 from Notification.views import *
 
@@ -52,7 +53,7 @@ urlpatterns = [
     path('masters/', masters, name='masters'),
     path('sample_xlsx/', sample_xlsx, name='sample_xlsx'),
     path("roster_upload",roster_upload, name="roster_upload"),
-    path("company_master",company_master,name="company_master"),
+    path("company_master",cm,name="company_master"),
     path("employee_master",employee_master, name="employee_master"),
     path("upload_excel",upload_excel, name="upload_excel"),
     path("site_master",sm, name="site_master"),
