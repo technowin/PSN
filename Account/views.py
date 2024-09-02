@@ -158,7 +158,7 @@ class RegistrationView(APIView):
             return JsonResponse(serializer, status=status.HTTP_200_OK,safe=False)
         except Exception as e:
             print(str(e))
-            return Response( status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error':str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class CustomTokenRefreshView(APIView):
 
