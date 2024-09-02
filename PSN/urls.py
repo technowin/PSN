@@ -25,7 +25,7 @@ from Masters.views import *
 
 from django.urls import path
 
-from Notification.views import check_shift_for_next_day
+from Notification.views import *
 
 
 urlpatterns = [
@@ -37,6 +37,8 @@ urlpatterns = [
     path("register",RegistrationView.as_view(),name='register'),
     path('home_fetch', RosterDataAPIView.as_view(), name='home_fetch'),
     path('confirm_schedule', confirm_schedule.as_view(), name='confirm_schedule'),
+    path('check_and_notify_user', check_and_notify_user.as_view(), name='check_and_notify_user'),
+    path('check_and_notify_all_users', check_and_notify_all_users.as_view(), name='check_and_notify_all_users'),
     
     
     # Account
@@ -73,7 +75,7 @@ urlpatterns = [
     path("charts",charts,name='charts'),  
     path("tables",tables,name='tables'),  
     
-    path('check_shift/<int:employee_id>/<int:site_id>/', check_shift_for_next_day, name='check_shift_for_next_day'),
+    # path('check_shift/<int:employee_id>/<int:site_id>/', check_shift_for_next_day, name='check_shift_for_next_day'),
     
 
 ]
