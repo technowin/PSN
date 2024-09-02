@@ -17,16 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls.static import static
-
 from Account.views import *
-
-from Masters.models import site_master
+# from Masters.models import site_master
 from Masters.views import *
-
+from Masters.views import site_master as sm
 from django.urls import path
-
 from Notification.views import *
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -59,7 +55,7 @@ urlpatterns = [
     path("company_master",company_master,name="company_master"),
     path("employee_master",employee_master, name="employee_master"),
     path("upload_excel",upload_excel, name="upload_excel"),
-    path("site_master",site_master, name="site_master"),
+    path("site_master",sm, name="site_master"),
     
     # Bootstarp Pages
 
