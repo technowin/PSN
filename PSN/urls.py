@@ -35,6 +35,7 @@ urlpatterns = [
     path("register",RegistrationView.as_view(),name='register'),
     path('home_fetch', RosterDataAPIView.as_view(), name='home_fetch'),
     path('confirm_schedule', confirm_schedule.as_view(), name='confirm_schedule'),
+    path('confirm_notification', confirm_notification.as_view(), name='confirm_notification'),
     path('check_and_notify_user', check_and_notify_user.as_view(), name='check_and_notify_user'),
     path('check_and_notify_all_users', check_and_notify_all_users.as_view(), name='check_and_notify_all_users'),
     

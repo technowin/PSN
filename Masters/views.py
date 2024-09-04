@@ -10,6 +10,8 @@ import Db
 import bcrypt
 from django.contrib.auth.decorators import login_required
 from Masters.serializers import ScRosterSerializer
+from Notification.models import notification_log
+from Notification.serializers import NotificationSerializer
 from PSN.encryption import *
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
@@ -736,6 +738,33 @@ class confirm_schedule(APIView):
             return Response({'success': 'Confirmation updated successfully.','data':ser.data,'con':confirmation}, status=200)
         except sc_roster.DoesNotExist:
             return Response({'error': 'Roster not found.'}, status=404)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+
+
+
+class confirm_notification(APIView):
+    # Ensure the user is authenticated using JWT
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    # authentication_classes = []
+
+    def post(self, request):
+        try:
+            data= request.data
+            notification_id = request.data.get('id')
+            confirmation = request.data.get('confirmation') == '1'
+            user = request.user
+            notification = notification_log.objects.get(id=notification_id)
+            notification.notification_opened = timezone.now()
+            notification.updated_at = timezone.now()
+            notification.updated_by = user
+            notification.save()
+            ser = NotificationSerializer(notification)
+
+            return Response({'success': 'Confirmation updated successfully.','data':ser.data,'con':confirmation}, status=200)
+        except notification_log.DoesNotExist:
+            return Response({'error': 'notification_log not found.'}, status=404)
         except Exception as e:
             return Response({'error': str(e)}, status=500)
 

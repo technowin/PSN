@@ -44,6 +44,7 @@ from google.auth.transport.requests import Request
 from rest_framework import status
 
 from Masters.serializers import ScRosterSerializer
+from Notification.models import notification_log
 
 class check_and_notify_user(APIView):
     permission_classes = [IsAuthenticated]
@@ -92,10 +93,24 @@ class check_and_notify_all_users(APIView):
                 serializer = ScRosterSerializer(shift)
                 
                 shift_data = serializer.data
-                a = send_push_notification(user,shift_data)
+                notification_entry = notification_log.objects.create(
+                    sc_roster_id=shift,
+                    notification_sent=current_time,
+                    notification_message="Notification for shift confirmation",
+                    created_at=current_time,
+                    created_by=user,  # assuming the current user is the creator
+                    updated_at=current_time,
+                    updated_by=user  # assuming the current user is the updater
+                )
+                notification_log_id = notification_entry.id
+                a = send_push_notification(user,shift_data,notification_log_id)
                 if(a!= "success"):
+                    notification_entry.notification_message = a  # Update with the error message
+                    notification_entry.save()
                     errors.append(f"Error sending notification to {user.full_name} - {a}")
                 else :
+                    notification_entry.notification_received = timezone.now()
+                    notification_entry.save()
                     success.append(f"successfully sent notification to {user.full_name} - {a}")
         if len(errors)>0:
             return Response({'error':errors,'success':success}, status=status.HTTP_200_OK)
@@ -104,7 +119,7 @@ class check_and_notify_all_users(APIView):
             
                     
 
-def send_push_notification(user,shift_data):
+def send_push_notification(user,shift_data,notification_log_id):
     try:
         
         # Retrieve and decode the base64-encoded credentials
@@ -153,6 +168,7 @@ def send_push_notification(user,shift_data):
                 'data': {
                     'type': 'shift_reminder',
                     'shift_data':serialized_shift_data,
+                    'notification_log_id':str(notification_log_id),
                 }
             }
         }
