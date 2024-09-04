@@ -1915,6 +1915,7 @@ th {
 
 
 
+
 table {
     width: 100%;
     margin-bottom: 1.5em;
@@ -1927,10 +1928,11 @@ table {
       border: 1px solid rgb(221, 140, 141);
       font-weight: normal;
       text-align: center;
-      color: white;
+      color: black;
     }
     
     td {
+        color: black;
         padding: 10px;
         border: 1px solid #ccc;
     }
@@ -1942,6 +1944,7 @@ table {
     tr:nth-child(even) td {
         background-color: lightgrey;
     }
+
 
     .my-loader {
         width: 200px;
