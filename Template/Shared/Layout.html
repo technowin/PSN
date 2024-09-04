@@ -65,11 +65,13 @@
                        <h6 class="collapse-header">Masters:</h6>
                        <a class="collapse-item" href="/masters?entity=em&type=i">Employee Master</a>
                        <a class="collapse-item" href="/masters?entity=cm&type=i">Company Master</a>
-                       <a class="collapse-item" href="/masters?entity=sm&type=i">Site Master</a>
+                       <a class="collapse-item" href="/masters?entity=sm&type=i">Worksite Master</a>
                        <a class="collapse-item" href="/masters?entity=r&type=i">Roster</a>
                    </div>
                 </div>
             </li>
+
+            {{ reports | safe }}
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
