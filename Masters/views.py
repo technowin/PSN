@@ -38,7 +38,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import AccessToken
 from django.utils import timezone
-from .models import sc_roster, sc_employee_master, CustomUser 
+from .models import Log, sc_roster, sc_employee_master, CustomUser 
 
 
 def masters(request):
@@ -648,6 +648,7 @@ class RosterDataAPIView(APIView):
 
         # Call the function to get the roster data
         roster_data = self.get_roster_data(user.id)
+        Log.objects.create(log_text=f"Fetched user by ID: {user.id}")
 
         return Response(roster_data)
 

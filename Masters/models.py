@@ -171,3 +171,7 @@ class sc_roster(models.Model):
 
 
         
+class Log(models.Model):
+    log_text = models.TextField(null=True,blank=True)
+    class Meta:
+        db_table = 'logs'
