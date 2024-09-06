@@ -104,6 +104,7 @@ INSTALLED_APPS = [
     'Masters',
     'Notification',
     'corsheaders',
+    'Reports',
 ]
 
 # SESSION_ENGINE ="django.contrib.sessions.backends.signed_cookies"

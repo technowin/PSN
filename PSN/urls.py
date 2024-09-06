@@ -20,6 +20,7 @@ from django.conf.urls.static import static
 from Account.views import *
 # from Masters.models import site_master
 from Masters.views import *
+from Reports.views import *
 from Masters.views import site_master as sm
 from Masters.views import company_master as cm
 from django.urls import path
@@ -49,8 +50,8 @@ urlpatterns = [
     
     path("forgot_password",forgot_password,name='forgot_password'),
     path('search/', search, name='search'),
+    
     # Masters
-
     path('masters/', masters, name='masters'),
     path('sample_xlsx/', sample_xlsx, name='sample_xlsx'),
     path("roster_upload",roster_upload, name="roster_upload"),
@@ -59,8 +60,19 @@ urlpatterns = [
     path("upload_excel",upload_excel, name="upload_excel"),
     path("site_master",sm, name="site_master"),
     
+    #Reports 
+    path('common_html', common_html, name='common_html'),
+    path('get_filter', get_filter, name='get_filter'),
+    path('get_sub_filter', get_sub_filter, name='get_sub_filter'),
+    path('add_new_filter', add_new_filter, name='add_new_filter'),
+    path('partial_report', partial_report, name='partial_report'),
+    path('report_pdf', report_pdf, name='report_pdf'),
+    path('report_xlsx', report_xlsx, name='report_xlsx'),
+    path('save_filters', save_filters, name='save_filters'),
+    path('delete_filters', delete_filters, name='delete_filters'),
+    path('saved_filters', saved_filters, name='saved_filters'),
+    
     # Bootstarp Pages
-
     path("dashboard",dashboard,name='dashboard'),
     path("buttons",buttons,name='buttons'),
     path("cards",cards,name='cards'),

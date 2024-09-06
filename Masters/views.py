@@ -141,7 +141,7 @@ def sample_xlsx(request):
         if request.method=="POST":
             entity = request.POST.get('entity', '')
             type = request.POST.get('type', '')
-        
+        file_name = {'em': 'Employee Master','sm': 'Worksite Master','cm': 'Company Master','r': 'Roster'}[entity]
         cursor.callproc("stp_get_masters", [entity, type, 'sample_xlsx'])
         for result in cursor.stored_results():
             columns = [col[0] for col in result.fetchall()]
@@ -173,7 +173,7 @@ def sample_xlsx(request):
             adjusted_width = max_length + 2 
             sheet.column_dimensions[column].width = adjusted_width  
         response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = 'attachment; filename=sample_format.xlsx'
+        response['Content-Disposition'] = 'attachment; filename="' + str(file_name) +" "+str(datetime.now().strftime("%d-%m-%Y")) + '.xlsx"'
         workbook.save(response)
     
     except Exception as e:
@@ -637,7 +637,6 @@ def upload_excel(request):
             Db.closeConnection()
             return redirect(f'/masters?entity={entity}&type=i')
 
-
 class RosterDataAPIView(APIView):
     # Ensure the user is authenticated using JWT
     permission_classes = [IsAuthenticated]
@@ -716,7 +715,6 @@ class RosterDataAPIView(APIView):
             'unmarked_roster_list': list(unmarked_roster_qsser.data),  # Using .values() to serialize queryset
             'roster_list': list(current_roster_qsser.data)  # Same as Current Roster List
         }
-
 
 class confirm_schedule(APIView):
     # Ensure the user is authenticated using JWT

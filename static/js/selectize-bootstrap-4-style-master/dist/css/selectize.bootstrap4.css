@@ -12,8 +12,8 @@
   -webkit-font-smoothing: inherit; }
 
 .item{
-color:#ffffff;
-background-color: #007bff;
+color:black;
+background-color: rgb(221, 140, 141);
 }
 .selectize-input, .selectize-control.single .selectize-input.input-active {
   background: #fff;
@@ -57,17 +57,17 @@ background-color: #007bff;
     display: -moz-inline-stack;
     display: inline-block;
     zoom: 1;
-    *display: inline; }
+    display: inline; }
 .selectize-control.multi .selectize-input > div {
     cursor: pointer;
     margin: 0 3px 3px 0;
     padding: 1px 3px;
-    background: #007bff;
+    background: rgb(221, 140, 141);
    /* color: #f8f9fa;*/
     border: 0 solid #999;
 }
     .selectize-control.multi .selectize-input > div.active {
-      background: #007bff;
+      background: rgb(221, 140, 141);
       color: #fff;
       border: 0 solid rgba(0, 0, 0, 0); }
   .selectize-control.multi .selectize-input.disabled > div, .selectize-control.multi .selectize-input.disabled > div.active {
@@ -85,7 +85,7 @@ background-color: #007bff;
     border: 0 none !important;
     background: none !important;
     line-height: inherit !important;
-    -webkit-user-select: auto !important;
+    /* -webkit-user-select: auto !important; */
     -webkit-box-shadow: none;
     box-shadow: none; }
     .selectize-input > input::-ms-clear {
