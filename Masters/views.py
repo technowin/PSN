@@ -762,9 +762,8 @@ class confirm_notification(APIView):
             notification.updated_at = timezone.now()
             notification.updated_by = user
             notification.save()
-            ser = NotificationSerializer(notification)
 
-            return Response({'success': 'Confirmation updated successfully.','data':ser.data,'con':confirmation}, status=200)
+            return Response({'success': 'Confirmation updated successfully.'}, status=200)
         except notification_log.DoesNotExist:
             return Response({'error': 'notification_log not found.'}, status=404)
         except Exception as e:
