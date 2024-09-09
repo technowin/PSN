@@ -173,7 +173,7 @@ def send_push_notification(user,shift_data,notification_log_id):
                 'notification': {
                     'title': 'Upcoming Shift Reminder',
                     'body': 'You have a shift scheduled for tomorrow.',
-                    "click_action": "FLUTTER_NOTIFICATION_CLICK"
+                    # "click_action": "FLUTTER_NOTIFICATION_CLICK"
                     # 'click_action': 'FLUTTER_NOTIFICATION_CLICK',
                     # 'sound': 'default'
                 },
