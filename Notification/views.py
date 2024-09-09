@@ -105,8 +105,19 @@ class check_and_notify_all_users(APIView):
                 notification_log_id = notification_entry.id
                 a = send_push_notification(user,shift_data,notification_log_id)
                 if(a!= "success"):
-                    notification_entry.notification_message = a  # Update with the error message
-                    notification_entry.save()
+                    c = a.split("--")
+                    if(len(c) == 2):
+                        if(c[1] == "Requested entity was not found."):
+                            notification_entry.notification_message = "App Is Not Installed"  # Update with the error message
+                            notification_entry.save()     
+                        elif(c[1] == "The registration token is not a valid FCM registration token")  :
+                            notification_entry.notification_message = "User Not Correctly Registered to the App. Please Login Again."  # Update with the error message
+                            notification_entry.save()     
+                            
+                        
+                    else:
+                        notification_entry.notification_message = a  # Update with the error message
+                        notification_entry.save()
                     errors.append(f"Error sending notification to {user.full_name} - {a}")
                 else :
                     notification_entry.notification_received = timezone.now()
@@ -182,10 +193,12 @@ def send_push_notification(user,shift_data,notification_log_id):
             print("Notification sent successfully.")
             return "success"
         else:
-            print(f"Failed to send notification. Status Code: {response.status_code}, Response: {response.text}")
-            return f"error sending {response.status_code}"
+            response_data = json.loads(response.text)
+            message = response_data.get('error', {}).get('message', '')
+            print(f"Failed to send notification. Status Code: {response.status_code}, Response: {message}")
+            return f"error sending {response.status_code}--{message}"
             
     except Exception as e:
         print(str(e))
-        return f"error sending {str(e)}"
+        return f"error sending {str(e)}--{str(e)}"
 
