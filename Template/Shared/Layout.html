@@ -16,6 +16,7 @@
 
     <!-- Custom styles for this template-->
     <link href="{% static 'css/PSN.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/layout.css' %}" rel="stylesheet" type="text/css" >
 
 </head>
 
@@ -25,7 +26,7 @@
     <div id="wrapper">
 
         <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/home">
@@ -45,9 +46,67 @@
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
+            <ul class="nav" id="accordionSidebar">
+                {% for item in menu_items %}
+                    {% if not item.is_parent %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{item.action }}">
+                                <i class="{{ item.menu_icon }}"></i>
+                                <span>{{ item.name }}</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link collapsed toggle" href="#" data-toggle="collapse" data-target="#collapseMenu_{{ item.id }}"
+                               aria-expanded="false" aria-controls="collapseMenu_{{ item.id }}">
+                                <i class="{{ item.menu_icon }}"></i> <span>{{ item.name }}</span>
+                            </a>
+                            <ul id="collapseMenu_{{ item.id }}" class="collapse no-bullets" aria-labelledby="heading_{{ item.id }}" data-parent="#accordionSidebar">
+                                <div class="bg-white py-0 collapse-inner rounded">
+                                {% for child in item.children %}
+                                    <li class="nav-item">
+                                        {% if child.is_sub_menu %}
+                                            <a class="collapse-item" href="#collapseSubmenu_{{ child.id }}" data-toggle="collapse" aria-expanded="false" aria-controls="collapseSubmenu_{{ child.id }}">
+                                                {{ child.name }}
+                                            </a>
+                                            <ul id="collapseSubmenu_{{ child.id }}" class="collapse no-bullets" data-parent="#collapseMenu_{{ item.id }}">
+                                                <div class="bg-white py-0 collapse-inner rounded">
+                                                {% for sub_child in child.children %}
+                                                    <li class="nav-item">
+                                                        {% if sub_child.is_sub_menu %}
+                                                            <a class="collapse-item1" href="#collapseSubmenu2_{{ sub_child.id }}" data-toggle="collapse" aria-expanded="false" aria-controls="collapseSubmenu2_{{ sub_child.id }}">
+                                                                {{ sub_child.name }}
+                                                            </a>
+                                                            <ul id="collapseSubmenu2_{{ sub_child.id }}" class="collapse no-bullets" data-parent="#collapseSubmenu_{{ child.id }}">
+                                                                <div class="bg-white py-0 collapse-inner rounded">
+                                                                {% for sub_sub_child in sub_child.children %}
+                                                                    <li class="nav-item">
+                                                                        <a class="collapse-item2" href="{{ sub_sub_child.action }}">{{ sub_sub_child.name }}</a>
+                                                                    </li>
+                                                                {% endfor %}
+                                                                </div>
+                                                            </ul>
+                                                        {% else %}
+                                                            <a class="collapse-item1" href="{{ sub_child.action }}">{{ sub_child.name }}</a>
+                                                        {% endif %}
+                                                    </li>
+                                                {% endfor %}
+                                                </div>
+                                            </ul>
+                                        {% else %}
+                                            <a class="collapse-item1" href="{{ child.action }}">{{ child.name }}</a>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                                </div>
+                            </ul>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+           
+            {% comment %} <!-- Divider -->
+            <!-- <hr class="sidebar-divider">
 
             <!-- Heading -->
             <div class="sidebar-heading">
@@ -67,6 +126,7 @@
                        <a class="collapse-item" href="/masters?entity=cm&type=i">Company Master</a>
                        <a class="collapse-item" href="/masters?entity=sm&type=i">Worksite Master</a>
                        <a class="collapse-item" href="/masters?entity=r&type=i">Roster</a>
+                       <a class="collapse-item" href="/masters?entity=urm&type=urm">User Role Map</a>
                    </div>
                 </div>
             </li>
@@ -148,7 +208,7 @@
                 <a class="nav-link" href="/tables">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Tables</span></a>
-            </li>
+            </li> {% endcomment %}
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
@@ -449,5 +509,19 @@
     <script src="{% static 'js/demo/chart-pie-demo.js' %}"></script>
 
 </body>
-
+<script>
+    document.addEventListener('click', function(event) {
+        // Check if the click was outside the sidebar or dropdowns
+        var sidebar = document.getElementById('accordionSidebar');
+        
+        if (!sidebar.contains(event.target)) {
+            // Close any open dropdowns in the sidebar
+            var openDropdowns = sidebar.querySelectorAll('.collapse.show');
+            openDropdowns.forEach(function(dropdown) {
+                // Bootstrap's collapse method to close the dropdown
+                $(dropdown).collapse('hide');
+            });
+        }
+    });
+</script>
 </html>

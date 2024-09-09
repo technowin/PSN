@@ -66,8 +66,15 @@ def masters(request):
                 header = list(result.fetchall())
             cursor.callproc("stp_get_masters",[entity,type,'data'])
             for result in cursor.stored_results():
-                data = list(result.fetchall())
-            cursor.callproc("stp_get_company_names")
+                if entity == 'em' or entity == 'sm' or entity == 'cm' or entity == 'menu': 
+                    data = []
+                    rows = result.fetchall()
+                    for row in rows:
+                        encrypted_id = encrypt_parameter(str(row[0]))
+                        data.append((encrypted_id,) + row[1:])
+                else: data = list(result.fetchall())
+            
+            cursor.callproc("stp_get_dropdown_values",['company'])
             for result in cursor.stored_results():
                 company_names = list(result.fetchall())
             if entity == 'r' and type == 'ed':
@@ -291,6 +298,8 @@ def site_master(request):
                     context = {'company_names': company_names, 'roster_type': roster_types,'site_id':site_id}
 
             else:
+                site_id1 = request.GET.get('site_id', '')
+                site_id = decrypt_parameter(site_id1)
                 cursor.callproc("stp_edit_site_master", (site_id,)) 
                 for result in cursor.stored_results():
                     data = result.fetchall()[0]  
@@ -401,6 +410,8 @@ def company_master(request):
                 if request.method == "GET":
                     context = {'company_id':company_id}
             else:
+                company_id1 = request.GET.get('company_id', '')
+                company_id= decrypt_parameter(company_id1)
                 cursor.callproc("stp_edit_company_master", (company_id,))  # Note the comma to make it a tuple
                 for result in cursor.stored_results():
                     data = result.fetchall()[0]  
@@ -481,6 +492,7 @@ def employee_master(request):
             user = request.user.id  
         if request.method == "GET":
             id = request.GET.get('id', '')
+            
 
             cursor.callproc("stp_get_employee_status")
             for result in cursor.stored_results():
@@ -490,6 +502,8 @@ def employee_master(request):
                     context = {'id':id, 'employee_status':employee_status, 'employee_status_id': ''}
 
             else:
+                id1 = request.GET.get('id', '')
+                id = decrypt_parameter(id1)
                 cursor.callproc("stp_edit_employee_master", (id,))
                 for result in cursor.stored_results():
                     data = result.fetchall()[0]  
@@ -499,7 +513,7 @@ def employee_master(request):
                         'employee_id' : data[1],
                         'employee_name': data[2],
                         'mobile_no': data[3],
-                        'current_location': data[4],
+                        'worksite': data[4],
                         'employee_status_id': data[5],
                         'is_active': data[7]
                     }
@@ -511,7 +525,7 @@ def employee_master(request):
                 employeeId = request.POST.get('employee_id', '')
                 employeeName = request.POST.get('employee_name', '')
                 mobileNo = request.POST.get('mobile_no', '')
-                currentLocation = request.POST.get('current_location', '')
+                worksite = request.POST.get('worksite', '')
                 # employeeStatus = request.POST.get('employee_status_name', '')
                 # activebtn = request.POST.get('status_value', '')
 
@@ -519,7 +533,7 @@ def employee_master(request):
                     employeeId, 
                     employeeName, 
                     mobileNo, 
-                    currentLocation
+                    worksite
                     # employeeStatus,
                     # activebtn
                 ]
