@@ -170,13 +170,15 @@ def send_push_notification(user,shift_data,notification_log_id):
         payload = {
             "message":{
                 'token': user_device_token,
-                'notification': {
+                # 'notification': {
+                #     'title': 'Upcoming Shift Reminder',
+                #     'body': 'You have a shift scheduled for tomorrow.',
+                #     # 'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+                #     # 'sound': 'default'
+                # },
+                'data': {
                     'title': 'Upcoming Shift Reminder',
                     'body': 'You have a shift scheduled for tomorrow.',
-                    # 'click_action': 'FLUTTER_NOTIFICATION_CLICK',
-                    # 'sound': 'default'
-                },
-                'data': {
                     'type': 'shift_reminder',
                     'shift_data':serialized_shift_data,
                     'notification_log_id':str(notification_log_id),
