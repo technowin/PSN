@@ -377,76 +377,31 @@
 
 {% elif type == 'urm' %}
 
-
-<!-- User Role Modal -->
-<div class="modal fade" id="urm_model_id" >
-  <div class="modal-dialog modal-dialog-centered" role="document" >
-      <div class="modal-content">
-          <div class="modal-header">
-              <h5 class="modal-title" style="color:black" >User Company Worksite Mapping</h5>
-              <button type="button" class="close" data-dismiss="modal"><span>&times;</span>
-              </button>
-          </div>
-          <div class="modal-body">
-              <form class="formupl" id="urm_upload_form" method="POST" enctype="multipart/form-data" action="{% url 'roster_upload' %}">
-                 {% csrf_token %}
-                 <input type="hidden" name="entity" value="{{ entity }}">
-                 <input type="hidden" name="type" value="{{ type }}">
-                 <div class="col-md-12 row">
-                    <div class="col-md-6">
-                      <label for="company_id" class="form-label">User</label>
-                      <select id="company_id" name="company_id" class="form-control" required>
-                        <option value="" selected disabled>Select</option>
-                        {% for item in company_names %}
-                        <option value="{{ item.0 }}">{{ item.1 }}</option>
-                        {% endfor %}
-                      </select>                    
-                    </div>
-                    <div class="col-md-6">
-                      <label for="company_id" class="form-label">Company</label>
-                      <select id="company_id" name="company_id" class="form-control" required>
-                        <option value="" selected disabled>Select</option>
-                        {% for item in company_names %}
-                        <option value="{{ item.0 }}">{{ item.1 }}</option>
-                        {% endfor %}
-                      </select>                    
-                    </div>
-                    <div class="col-md-6">
-                      <label for="company_id" class="form-label">Worksite</label>
-                      <select id="company_id" name="company_id" class="form-control" required>
-                        <option value="" selected disabled>Select</option>
-                        {% for item in company_names %}
-                        <option value="{{ item.0 }}">{{ item.1 }}</option>
-                        {% endfor %}
-                      </select>                    
-                    </div>
-                </div>
-         
-              </form>
-          </div>
-          <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary" form="roster_upload_form">Upload</button>
-          </div>
-      </div>
-  </div>
-</div>
+<link href="{% static 'css/menuButton.css' %}" rel="stylesheet" type="text/css" >
 
      <!-- {{name}} -->
-     <div class="card mb-4" style="zoom:85%" >
+     <div class="card mb-4" style="zoom:90%" >
        <div class="card-body">
         <div class="row col-md-12">
           <div class="col-md-4">
-            <h1 class="text-center" style="color:#B12121;font-weight:bold">
+            <h2 style="color:#B12121;font-weight:bold">
               <u>{{name}}</u>
-            </h1>
+            </h2>
           </div>
           <div class="col-md-2">
-            <button class="btn btn-primary" style="font-size:18px;" type="button" data-toggle="modal"  data-target="#urm_model_id" >User</button>
-          </div>
+            <a href="#" class="menubutton">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 24">
+                  <path d="m18 0 8 12 10-8-4 20H4L0 4l10 8 8-12z"></path>
+              </svg>
+              Assign to User
+          </a>          </div>
           <div class="col-md-2">
-            <button class="btn btn-primary" style="font-size:18px;" type="button" data-toggle="modal"  data-target="#urm_model_id" >Role</button>
-          </div>
+            <a href="#" class="menubutton">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 24">
+                  <path d="m18 0 8 12 10-8-4 20H4L0 4l10 8 8-12z"></path>
+              </svg>
+              Assign to Role
+          </a>          </div>
         </div>
   
          <div class="table-responsive">
