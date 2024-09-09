@@ -46,11 +46,10 @@ urlpatterns = [
     path("Login", Login,name='Login'),
     path("home", home,name='home'),
     path("logout",logoutView,name='logout'),
-    
-    
     path("forgot_password",forgot_password,name='forgot_password'),
     path('search/', search, name='search'),
-    
+    path("register_new_user",register_new_user, name="register_new_user"),
+
     # Masters
     path('masters/', masters, name='masters'),
     path('sample_xlsx/', sample_xlsx, name='sample_xlsx'),
@@ -71,6 +70,14 @@ urlpatterns = [
     path('save_filters', save_filters, name='save_filters'),
     path('delete_filters', delete_filters, name='delete_filters'),
     path('saved_filters', saved_filters, name='saved_filters'),
+    
+    # Menu Management
+    path("menu_admin",menu_admin, name="menu_admin"),
+    path("menu_master",menu_master, name="menu_master"),
+    path("assign_menu",assign_menu, name="assign_menu"),
+    path("get_assigned_values",get_assigned_values, name="get_assigned_values"),
+    path("menu_order",menu_order, name="menu_order"),
+    path("delete_menu",delete_menu, name="delete_menu"),
     
     # Bootstarp Pages
     path("dashboard",dashboard,name='dashboard'),

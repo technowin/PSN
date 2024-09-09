@@ -37,19 +37,19 @@
                     <div class="row mb-3">
                         <div class="col-md-3">
                             <label for="EmployeeNumber" class="form-label">Employee No.<span style="color:red;"> *</span> :</label>
-                            <input type="text" value="{{ employee_id }}" name="employee_id" class="form-control" id="EmployeeNumber" placeholder="Enter Employee Id">
+                            <input type="text" value="{{ employee_id }}" name="employee_id" class="form-control" id="EmployeeNumber" placeholder="Enter Employee Id" required>
                         </div>
                         <div class="col-md-3">
                             <label for="EmployeeName" class="form-label">Employee Name<span style="color:red;"> *</span> :</label>
-                            <input type="text" value="{{ employee_name }}" name="employee_name" class="form-control" id="EmployeeName" placeholder="Enter Employee Name">
+                            <input type="text" value="{{ employee_name }}" name="employee_name" class="form-control" id="EmployeeName" placeholder="Enter Employee Name" required>
                         </div>
                         <div class="col-md-3">
                             <label for="MobileNumber" class="form-label">Mobile Number<span style="color:red;"> *</span> :</label>
-                            <input type="number" value="{{ mobile_no }}" name="mobile_no" class="form-control" id="MobileNumber" placeholder="Enter Person Mobile Number">
+                            <input type="number" value="{{ mobile_no }}" name="mobile_no" class="form-control" id="MobileNumber" placeholder="Enter Person Mobile Number" required>
                         </div>
                         <div class="col-md-3">
                             <label for="Location" class="form-label">Worksite<span style="color:red;"> *</span> :</label>
-                            <input type="text" value="{{ current_location }}" name="current_location" class="form-control" id="Location" placeholder="Enter Location">
+                            <input type="text" value="{{ current_location }}" name="current_location" class="form-control" id="Location" placeholder="Enter Location" required>
                         </div>
                     </div>
                     
@@ -59,7 +59,7 @@
                                     <label for="employee_status_id" class="form-label">Employeee Status<span style="color:red;"> *</span> :</label>
                                     <select name="employee_status_name" id="employee_status_id" class="form-control">
                                         {% if id == '0' %}
-                                        <option value="" selected>Select</option>
+                                        <option value="" selected >Select</option>
                                               {% for item in employee_status %}
                                                 <option value="{{ item.0 }}">{{ item.1 }}</option>
                                               {% endfor %}
