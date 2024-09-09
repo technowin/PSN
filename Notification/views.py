@@ -183,6 +183,7 @@ def send_push_notification(user,shift_data,notification_log_id):
                     'shift_data':serialized_shift_data,
                     'notification_log_id':str(notification_log_id),
                 }
+                
             }
         }
         headers = {
