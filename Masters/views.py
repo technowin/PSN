@@ -66,7 +66,7 @@ def masters(request):
                 header = list(result.fetchall())
             cursor.callproc("stp_get_masters",[entity,type,'data'])
             for result in cursor.stored_results():
-                if entity == 'em' or entity == 'sm' or entity == 'cm' or entity == 'menu' or entity == 'user': 
+                if (entity == 'em' or entity == 'sm' or entity == 'cm' or entity == 'menu' or entity == 'user') and type !='err': 
                     data = []
                     rows = result.fetchall()
                     for row in rows:
@@ -89,6 +89,16 @@ def masters(request):
                 cursor.callproc("stp_get_edit_roster",[employee_id,month,year,'2'])
                 for result in cursor.stored_results():
                     header = list(result.fetchall())
+            if entity == 'urm' and (type == 'acu' or type == 'acr'):
+                cursor.callproc("stp_get_access_control",[entity,type])
+                for result in cursor.stored_results():
+                    header = list(result.fetchall())
+                cursor.callproc("stp_get_access_control",[entity,'comp'])
+                for result in cursor.stored_results():
+                    company_names = list(result.fetchall())
+                cursor.callproc("stp_get_access_control",[entity,'site'])
+                for result in cursor.stored_results():
+                    data = list(result.fetchall())
                 
         if request.method=="POST":
             entity = request.POST.get('entity', '')
@@ -238,7 +248,9 @@ def roster_upload(request):
                     
                     for date_col in date_columns:
                         shift_date = datetime.strptime(date_col, '%d-%m-%Y').date()
-                        shift_time = row.get(date_col, '')  
+                        shift_time = row.get(date_col) 
+                        if pd.isna(shift_time):
+                            shift_time = None
                         params = (str(employee_id),employee_name,int(company_id),worksite,shift_date,shift_time,checksum_id)
                         cursor.callproc('stp_insert_roster', params)
                         for result in cursor.stored_results():
@@ -692,27 +704,32 @@ class RosterDataAPIView(APIView):
         # Step 5: Query sc_roster for the current month and categorize the data
         current_roster_qs = sc_roster.objects.filter(
             employee_id=employee_id,
-            shift_date__gte=current_date
+            shift_date__gte=current_date,
+            shift_time__isnull=False
         )
         
         current_roster_qsser = ScRosterSerializer(current_roster_qs, many=True)
 
         previous_roster_qs = sc_roster.objects.filter(
             employee_id=employee_id,
-            shift_date__lt=current_date
+            shift_date__lt=current_date,
+            shift_time__isnull=False
+            
         )
         previous_roster_qsser = ScRosterSerializer(previous_roster_qs, many=True)
 
         marked_roster_qs = sc_roster.objects.filter(
             employee_id=employee_id,
-            confirmation__isnull=False 
+            confirmation__isnull=False ,
+            shift_time__isnull=False
         )
         marked_roster_qsser = ScRosterSerializer(marked_roster_qs, many=True)
 
         unmarked_roster_qs = sc_roster.objects.filter(
             employee_id=employee_id,
             confirmation__isnull=True ,
-            shift_date__lt=current_date
+            shift_date__lt=current_date,
+            shift_time__isnull=False
         )
         unmarked_roster_qsser = ScRosterSerializer(unmarked_roster_qs, many=True)
 
@@ -750,6 +767,7 @@ class confirm_schedule(APIView):
             roster = sc_roster.objects.get(id=roster_id)
             roster.confirmation = confirmation
             roster.updated_at = timezone.now()
+            roster.confirmation_date = timezone.now()
             roster.updated_by = user
             roster.save()
             ser = ScRosterSerializer(roster)

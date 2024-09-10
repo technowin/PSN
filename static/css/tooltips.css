@@ -54,7 +54,7 @@
       opacity: 1;
     }
   }
-  .container,
+  /* .container,
   .main-example {
     text-align: center;
     margin: 100px 0 0;
@@ -78,7 +78,7 @@
   
   h2 {
     text-align: center;
-  }
+  } */
   
   /* code {
     color: rgba(0, 0, 180, 0.9);
