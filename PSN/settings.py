@@ -19,6 +19,10 @@ API_URL_SALARY='https://salaryregister.lknconsultants.net/'
 ALLOWED_HOSTS = ['13.202.157.7']
 # ALLOWED_HOSTS = ['127.0.0.1']
 DEBUG = False
+# Enable timezone support
+
+
+# Set the time zone to IST (India Standard Time)
 
 # DEBUG = True
 
@@ -195,13 +199,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
 USE_TZ = True
 
-
+TIME_ZONE = 'Asia/Kolkata' 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 

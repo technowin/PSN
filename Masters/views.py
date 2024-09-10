@@ -746,6 +746,7 @@ class confirm_schedule(APIView):
             roster = sc_roster.objects.get(id=roster_id)
             roster.confirmation = confirmation
             roster.updated_at = timezone.now()
+            roster.confirmation_date = timezone.now()
             roster.updated_by = user
             roster.save()
             ser = ScRosterSerializer(roster)
