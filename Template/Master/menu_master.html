@@ -23,7 +23,6 @@
  <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
  
 
- <body>
 {% if type == "create"%}
 <div class="container mt-5" style="max-width: 700px;">
         <div class="card">
@@ -63,7 +62,7 @@
                         <div class="col-md-12">
                             <label for="menu_parent" class="form-label">Menu Parent<span style="color:red;"></span></label>
                             <select name="menu_parent" id="dropdown" class="form-control">
-                                <option value="" >Select</option>
+                                <option value="" Selected disabled>Select</option>
                                 {% for item in menu %}
                                     <option value="{{ item.0 }}" {% if item.0 == menus.menu_parent_id %}selected{% endif %}>
                                         {{ item.1 }}
@@ -92,7 +91,7 @@
                         <div class="col-md-12">
                             <label for="sub_menu_parent" class="form-label">Sub Menu Parent<span style="color:red;"></span></label>
                             <select name="sub_menu_parent" id="dropdown" class="form-control">
-                                <option value="" >Select</option>
+                                <option value="" Selected disabled >Select</option>
                                 {% for item in menu %}
                                     <option value="{{ item.0 }}" {% if item.0 == menus.sub_menu %}selected{% endif %}>
                                         {{ item.1 }}
@@ -121,7 +120,7 @@
                         <div class="col-md-12">
                             <label for="sub_menu_parent1" class="form-label">Sub Menu Parent 2<span style="color:red;"></span></label>
                             <select name="sub_menu_parent1" id="dropdown" class="form-control">
-                                <option value="">Select</option>
+                                <option value="" Selected disabled>Select</option>
                                 {% for item in menu %}
                                     <option value="{{ item.0 }}" {% if item.0 == menus.sub_menu2 %}selected{% endif %}>
                                         {{ item.1 }}
@@ -164,7 +163,7 @@
                     <div class="col-md-12">
                         <label for="dropdown" class="form-label">Roles<span style="color:red;"> *</span> :</label>
                         <select name="role_id" id="dropdown" class="form-control" >
-                            <option value="" selected>Select</option>
+                            <option value="" Selected disabled>Select</option>
                             {% for item in roles %}
                                 <option value="{{ item.0 }}">{{ item.1 }}</option>
                             {% endfor %} 
@@ -210,7 +209,7 @@
                     <div class="col-md-12">
                         <label for="dropdown" class="form-label">Users<span style="color:red;"> *</span> :</label>
                         <select name="user_id" id="dropdown" class="form-control">
-                            <option value="" selected>Select</option>
+                            <option value=""  Selected disabled>Select</option>
                             {% for item in users %}
                                 <option value="{{ item.0 }}">{{ item.1 }}</option>
                             {% endfor %} 
@@ -308,7 +307,6 @@
                  
 {% endif %}
 
-</body>
 
 <script>
     $(document).ready(function() {

@@ -251,52 +251,71 @@ def register_new_user(request):
     Db.closeConnection()
     m = Db.get_connection()
     cursor=m.cursor()
-    user_info_cookie = request.COOKIES.get('user_info', None)
-    my_variable_from_session = request.session.get('test', 'Default Value if not found')
-    next =request.GET.get('next', '')
-    logins=True
-    Error=False
     if request.method=="GET":
-       
-        data_type = 'roles'
-        cursor.callproc("stp_get_dropdown_values",[data_type])
+        id = request.GET.get('id', '')
+        cursor.callproc("stp_get_dropdown_values",['roles'])
         for result in cursor.stored_results():
             roles = list(result.fetchall())
 
-    if request.method=="POST":
-        next =request.POST.get('next', '')
-        if request.method =="POST":
-            firstname = request.POST.get('firstname')
-            lastname = request.POST.get('lastname')
-            email = request.POST.get('email')
-            password = request.POST.get('password')
-            phone = request.POST.get('mobileNumber')
-            role_id = request.POST.get('role_id')
-            encrypt_password = encrypt_parameter(password)
+        if id != '0':
+            id1 = decrypt_parameter(id)
+            users = get_object_or_404(CustomUser, id=id1)
+            full_name = users.full_name.split(" ", 1) 
+            first_name = full_name[0] 
+            last_name = full_name[1] if len(full_name) > 1 else ""  
 
 
-            full_name = f"{firstname} {lastname}"
-    
-        try:
+            context = {'users':users,'first_name':first_name,'last_name':last_name,'roles':roles}
+           
+        else:
+
+            context = {'id':id,'roles': roles}
+
+
+    if request.method == "POST":
+        id = request.POST.get('id', '')
+        try:  
+            if id == '0':
+                firstname = request.POST.get('firstname')
+                lastname = request.POST.get('lastname')
+                email = request.POST.get('email')
+                password = request.POST.get('password')
+                phone = request.POST.get('mobileNumber')
+                role_id = request.POST.get('role_id')
+                full_name = f"{firstname} {lastname}"
+                encrypt_password = encrypt_parameter(password)
+            
                 user = CustomUser.objects.create(
-                    full_name= full_name,
+                    full_name=full_name,
                     email=email,
                     password=encrypt_password,
-                    phone = phone,
+                    phone=phone,
                     role_id=role_id
                 )
                 user.save()
 
-                messages.success(request, "New User successfully Added...!")
+                messages.success(request, "New User successfully added!")
+             
+            else:
+                firstname = request.POST.get('firstname')
+                lastname = request.POST.get('lastname')
+                email = request.POST.get('email')
+                full_name = f"{firstname} {lastname}"
+                phone = request.POST.get('mobileNumber')
+                role_id = request.POST.get('role_id')
+                # password = request.POST.get('password')
+                # encrypt_password = encrypt_parameter(password)
 
-                # Authenticate and log in the user
-                user = authenticate(request, firstname=firstname,lastname=lastname, password=encrypt_password,email=email,phone = phone,role_id=role_id)
-                if user is not None:
-                    login(request, user)
-                    return redirect("Account")  
-                else:
-                    Error = "Authentication failed"
-            
+                user = CustomUser.objects.get(id=id)
+                user.full_name = full_name
+                user.email = email
+                user.phone = phone
+                # password=encrypt_password,
+                user.role_id = role_id
+                user.save()
+
+                messages.success(request, "User details updated successfully!")
+
         except Exception as e:
             tb = traceback.extract_tb(e.__traceback__)
             fun = tb[0].name
@@ -306,9 +325,9 @@ def register_new_user(request):
             response = {'result': 'fail','messages ':'something went wrong !'}   
 
     if request.method=="GET":
-        return render(request,'Account/register_new_user.html',{'Error': Error,'next':next,'roles':roles})
-    
-    return redirect('register_new_user')
+        return render(request,'Account/register_new_user.html',context)
+    elif request.method == "POST":
+        return redirect('/masters?entity=user&type=i')
 
 def menu_admin(request):
     Db.closeConnection()
@@ -374,7 +393,8 @@ def delete_menu(request):
     try:
         type = request.GET.get('type', '')
         if request.method == "POST" and type == 'delete':
-            menu_id = request.POST.get('menu_id', '')
+            menu_id1 = request.POST.get('menu_id', '')
+            menu_id = decrypt_parameter(menu_id1)
             try:
                 menu = get_object_or_404(MenuMaster, menu_id=menu_id)
                 menu.delete()
@@ -448,11 +468,11 @@ def menu_master(request):
 
             user_id = request.session.get('user_id', '')
 
-            if user_id:
-                try:
-                    user = CustomUser.objects.get(id=user_id)
-                except CustomUser.DoesNotExist:
-                    user = None
+            # if user_id:
+            #     try:
+            #         user = CustomUser.objects.get(id=user_id)
+            #     except CustomUser.DoesNotExist:
+            #         user = None
 
             if menu_id == '0':
                 menu_count = MenuMaster.objects.count() + 1
@@ -462,7 +482,7 @@ def menu_master(request):
                     MenuMaster.objects.create(
                         menu_name=menu_name, menu_action=menu_action_value, menu_is_parent=parent,
                         menu_parent_id=menu_parent_id, is_sub_menu=sub_parent, sub_menu=sub_menu_id,
-                        is_sub_menu2=sub_parent1, sub_menu2=sub_menu_id1, menu_order=menu_count,menu_icon=icon,created_by= user)
+                        is_sub_menu2=sub_parent1, sub_menu2=sub_menu_id1, menu_order=menu_count,menu_icon=icon,created_by=user_id)
                     messages.success(request, "Menu Successfully Created!")
                 except Exception as e:
                     print(f"An error occurred: {e}")
@@ -477,7 +497,7 @@ def menu_master(request):
                         sub_menu=sub_menu_id,
                         is_sub_menu2=sub_parent1,
                         sub_menu2=sub_menu_id1,
-                        updated_by=user
+                        updated_by=user_id
                     )
                     messages.success(request, "Menu Successfully Updated!")
 
