@@ -16,3 +16,9 @@ class ScRosterSerializer(serializers.ModelSerializer):
     class Meta:
         model = sc_roster
         fields = '__all__'  # Include all fields, or specify specific fields as needed
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        # Replace null shift_time with an empty string
+        if instance.shift_time is None:
+            representation['shift_time'] = ""
+        return representation
