@@ -376,11 +376,9 @@
 
 
 {% elif type == 'urm' %}
-
-<link href="{% static 'css/menuButton.css' %}" rel="stylesheet" type="text/css" >
-
-     <!-- {{name}} -->
-     <div class="card mb-4" style="zoom:90%" >
+    <link href="{% static 'css/menuButton.css' %}" rel="stylesheet" type="text/css" >
+    <!-- {{name}} -->
+    <div class="card mb-4" style="zoom:90%" >
        <div class="card-body">
         <div class="row col-md-12">
           <div class="col-md-4">
@@ -389,19 +387,21 @@
             </h2>
           </div>
           <div class="col-md-2">
-            <a href="#" class="menubutton">
+            <a href="/masters?entity={{entity}}&type=acu" class="menubutton">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 24">
                   <path d="m18 0 8 12 10-8-4 20H4L0 4l10 8 8-12z"></path>
               </svg>
               Assign to User
-          </a>          </div>
+            </a>         
+          </div>
           <div class="col-md-2">
-            <a href="#" class="menubutton">
+            <a href="/masters?entity={{entity}}&type=acr" class="menubutton">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 24">
                   <path d="m18 0 8 12 10-8-4 20H4L0 4l10 8 8-12z"></path>
               </svg>
               Assign to Role
-          </a>          </div>
+            </a>         
+          </div>
         </div>
   
          <div class="table-responsive">
@@ -444,7 +444,70 @@
          </tbody>
         </table>
        </div>
-     </div>
+    </div>
+{% elif type == 'acu' or type == 'acr' %}
+<style>
+  .cwselect {
+    text-align: left;
+    padding: 1.5%;
+    border-radius: 10px;
+    border-color: black;
+    font-size: 1.2em;
+  }
+</style>
+ <!-- Selectize css -->
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.default.min.css">
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
+    <div class="container mt-5" style="max-width: 700px; ">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="text-center" style="color:#B12121;font-weight:bold">Assign to {% if type == 'acu' %}User{% elif type == 'acr' %}Roles{% endif %}</h2>
+                <form method="POST" action="{% url 'masters' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="type" value="user" id="datatype">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="ur" class="form-label">{% if type == 'acu' %}Users{% elif type == 'acr' %}Roles{% endif %} :</label>
+                            <select name="ur" id="ur" class="form-control ">
+                                <option value="" selected disabled>Select</option>
+                                {% for item in header %}
+                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                {% endfor %} 
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="company_id" class="">Company :</label>
+                            <select name="company_id" id="company_id" class="menudropdown cwselect" multiple required>
+                                <option value="" disabled>Select</option>
+                                {% for item in company_names %}
+                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                      <div class="col-md-12">
+                          <label for="worksite" class="">Worksite :</label>
+                          <select name="worksite" id="worksite" class="menudropdown cwselect" multiple required>
+                              <option value="" disabled>Select</option>
+                              {% for item in data %}
+                                  <option value="{{ item.0 }}">{{ item.1 }}</option>
+                              {% endfor %}
+                          </select>
+                      </div>
+                  </div>
+                  
+    
+                    <div class="text-center">
+                        <button type="submit" id="submitBtn" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </div>
 {% endif %}
 {% load static %}
 
@@ -466,6 +529,23 @@
 <script type="text/javascript">
   document.getElementById("month").min = new Date().toISOString().slice(0, 7);
   document.getElementById("month_year").min = new Date().toISOString().slice(0, 7);
+</script>
+<script>
+  $(document).ready(function() {
+      $('.menudropdown').selectize({
+          plugins: ['remove_button'],
+          delimiter: ',',
+          persist: false,
+          create: false, // Prevents creating new items
+          selectOnTab: false, // Disables item creation on tab
+          maxItems: null,
+          onInitialize: function() {
+              // Clear any preselected values if needed
+              var control = this;
+              control.clear();
+          }
+      });
+  });
 </script>
 
 
