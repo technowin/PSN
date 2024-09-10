@@ -688,7 +688,8 @@ class RosterDataAPIView(APIView):
         # Step 5: Query sc_roster for the current month and categorize the data
         current_roster_qs = sc_roster.objects.filter(
             employee_id=employee_id,
-            shift_date__gte=current_date
+            shift_date__gte=current_date,
+            shift_time__isnull=False
         )
         
         current_roster_qsser = ScRosterSerializer(current_roster_qs, many=True)
