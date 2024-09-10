@@ -700,27 +700,32 @@ class RosterDataAPIView(APIView):
         # Step 5: Query sc_roster for the current month and categorize the data
         current_roster_qs = sc_roster.objects.filter(
             employee_id=employee_id,
-            shift_date__gte=current_date
+            shift_date__gte=current_date,
+            shift_time__isnull=False
         )
         
         current_roster_qsser = ScRosterSerializer(current_roster_qs, many=True)
 
         previous_roster_qs = sc_roster.objects.filter(
             employee_id=employee_id,
-            shift_date__lt=current_date
+            shift_date__lt=current_date,
+            shift_time__isnull=False
+            
         )
         previous_roster_qsser = ScRosterSerializer(previous_roster_qs, many=True)
 
         marked_roster_qs = sc_roster.objects.filter(
             employee_id=employee_id,
-            confirmation__isnull=False 
+            confirmation__isnull=False ,
+            shift_time__isnull=False
         )
         marked_roster_qsser = ScRosterSerializer(marked_roster_qs, many=True)
 
         unmarked_roster_qs = sc_roster.objects.filter(
             employee_id=employee_id,
             confirmation__isnull=True ,
-            shift_date__lt=current_date
+            shift_date__lt=current_date,
+            shift_time__isnull=False
         )
         unmarked_roster_qsser = ScRosterSerializer(unmarked_roster_qs, many=True)
 
@@ -758,6 +763,7 @@ class confirm_schedule(APIView):
             roster = sc_roster.objects.get(id=roster_id)
             roster.confirmation = confirmation
             roster.updated_at = timezone.now()
+            roster.confirmation_date = timezone.now()
             roster.updated_by = user
             roster.save()
             ser = ScRosterSerializer(roster)

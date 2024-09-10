@@ -16,3 +16,4 @@ class ScRosterSerializer(serializers.ModelSerializer):
     class Meta:
         model = sc_roster
         fields = '__all__'  # Include all fields, or specify specific fields as needed
+  
