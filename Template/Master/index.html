@@ -334,7 +334,7 @@
      <!-- Error Logs -->
      <div class="card mb-4" style="zoom:85%" >
        <div class="card-body">
-          <h1 class="text-center" style="color:#B12121;font-weight:bold">
+          <h1 style="color:#B12121;font-weight:bold">
            <u> Error Logs</u>
          </h2>
         
@@ -446,15 +446,6 @@
        </div>
     </div>
 {% elif type == 'acu' or type == 'acr' %}
-<style>
-  .cwselect {
-    text-align: left;
-    padding: 1.5%;
-    border-radius: 10px;
-    border-color: black;
-    font-size: 1.2em;
-  }
-</style>
  <!-- Selectize css -->
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.default.min.css">
  <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
@@ -464,11 +455,12 @@
                 <h2 class="text-center" style="color:#B12121;font-weight:bold">Assign to {% if type == 'acu' %}User{% elif type == 'acr' %}Roles{% endif %}</h2>
                 <form method="POST" action="{% url 'masters' %}">
                     {% csrf_token %}
-                    <input type="hidden" name="type" value="user" id="datatype">
+                    <input type="hidden" name="entity" id="entity" value="{{ entity }}">
+                    <input type="hidden" name="type" id= "type" value="{{type}}">
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <label for="ur" class="form-label">{% if type == 'acu' %}Users{% elif type == 'acr' %}Roles{% endif %} :</label>
-                            <select name="ur" id="ur" class="form-control ">
+                            <select name="ur" id="ur" class="form-control" required>
                                 <option value="" selected disabled>Select</option>
                                 {% for item in header %}
                                     <option value="{{ item.0 }}">{{ item.1 }}</option>
@@ -479,7 +471,7 @@
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <label for="company_id" class="">Company :</label>
-                            <select name="company_id" id="company_id" class="menudropdown cwselect" multiple required>
+                            <select name="company_id" id="company_id" class=" " multiple required>
                                 <option value="" disabled>Select</option>
                                 {% for item in company_names %}
                                     <option value="{{ item.0 }}">{{ item.1 }}</option>
@@ -490,7 +482,7 @@
                     <div class="row mb-3">
                       <div class="col-md-12">
                           <label for="worksite" class="">Worksite :</label>
-                          <select name="worksite" id="worksite" class="menudropdown cwselect" multiple required>
+                          <select name="worksite" id="worksite" class=" " multiple required>
                               <option value="" disabled>Select</option>
                               {% for item in data %}
                                   <option value="{{ item.0 }}">{{ item.1 }}</option>
@@ -532,22 +524,98 @@
 </script>
 <script>
   $(document).ready(function() {
-      $('.menudropdown').selectize({
-          plugins: ['remove_button'],
-          delimiter: ',',
-          persist: false,
-          create: false, // Prevents creating new items
-          selectOnTab: false, // Disables item creation on tab
-          maxItems: null,
-          onInitialize: function() {
-              // Clear any preselected values if needed
-              var control = this;
-              control.clear();
+    
+    $('#worksite').selectize({plugins:['remove_button'],delimiter:',',persist:false,create:false,selectOnTab:false,maxItems:null,
+    onInitialize: function() {var control = this;control.clear();}});
+
+    var company = $('#company_id').selectize({plugins:['remove_button'],delimiter:',',persist:false,create:false,selectOnTab:false,maxItems:null,
+    onInitialize: function() {var control = this;control.clear();}});
+
+    company.on('change', async function (value) {
+        var worksite =  $('#worksite').selectize({plugins:['remove_button'],delimiter:',',persist:false,create:false,selectOnTab:false,maxItems:null,
+        onInitialize: function() {var control = this;control.clear();}});
+        worksite[0].selectize.setValue(['']);
+        debugger;
+        var company_id = $('#company_id').val();
+        $.ajax({
+          url: '/get_access_control',  
+          type: 'POST', 
+          datatype: "json",
+          traditional: true,
+          data: {'type': 'worksites','company_id':company_id,csrfmiddlewaretoken: '{{ csrf_token }}' },
+          success: function(res) {
+            debugger;
+            worksite[0].selectize.setValue(['']);
+            var ws = $('#worksite')[0].selectize;
+            ws.clearOptions();
+            res.worksite.forEach(function (item) {
+              debugger;
+              ws.addOption({value: item[0], text: item[1]});
+            });
+            //ws.refreshOptions();
           }
-      });
+        });
+
+    });
+
   });
 </script>
+<script>
+  $('#ur').change(function() {
+      var selectedValue = $(this).val(); 
+      var type = $('#type').val();
+      if (selectedValue) {
+          $.ajax({
+              url: '/get_access_control',  
+              type: 'POST', 
+              datatype: "json",
+              traditional: true,
+              data: {'ur': selectedValue,'type':type,csrfmiddlewaretoken: '{{ csrf_token }}' },
+              success: function(response) {
+                  var company = response.company;
+                  var company_id = $('#company_id');
+                  var company_inst = company_id[0].selectize;
 
+                  var worksite = response.worksite;
+                  var worksite_id = $('#worksite');
+                  var worksite_inst = worksite_id[0].selectize;
+                  
+                  if (company_inst) {
+                      company.forEach(function(item) {
+                        company_inst.addOption({ value: item[0], text: item[1] });
+                      });
+  
+                      var company_val = company.map(item => item[0]);
+                      company_inst.setValue(company_val, true); 
+                  } else {
+                    company_id.selectize({valueField: 'value',labelField: 'text',
+                          options: company.map(function(item) {
+                              return { value: item[0], text: item[1] };
+                          }),
+                          items: company.map(item => item[0])  
+                      });
+                  }
+
+                  if (worksite_inst) {
+                    worksite.forEach(function(item) {
+                      worksite_inst.addOption({ value: item[0], text: item[1] });
+                    });
+
+                    var worksite_val = worksite.map(item => item[0]);
+                    worksite_inst.setValue(worksite_val, true); 
+                  } else {
+                    worksite_id.selectize({valueField: 'value',labelField: 'text',
+                          options: worksite.map(function(item) {
+                              return { value: item[0], text: item[1] };
+                          }),
+                          items: worksite.map(item => item[0])  
+                      });
+                  }
+              }
+          });
+      }
+  });
+</script>
 
 <script type="text/javascript">
     $(document).ready(function () {

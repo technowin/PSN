@@ -58,7 +58,8 @@ urlpatterns = [
     path("employee_master",employee_master, name="employee_master"),
     path("upload_excel",upload_excel, name="upload_excel"),
     path("site_master",sm, name="site_master"),
-    
+    path("get_access_control",get_access_control, name="get_access_control"),
+
     #Reports 
     path('common_html', common_html, name='common_html'),
     path('get_filter', get_filter, name='get_filter'),
