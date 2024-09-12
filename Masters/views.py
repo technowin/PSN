@@ -66,14 +66,14 @@ def masters(request):
                 header = list(result.fetchall())
             cursor.callproc("stp_get_masters",[entity,type,'data'])
             for result in cursor.stored_results():
-                if (entity == 'em' or entity == 'sm' or entity == 'cm' or entity == 'menu') and type !='err' : 
+                if (entity == 'em' or entity == 'sm' or entity == 'cm' or entity == 'menu' or entity == 'user') and type !='err': 
                     data = []
                     rows = result.fetchall()
                     for row in rows:
                         encrypted_id = encrypt_parameter(str(row[0]))
                         data.append((encrypted_id,) + row[1:])
                 else: data = list(result.fetchall())
-            
+
             cursor.callproc("stp_get_dropdown_values",['company'])
             for result in cursor.stored_results():
                 company_names = list(result.fetchall())
@@ -166,7 +166,7 @@ def masters(request):
         m.close()
         Db.closeConnection()
         if request.method=="GET":
-            return render(request,'Master/index.html', {'entity':entity,'type':type,'name':name,'header':header,'data':data,'company_names': company_names,'pre_url':pre_url})
+            return render(request,'Master/index.html', {'entity':entity,'type':type,'name':name,'header':header,'company_names':company_names,'data':data,'pre_url':pre_url})
         elif request.method=="POST":  
             new_url = f'/masters?entity={entity}&type={type}'
             return redirect(new_url) 
@@ -549,9 +549,12 @@ def employee_master(request):
             cursor.callproc("stp_get_employee_status")
             for result in cursor.stored_results():
                 employee_status = list(result.fetchall())
+            cursor.callproc("stp_get_dropdown_values",('site',))
+            for result in cursor.stored_results():
+                site_name = list(result.fetchall())
             if id == "0":
                 if request.method == "GET":
-                    context = {'id':id, 'employee_status':employee_status, 'employee_status_id': ''}
+                    context = {'id':id, 'employee_status':employee_status, 'employee_status_id': '','site_name':site_name}
 
             else:
                 id1 = request.GET.get('id', '')
@@ -560,14 +563,15 @@ def employee_master(request):
                 for result in cursor.stored_results():
                     data = result.fetchall()[0]  
                     context = {
+                        'site_name':site_name,
                         'employee_status':employee_status,
                         'id':data[0],
                         'employee_id' : data[1],
                         'employee_name': data[2],
                         'mobile_no': data[3],
-                        'worksite': data[4],
+                        'site_name_value': data[4],
                         'employee_status_id': data[5],
-                        'is_active': data[7]
+                        'is_active': data[6]
                     }
 
         if request.method == "POST" :
@@ -577,7 +581,7 @@ def employee_master(request):
                 employeeId = request.POST.get('employee_id', '')
                 employeeName = request.POST.get('employee_name', '')
                 mobileNo = request.POST.get('mobile_no', '')
-                worksite = request.POST.get('worksite', '')
+                site_name = request.POST.get('site_name', '')
                 # employeeStatus = request.POST.get('employee_status_name', '')
                 # activebtn = request.POST.get('status_value', '')
 
@@ -585,7 +589,7 @@ def employee_master(request):
                     employeeId, 
                     employeeName, 
                     mobileNo, 
-                    worksite
+                    site_name
                     # employeeStatus,
                     # activebtn
                 ]
@@ -597,11 +601,11 @@ def employee_master(request):
                 employee_id = request.POST.get('employee_id', '')
                 employee_name = request.POST.get('employee_name', '')
                 mobile_no = request.POST.get('mobile_no', '')
-                current_location = request.POST.get('current_location', '')
+                site_name = request.POST.get('site_name', '')
                 employee_status = request.POST.get('employee_status_name', '')
                 is_active = request.POST.get('status_value', '')  
                             
-                params = [id,employee_id,employee_name,mobile_no,current_location,employee_status,is_active]    
+                params = [id,employee_id,employee_name,mobile_no,site_name,employee_status,is_active]    
                 cursor.callproc("stp_update_employee_master",params) 
                 messages.success(request, "Data successfully Updated!")
 

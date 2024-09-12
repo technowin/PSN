@@ -39,7 +39,7 @@
                             <label for="company_id" class="form-label">Company<span style="color:red;"> *</span> :</label>
                             <select name="company_id" id="company_id" class="form-control">
                                 {% if site_id == '0' %}
-                                <option value="" selected>Select</option>
+                                <option value="" selected disabled>Select</option>
                                     {% for item in company_names %}
                                         <option value="{{ item.0 }}">{{ item.1 }}</option>
                                     {% endfor %}
