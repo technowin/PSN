@@ -379,23 +379,21 @@ def menu_admin(request):
     name = ''
     entity = ''
     type = ''
-    
+    global user
+    user  = request.session.get('user_id', '')
     try:
-        if request.user.is_authenticated ==True:                
-                global user
-                user = request.user.id   
-
+       
         if request.method=="GET":
             entity = request.GET.get('entity', '')
             type = request.GET.get('type', '')
-            cursor.callproc("stp_get_masters",[entity,type,'name'])
+            cursor.callproc("stp_get_masters",[entity,type,'name',user])
             for result in cursor.stored_results():
                 datalist1 = list(result.fetchall())
             name = datalist1[0][0]
-            cursor.callproc("stp_get_masters", [entity, type, 'header'])
+            cursor.callproc("stp_get_masters", [entity, type, 'header',user])
             for result in cursor.stored_results():
                 header = list(result.fetchall())
-            cursor.callproc("stp_get_masters",[entity,type,'data'])
+            cursor.callproc("stp_get_masters",[entity,type,'data',user])
             # Encrypt each row's ID before rendering
             data = []
             for result in cursor.stored_results():

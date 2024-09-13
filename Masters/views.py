@@ -55,14 +55,14 @@ def masters(request):
         if request.method=="GET":
             entity = request.GET.get('entity', '')
             type = request.GET.get('type', '')
-            cursor.callproc("stp_get_masters",[entity,type,'name'])
+            cursor.callproc("stp_get_masters",[entity,type,'name',user])
             for result in cursor.stored_results():
                 datalist1 = list(result.fetchall())
             name = datalist1[0][0]
-            cursor.callproc("stp_get_masters", [entity, type, 'header'])
+            cursor.callproc("stp_get_masters", [entity, type, 'header',user])
             for result in cursor.stored_results():
                 header = list(result.fetchall())
-            cursor.callproc("stp_get_masters",[entity,type,'data'])
+            cursor.callproc("stp_get_masters",[entity,type,'data',user])
             for result in cursor.stored_results():
                 if (entity == 'em' or entity == 'sm' or entity == 'cm' or entity == 'menu' or entity == 'user') and type !='err': 
                     data = []
@@ -201,7 +201,7 @@ def sample_xlsx(request):
             entity = request.POST.get('entity', '')
             type = request.POST.get('type', '')
         file_name = {'em': 'Employee Master','sm': 'Worksite Master','cm': 'Company Master','r': 'Roster'}[entity]
-        cursor.callproc("stp_get_masters", [entity, type, 'sample_xlsx'])
+        cursor.callproc("stp_get_masters", [entity, type, 'sample_xlsx',user])
         for result in cursor.stored_results():
             columns = [col[0] for col in result.fetchall()]
         # columns = ['Column 1', 'Column 2', 'Column 3']
@@ -272,7 +272,7 @@ def roster_upload(request):
                 year, month = map(int, month_input.split('-'))
                 _, num_days = calendar.monthrange(year, month)
                 date_columns = [(datetime(year, month, day)).strftime('%d-%m-%Y') for day in range(1, num_days + 1)]
-                cursor.callproc("stp_get_masters", [entity, type, 'sample_xlsx'])
+                cursor.callproc("stp_get_masters", [entity, type, 'sample_xlsx',user])
                 for result in cursor.stored_results():
                     start_columns = [col[0] for col in result.fetchall()]
 
@@ -645,7 +645,7 @@ def upload_excel(request):
             entity = request.POST.get('entity', '')
             type = request.POST.get('type', '')
             company_id = request.POST.get('company_id', None)
-            cursor.callproc("stp_get_masters", [entity, type, 'sample_xlsx'])
+            cursor.callproc("stp_get_masters", [entity, type, 'sample_xlsx',user])
             for result in cursor.stored_results():
                 columns = [col[0] for col in result.fetchall()]
             if not all(col in df.columns for col in columns):
