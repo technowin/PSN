@@ -48,12 +48,10 @@ def masters(request):
     pre_url = request.META.get('HTTP_REFERER')
     header, data = [], []
     entity, type, name = '', '', ''
-
+    global user
+    user  = request.session.get('user_id', '')
     try:
-        if request.user.is_authenticated ==True:                
-                global user
-                user = request.user.id   
-
+         
         if request.method=="GET":
             entity = request.GET.get('entity', '')
             type = request.GET.get('type', '')
@@ -122,10 +120,10 @@ def masters(request):
                 
                 if not selected_company_ids or not selected_worksites:
                     messages.error(request, 'Company or worksite data is missing!')
-                    return redirect(f'/masters?entity={entity}&type=i')
+                    return redirect(f'/masters?entity={entity}&type=urm')
                 if type not in ['acu', 'acr'] or not ur:
                     messages.error(request, 'Invalid data received.')
-                    return redirect(f'/masters?entity={entity}&type=i')
+                    return redirect(f'/masters?entity={entity}&type=urm')
                 
                 cursor.callproc("stp_get_company_worksite",[",".join(request.POST.getlist('company_id'))])
                 for result in cursor.stored_results():
@@ -158,7 +156,7 @@ def masters(request):
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
         fun = tb[0].name
-        cursor.callproc("stp_error_log",[fun,str(e),request.user.id])  
+        cursor.callproc("stp_error_log",[fun,str(e),user])  
         messages.error(request, 'Oops...! Something went wrong!')
     finally:
         cursor.close()
@@ -184,10 +182,10 @@ def sample_xlsx(request):
     cursor=m.cursor()
     pre_url = request.META.get('HTTP_REFERER')
     response =''
+    global user
+    user  = request.session.get('user_id', '')
     try:
-        if request.user.is_authenticated ==True:                
-                global user
-                user = request.user.id   
+        
         workbook = openpyxl.Workbook()
         sheet = workbook.active
         sheet.title = 'Sample Format'
@@ -236,7 +234,7 @@ def sample_xlsx(request):
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
         fun = tb[0].name
-        cursor.callproc("stp_error_log",[fun,str(e),request.user.id])  
+        cursor.callproc("stp_error_log",[fun,str(e),user])  
         messages.error(request, 'Oops...! Something went wrong!')
     finally:
         cursor.close()
@@ -249,6 +247,8 @@ def roster_upload(request):
     Db.closeConnection()
     m = Db.get_connection()
     cursor = m.cursor()
+    global user
+    user  = request.session.get('user_id', '')
     if request.method == 'POST' and request.FILES.get('roster_file'):
         try:
             excel_file = request.FILES['roster_file']
@@ -317,7 +317,7 @@ def roster_upload(request):
         except Exception as e:
             tb = traceback.extract_tb(e.__traceback__)
             fun = tb[0].name
-            cursor.callproc("stp_error_log", [fun, str(e), request.user.id])  
+            cursor.callproc("stp_error_log", [fun, str(e), user])  
             messages.error(request, 'Oops...! Something went wrong!')
             m.commit()   
 
@@ -331,10 +331,9 @@ def site_master(request):
     Db.closeConnection()
     m = Db.get_connection()
     cursor=m.cursor()
+    global user
+    user  = request.session.get('user_id', '')
     try:
-        if request.user.is_authenticated ==True:                      
-            global user
-            user = request.user.id  
         
         if request.method == "GET":
             cursor.callproc("stp_get_roster_type")
@@ -433,7 +432,7 @@ def site_master(request):
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
         fun = tb[0].name
-        cursor.callproc("stp_error_log", [fun, str(e), request.user.id])  
+        cursor.callproc("stp_error_log", [fun, str(e), user])  
         messages.error(request, 'Oops...! Something went wrong!')
     finally:
         cursor.close()
@@ -450,10 +449,9 @@ def company_master(request):
     Db.closeConnection()
     m = Db.get_connection()
     cursor=m.cursor()
+    global user
+    user  = request.session.get('user_id', '')
     try:
-        if request.user.is_authenticated ==True:                      
-            global user
-            user = request.user.id  
         
         if request.method == "GET":
         
@@ -519,7 +517,7 @@ def company_master(request):
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
         fun = tb[0].name
-        cursor.callproc("stp_error_log", [fun, str(e), request.user.id])  
+        cursor.callproc("stp_error_log", [fun, str(e), user])  
         messages.error(request, 'Oops...! Something went wrong!')
     finally:
         cursor.close()
@@ -538,10 +536,10 @@ def employee_master(request):
     Db.closeConnection()
     m = Db.get_connection()
     cursor=m.cursor()
+    global user
+    user  = request.session.get('user_id', '')
     try:
-        if request.user.is_authenticated ==True:                      
-            global user
-            user = request.user.id  
+        
         if request.method == "GET":
             id = request.GET.get('id', '')
             
@@ -612,7 +610,7 @@ def employee_master(request):
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
         fun = tb[0].name
-        cursor.callproc("stp_error_log", [fun, str(e), request.user.id])  
+        cursor.callproc("stp_error_log", [fun, str(e), user])  
         messages.error(request, 'Oops...! Something went wrong!')
     finally:
         cursor.close()
@@ -634,6 +632,8 @@ def upload_excel(request):
         update_count = error_count = success_count = 0
         checksum_id = None
         r=None
+        global user
+        user  = request.session.get('user_id', '')
         try:
             Db.closeConnection()
             m = Db.get_connection()
@@ -698,7 +698,7 @@ def upload_excel(request):
         except Exception as e:
             tb = traceback.extract_tb(e.__traceback__)
             fun = tb[0].name
-            cursor.callproc("stp_error_log", [fun, str(e), request.user.id])  
+            cursor.callproc("stp_error_log", [fun, str(e), user])  
             messages.error(request, 'Oops...! Something went wrong!')
             m.commit()   
         finally:
@@ -713,6 +713,8 @@ def get_access_control(request):
     cursor=m.cursor()
     company = []
     worksite = []
+    global user
+    user  = request.session.get('user_id', '')
     try:
         if request.method == "POST":
             type = request.POST.get('type','')
@@ -735,7 +737,7 @@ def get_access_control(request):
 
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
-        cursor.callproc("stp_error_log", [tb[0].name, str(e), request.user.id])
+        cursor.callproc("stp_error_log", [tb[0].name, str(e), user])
         print(f"error: {e}")
         response = {'result': 'fail', 'message': 'Something went wrong!'}
 
