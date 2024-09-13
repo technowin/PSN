@@ -48,6 +48,7 @@ from rest_framework.decorators import api_view
 from django.http import FileResponse
 from xhtml2pdf import pisa
 from django.template.loader import get_template
+import traceback
 
 # Report section
 
@@ -58,8 +59,8 @@ def common_html(request):
     cursor=m.cursor()
     title,note,user ='','',None
     try:
-        if request.user.is_authenticated ==True:                
-                user = request.user.id  
+        user = request.session.get('user_id', '') 
+        
         entity =request.GET.get('entity', '')  
         if request.method=="GET":
             cursor.callproc("stp_get_filter_names",[entity])        
@@ -76,7 +77,9 @@ def common_html(request):
             for result in cursor.stored_results():
                 saved_names = list(result.fetchall()) 
     except Exception as e:
-        print(f"error: {e}")
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),user])  
         messages.error(request, 'Oops...! Something went wrong!')
     finally:
         cursor.close()
@@ -89,10 +92,9 @@ def get_filter(request):
     Db.closeConnection()
     m = Db.get_connection()
     cursor=m.cursor()
+    user =None
     try:
-        if request.user.is_authenticated ==True:                
-                
-                user = request.user.id  
+        user = request.session.get('user_id', '') 
         if request.method=="GET":
             entity =request.GET.get('entity', '')
             cursor.callproc("stp_get_filter_names",[entity])
@@ -109,7 +111,10 @@ def get_filter(request):
                 drop_down = 0
                 
     except Exception  as e:
-        print("error"+e)
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),user])  
+        messages.error(request, 'Oops...! Something went wrong!')
     finally:
         cursor.close()
         m.commit()
@@ -136,8 +141,7 @@ def get_sub_filter(request):
     cursor=m.cursor()
     user =None
     try:
-        if request.user.is_authenticated ==True:                
-                user = request.user.id  
+        user = request.session.get('user_id', '') 
         if request.method=="GET":
             filter_id =request.GET.get('filter_id', '')
             cursor.callproc("stp_get_sub_filter",[filter_id,user])
@@ -154,7 +158,10 @@ def get_sub_filter(request):
                 drop_down = 0
                 
     except Exception  as e:
-        print("error-"+str(e))
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),user])  
+        messages.error(request, 'Oops...! Something went wrong!')
     finally:
         cursor.close()
         m.commit()
@@ -166,6 +173,8 @@ def add_new_filter(request):
     Db.closeConnection()
     m = Db.get_connection()
     cursor=m.cursor()
+    global user
+    user  = request.session.get('user_id', '')
     try:
         if request.method == "GET":
             filter_count =str(request.GET.get('filter_count', ''))
@@ -178,7 +187,10 @@ def add_new_filter(request):
             context = {'filter_name':filter_name,'fId':fId,'sfId':sfId,'fcount':filter_count}
             html = render_to_string('Reports/_add_new_filter.html', context)
     except Exception as e:
-        print("error-"+str(e))
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),user])  
+        messages.error(request, 'Oops...! Something went wrong!')
     finally:
         cursor.close()
         m.commit()
@@ -194,8 +206,7 @@ def partial_report(request):
     user =None
     try:
         if request.method == "GET":
-            if request.user.is_authenticated ==True:                
-                user = request.user.id  
+            user = request.session.get('user_id', '')
             columnName =str(request.GET.get('columnName', ''))
             filterid =str(request.GET.get('filterid', ''))
             subFilterId =str(request.GET.get('subFilterId', ''))
@@ -214,7 +225,10 @@ def partial_report(request):
             context = {'emptycheck':emptycheck,'columns':display_name_list,'rows':data_list,'entity':entity}
             html = render_to_string('Reports/_partial_report.html', context)
     except Exception as e:
-        print("error-"+str(e))
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),user])  
+        messages.error(request, 'Oops...! Something went wrong!')
     finally:
         cursor.close()
         m.commit()
@@ -411,7 +425,9 @@ def common_fun(columnName,filterid,SubFilterId,sft,entity,user):
             }
 
     except Exception as e:
-        print("error-"+str(e))
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),user])  
     finally:
           cursor.close()
           m.commit()
@@ -435,9 +451,7 @@ def report_pdf(request):
     user =None
     try:
         if request.method == "POST":
-            if request.user.is_authenticated:
-                
-                user = request.user.id
+            user = request.session.get('user_id', '')
             columnName = str(request.POST.get('columnName', ''))
             filterid = str(request.POST.get('filterid', ''))
             subFilterId = str(request.POST.get('subFilterId', ''))
@@ -475,7 +489,10 @@ def report_pdf(request):
                 response['Content-Disposition'] = f'attachment; filename="{filename}"'
         
     except Exception as e:
-        print(f"error-{e}")
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),user])  
+        messages.error(request, 'Oops...! Something went wrong!')
     finally:
         cursor.close()
         m.commit()
@@ -491,9 +508,7 @@ def report_xlsx(request):
     user =None
     try:
         if request.method == "POST":
-            if request.user.is_authenticated ==True:                
-                
-                user = request.user.id  
+            user = request.session.get('user_id', '')
             columnName =str(request.POST.get('columnName', ''))
             filterid =str(request.POST.get('filterid', ''))
             subFilterId =str(request.POST.get('subFilterId', ''))
@@ -540,7 +555,10 @@ def report_xlsx(request):
             output.seek(0)
             response.write(output.read())
     except Exception as e:
-        print("error-"+e)
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),user])  
+        messages.error(request, 'Oops...! Something went wrong!')
     finally:
         cursor.close()
         m.commit()
@@ -562,9 +580,7 @@ def save_filters(request):
     user =None
     try:
         if request.method == "GET":
-            if request.user.is_authenticated ==True:                
-                
-                user = request.user.id  
+            user = request.session.get('user_id', '')
             columnName =str(request.GET.get('columnName', ''))
             filterid =str(request.GET.get('filterid', ''))
             subFilterId =str(request.GET.get('subFilterId', ''))
@@ -584,7 +600,10 @@ def save_filters(request):
                     datalist = list(result.fetchall())
             response_data = {'result': datalist[0][0]}                       
     except Exception as e:
-        print("error-"+e)
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),user])  
+        messages.error(request, 'Oops...! Something went wrong!')
         response_data = {'result': 'fail'}       
     finally:
         cursor.close()
@@ -600,10 +619,7 @@ def delete_filters(request):
     user =None
     try:
         if request.method == "GET":
-            if request.user.is_authenticated ==True:                
-                
-                user = request.user.id  
-    
+            user = request.session.get('user_id', '')
             entity =str(request.GET.get('entity', ''))
             saved_id =str(request.GET.get('save_filter_name', ''))
             cursor.callproc("stp_delete_report_filters",[saved_id,entity,user])
@@ -611,7 +627,10 @@ def delete_filters(request):
                     datalist = list(result.fetchall())
             response_data = {'result': datalist[0][0]}                       
     except Exception as e:
-        print("error-"+e)
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),user])  
+        messages.error(request, 'Oops...! Something went wrong!')
         response_data = {'result': 'fail','messages ':'something went wrong !'}       
     finally:
         cursor.close()
@@ -627,10 +646,7 @@ def saved_filters(request):
     user =None
     try:
         if request.method == "GET":
-            if request.user.is_authenticated ==True:                
-                
-                user = request.user.id  
-    
+            user = request.session.get('user_id', '')
             entity =str(request.GET.get('entity', ''))
             saved_id =str(request.GET.get('saved_id', ''))
             cursor.callproc("stp_get_saved_report_filters",[saved_id,entity,user])
@@ -667,7 +683,10 @@ def saved_filters(request):
             context = {'result': 'success','filters':fil_arr,'sub_filters':sub_fil_arr,'sel_col_arr':sel_col_arr,
                        'sel_col':selected_columns,'f_count':f_count,'table':table,'f_id':f_id,'s_fid':s_fid}                       
     except Exception as e:
-        print("error-"+e)
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),user])  
+        messages.error(request, 'Oops...! Something went wrong!')
         context = {'result': 'fail'}       
     finally:
         cursor.close()
