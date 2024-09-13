@@ -75,6 +75,7 @@
 
     <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 {% if messages %}
     {% for message in messages %}
@@ -87,9 +88,8 @@
       });
     </script>
     {% endfor %}
-  {% endif %}
+{% endif %}
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
   function validatePassword() {
       var password = document.getElementById("exampleInputPassword").value;
