@@ -410,8 +410,11 @@ def site_master(request):
                 ]
                 
                 cursor.callproc("stp_insert_site_master", params)
-                messages.success(request, "Data successfully entered!")
-
+                for result in cursor.stored_results():
+                        datalist = list(result.fetchall())
+                if datalist[0][0] == "success":
+                    messages.success(request, 'Data successfully entered !')
+                else: messages.error(request, datalist[0][0])
             else:
                 if request.method == "POST" :
                     siteId = request.POST.get('site_id', '')
@@ -502,7 +505,11 @@ def company_master(request):
                     # is_active
                 ]
                 cursor.callproc("stp_insert_company_master", params)
-                messages.success(request, "Data successfully entered...!")
+                for result in cursor.stored_results():
+                        datalist = list(result.fetchall())
+                if datalist[0][0] == "success":
+                    messages.success(request, 'Data successfully entered !')
+                else: messages.error(request, datalist[0][0])
             else :
                 company_id = request.POST.get('company_id', '')
                 company_name = request.POST.get('company_name', '')
@@ -597,7 +604,11 @@ def employee_master(request):
                 ]
                 
                 cursor.callproc("stp_insert_employee_master", params)
-                messages.success(request, "Data successfully entered!")
+                for result in cursor.stored_results():
+                        datalist = list(result.fetchall())
+                if datalist[0][0] == "success":
+                    messages.success(request, 'Data successfully entered !')
+                else: messages.error(request, datalist[0][0])
             else:
                 id = request.POST.get('id', '')
                 employee_id = request.POST.get('employee_id', '')
