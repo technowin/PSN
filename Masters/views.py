@@ -75,6 +75,10 @@ def masters(request):
             cursor.callproc("stp_get_dropdown_values",['company'])
             for result in cursor.stored_results():
                 company_names = list(result.fetchall())
+            if entity == 'r' and type == 'i':
+                cursor.callproc("stp_get_assigned_company",[user])
+                for result in cursor.stored_results():
+                    company_names = list(result.fetchall())
             if entity == 'r' and type == 'ed':
                 month_year =str(request.GET.get('month', ''))
                 if month_year == '':
@@ -291,7 +295,7 @@ def roster_upload(request):
                         shift_time = row.get(date_col) 
                         if pd.isna(shift_time):
                             shift_time = None
-                        params = (str(employee_id),employee_name,int(company_id),worksite,shift_date,shift_time,checksum_id)
+                        params = (str(employee_id),employee_name,int(company_id),worksite,shift_date,shift_time,checksum_id,user)
                         cursor.callproc('stp_insert_roster', params)
                         for result in cursor.stored_results():
                             r = list(result.fetchall())
