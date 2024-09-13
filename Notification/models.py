@@ -12,6 +12,7 @@ class notification_log(models.Model):
     notification_received = models.DateTimeField(null=True,blank=True)
     notification_opened = models.DateTimeField(null=True,blank=True)
     notification_message = models.TextField(null=True, blank=True)
+    type = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='noti_created_by',blank=True, null=True,db_column='created_by')
     updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
