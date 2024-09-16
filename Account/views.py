@@ -86,6 +86,8 @@ def Login(request):
             remember_me = request.POST.get('remember_me')
             user = authenticate(request, username=username, password=password)
             if user is not None:
+                login(request, user)
+                request.session.cycle_key()
                 request.session["username"]=(str(username))
                 request.session["full_name"]=(str(user.full_name))
                 request.session["user_id"]=(str(user.id))
