@@ -38,6 +38,7 @@ urlpatterns = [
     path('confirm_notification', confirm_notification.as_view(), name='confirm_notification'),
     path('check_and_notify_user', check_and_notify_user.as_view(), name='check_and_notify_user'),
     path('check_and_notify_all_users', check_and_notify_all_users.as_view(), name='check_and_notify_all_users'),
+    path('check_and_notify_default_users', check_and_notify_default_users.as_view(), name='check_and_notify_default_users'),
     
     
     # Account
