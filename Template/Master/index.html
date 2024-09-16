@@ -164,6 +164,7 @@
                    <div class="{% if entity == 'r' %}col-md-7{% else %}col-md-5{% endif %}">
                        <h3> <strong style="color: #B12121;"> <u>{{name}}</u> </strong></h3>
                    </div>
+                   {% if entity != 'user'%}
                    <div class="col-md-1">
                       <a href="{% if entity == 'r' %}#{% else %}/sample_xlsx?entity={{entity}}&type={{type}}{% endif %}" class="Btn1" hover-tooltip="Download Sample"  tooltip-position="top"
                       type="button" {% if entity == 'r' %} data-toggle="modal"  data-target="#roster_sample_xlsx_id" {% endif %}>
@@ -185,7 +186,8 @@
                            <span class="btn__text">Upload</span>
                        </button>                  
                    </div>
-                   {% if entity == 'r' %}
+                   {% endif %}
+                   {% if entity == 'r'%}
                     <div class="col-sm-2">
                       <form method="GET" action="/masters">
                         <input type="hidden" name="entity" value="{{ entity }}">
@@ -200,23 +202,25 @@
                     </div>
                   {% else %}   
                     <div class="col-sm-2">
-                     <form method="GET" action="{% if entity == 'sm' %}/site_master{% elif entity == 'cm' %}/company_master{% elif entity == 'em' %}/employee_master{% endif %}">
-                       <input type="hidden" name="{% if entity == 'sm' %}site_id{% elif entity == 'cm' %}company_id{% elif entity == 'em' %}id{% endif %}" value="0">
+                     <form method="GET" action="{% if entity == 'sm' %}/site_master{% elif entity == 'cm' %}/company_master{% elif entity == 'em' %}/employee_master{% elif entity == 'user' %}/register_new_user{% endif %}">
+                       <input type="hidden" name="{% if entity == 'sm' %}site_id{% elif entity == 'cm' %}company_id{% elif entity == 'em' %}id{% elif entity == 'user' %}id{% endif %}" value="0">
                        <button type="submit" class="Btn"><div class="sign">+ </div> <div class="text">Create</div></button>
                      </form>
                     </div>
-                    <div class="col-sm-2">
-                     <form method="GET" action="/masters">
-                       <input type="hidden" name="entity" value="{{ entity }}">
-                       <input type="hidden" name="type" value="err">
-                       <button class="btn_err">
-                        <div class="sign_err">
-                          <svg viewBox="0 0 512 512"><path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 392c-17.67 0-32-14.33-32-32 0-17.67 14.33-32 32-32s32 14.33 32 32c0 17.67-14.33 32-32 32zm32-128c0 17.67-14.33 32-32 32s-32-14.33-32-32V176c0-17.67 14.33-32 32-32s32 14.33 32 32v96z"/></svg>
-                        </div>
-                        <div class="text_err">Error Logs</div>
-                       </button> 
-                     </form>
-                    </div>
+                      {% if entity != 'user'%}
+                      <div class="col-sm-2">
+                      <form method="GET" action="/masters">
+                        <input type="hidden" name="entity" value="{{ entity }}">
+                        <input type="hidden" name="type" value="err">
+                        <button class="btn_err">
+                          <div class="sign_err">
+                            <svg viewBox="0 0 512 512"><path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 392c-17.67 0-32-14.33-32-32 0-17.67 14.33-32 32-32s32 14.33 32 32c0 17.67-14.33 32-32 32zm32-128c0 17.67-14.33 32-32 32s-32-14.33-32-32V176c0-17.67 14.33-32 32-32s32 14.33 32 32v96z"/></svg>
+                          </div>
+                          <div class="text_err">Error Logs</div>
+                        </button> 
+                      </form>
+                      </div>
+                      {% endif %}
                   {% endif %}     
                    {% if entity == 'sm' %}
                      <!-- <div class="col-lg-1" style="justify-content: right; align-items: right;">
@@ -266,6 +270,7 @@
                                   <a href="{% if entity == 'sm' %}/site_master?site_id={{ row.0 }}
                                   {% elif entity == 'cm' %}/company_master?company_id={{ row.0 }}
                                    {% elif entity == 'em' %}/employee_master?id={{ row.0 }}
+                                    {% elif entity == 'user' %}/register_new_user?id={{ row.0 }}
                                     {% elif entity == 'r' %}/masters?month={{ row.0 }}&entity={{entity}}&type=ed&empid={{row.1}}{% endif %}" class="edit-button">
                                     <svg class="edit-svgIcon" viewBox="0 0 512 512">
                                         <path d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"></path>
@@ -334,7 +339,7 @@
      <!-- Error Logs -->
      <div class="card mb-4" style="zoom:85%" >
        <div class="card-body">
-          <h1 class="text-center" style="color:#B12121;font-weight:bold">
+          <h1 style="color:#B12121;font-weight:bold">
            <u> Error Logs</u>
          </h2>
         
@@ -376,11 +381,9 @@
 
 
 {% elif type == 'urm' %}
-
-<link href="{% static 'css/menuButton.css' %}" rel="stylesheet" type="text/css" >
-
-     <!-- {{name}} -->
-     <div class="card mb-4" style="zoom:90%" >
+    <link href="{% static 'css/menuButton.css' %}" rel="stylesheet" type="text/css" >
+    <!-- {{name}} -->
+    <div class="card mb-4" style="zoom:90%" >
        <div class="card-body">
         <div class="row col-md-12">
           <div class="col-md-4">
@@ -389,19 +392,21 @@
             </h2>
           </div>
           <div class="col-md-2">
-            <a href="#" class="menubutton">
+            <a href="/masters?entity={{entity}}&type=acu" class="menubutton">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 24">
                   <path d="m18 0 8 12 10-8-4 20H4L0 4l10 8 8-12z"></path>
               </svg>
               Assign to User
-          </a>          </div>
+            </a>         
+          </div>
           <div class="col-md-2">
-            <a href="#" class="menubutton">
+            <a href="/masters?entity={{entity}}&type=acr" class="menubutton">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 24">
                   <path d="m18 0 8 12 10-8-4 20H4L0 4l10 8 8-12z"></path>
               </svg>
               Assign to Role
-          </a>          </div>
+            </a>         
+          </div>
         </div>
   
          <div class="table-responsive">
@@ -444,7 +449,62 @@
          </tbody>
         </table>
        </div>
-     </div>
+    </div>
+{% elif type == 'acu' or type == 'acr' %}
+ <!-- Selectize css -->
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.default.min.css">
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
+    <div class="container mt-5" style="max-width: 700px; ">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="text-center" style="color:#B12121;font-weight:bold">Assign to {% if type == 'acu' %}User{% elif type == 'acr' %}Roles{% endif %}</h2>
+                <form method="POST" action="{% url 'masters' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="entity" id="entity" value="{{ entity }}">
+                    <input type="hidden" name="type" id= "type" value="{{type}}">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="ur" class="form-label">{% if type == 'acu' %}Users{% elif type == 'acr' %}Roles{% endif %} :</label>
+                            <select name="ur" id="ur" class="form-control" required>
+                                <option value="" selected disabled>Select</option>
+                                {% for item in header %}
+                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                {% endfor %} 
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="company_id" class="">Company :</label>
+                            <select name="company_id" id="company_id" class=" " multiple required>
+                                <option value="" disabled>Select</option>
+                                {% for item in company_names %}
+                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                      <div class="col-md-12">
+                          <label for="worksite" class="">Worksite :</label>
+                          <select name="worksite" id="worksite" class=" " multiple required>
+                              <option value="" disabled>Select</option>
+                              {% for item in data %}
+                                  <option value="{{ item.0 }}">{{ item.1 }}</option>
+                              {% endfor %}
+                          </select>
+                      </div>
+                  </div>
+                  
+    
+                    <div class="text-center">
+                        <button type="submit" id="submitBtn" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </div>
 {% endif %}
 {% load static %}
 
@@ -467,7 +527,100 @@
   document.getElementById("month").min = new Date().toISOString().slice(0, 7);
   document.getElementById("month_year").min = new Date().toISOString().slice(0, 7);
 </script>
+<script>
+  $(document).ready(function() {
+    
+    $('#worksite').selectize({plugins:['remove_button'],delimiter:',',persist:false,create:false,selectOnTab:false,maxItems:null,
+    onInitialize: function() {var control = this;control.clear();}});
 
+    var company = $('#company_id').selectize({plugins:['remove_button'],delimiter:',',persist:false,create:false,selectOnTab:false,maxItems:null,
+    onInitialize: function() {var control = this;control.clear();}});
+
+    company.on('change', async function (value) {
+        var worksite =  $('#worksite').selectize({plugins:['remove_button'],delimiter:',',persist:false,create:false,selectOnTab:false,maxItems:null,
+        onInitialize: function() {var control = this;control.clear();}});
+        worksite[0].selectize.setValue(['']);
+        debugger;
+        var company_id = $('#company_id').val();
+        $.ajax({
+          url: '/get_access_control',  
+          type: 'POST', 
+          datatype: "json",
+          traditional: true,
+          data: {'type': 'worksites','company_id':company_id,csrfmiddlewaretoken: '{{ csrf_token }}' },
+          success: function(res) {
+            debugger;
+            worksite[0].selectize.setValue(['']);
+            var ws = $('#worksite')[0].selectize;
+            ws.clearOptions();
+            res.worksite.forEach(function (item) {
+              debugger;
+              ws.addOption({value: item[0], text: item[1]});
+            });
+            //ws.refreshOptions();
+          }
+        });
+
+    });
+
+  });
+</script>
+<script>
+  $('#ur').change(function() {
+      var selectedValue = $(this).val(); 
+      var type = $('#type').val();
+      if (selectedValue) {
+          $.ajax({
+              url: '/get_access_control',  
+              type: 'POST', 
+              datatype: "json",
+              traditional: true,
+              data: {'ur': selectedValue,'type':type,csrfmiddlewaretoken: '{{ csrf_token }}' },
+              success: function(response) {
+                  var company = response.company;
+                  var company_id = $('#company_id');
+                  var company_inst = company_id[0].selectize;
+
+                  var worksite = response.worksite;
+                  var worksite_id = $('#worksite');
+                  var worksite_inst = worksite_id[0].selectize;
+                  
+                  if (company_inst) {
+                      company.forEach(function(item) {
+                        company_inst.addOption({ value: item[0], text: item[1] });
+                      });
+  
+                      var company_val = company.map(item => item[0]);
+                      company_inst.setValue(company_val, true); 
+                  } else {
+                    company_id.selectize({valueField: 'value',labelField: 'text',
+                          options: company.map(function(item) {
+                              return { value: item[0], text: item[1] };
+                          }),
+                          items: company.map(item => item[0])  
+                      });
+                  }
+
+                  if (worksite_inst) {
+                    worksite.forEach(function(item) {
+                      worksite_inst.addOption({ value: item[0], text: item[1] });
+                    });
+
+                    var worksite_val = worksite.map(item => item[0]);
+                    worksite_inst.setValue(worksite_val, true); 
+                  } else {
+                    worksite_id.selectize({valueField: 'value',labelField: 'text',
+                          options: worksite.map(function(item) {
+                              return { value: item[0], text: item[1] };
+                          }),
+                          items: worksite.map(item => item[0])  
+                      });
+                  }
+              }
+          });
+      }
+  });
+</script>
 
 <script type="text/javascript">
     $(document).ready(function () {

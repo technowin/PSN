@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, render,redirect
 from django.contrib.auth import authenticate, login ,logout,get_user_model
 from Account.forms import RegistrationForm
 from Account.models import AssignedCompany, CustomUser,MenuMaster,RoleMenuMaster,UserMenuDetails, OTPVerification, password_storage
+
 # import mysql.connector as sql
 from Account.serializers import *
 import Db 
@@ -27,6 +28,11 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+
+# Counts Import
+
+from django.contrib.auth.hashers import check_password
+
 
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import IsAuthenticated
@@ -182,7 +188,39 @@ class CustomTokenRefreshView(APIView):
             return Response({'error': 'Refresh token not provided'}, status=status.HTTP_400_BAD_REQUEST)
 
 def forgot_password(request):
-    return render(request,'Account/forgot-password.html') 
+    Db.closeConnection()  
+    m = Db.get_connection()  
+    cursor = m.cursor()
+    
+    try:
+        if request.method =="GET":
+            type = request.GET.get('type')
+        if request.method == "POST":
+            email = request.POST.get('email')
+            if CustomUser.objects.filter(email=email).exists():
+                messages.success(request, 'User id valid...Please update your password')
+                type = 'pass'
+            else:
+                messages.error(request, 'User does not exist.Please Enter Correct Email.')
+                type='email'
+
+    except Exception as e:
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log", [fun, str(e), request.user.id])
+        messages.error(request, 'Oops...! Something went wrong!')
+    
+    finally:
+        cursor.close()
+        m.commit()
+        m.close()
+        Db.closeConnection()
+
+    if request.method =="GET":
+        return render(request,'Account/forgot-password.html',{'type':type}) 
+    elif request.method =="POST":
+        return render(request,'Account/forgot-password.html',{'type':type,'email':email}) 
+
 
 def logoutView(request):
     logout(request)
@@ -251,52 +289,73 @@ def register_new_user(request):
     Db.closeConnection()
     m = Db.get_connection()
     cursor=m.cursor()
-    user_info_cookie = request.COOKIES.get('user_info', None)
-    my_variable_from_session = request.session.get('test', 'Default Value if not found')
-    next =request.GET.get('next', '')
-    logins=True
-    Error=False
     if request.method=="GET":
-       
-        data_type = 'roles'
-        cursor.callproc("stp_get_dropdown_values",[data_type])
+        id = request.GET.get('id', '')
+        cursor.callproc("stp_get_dropdown_values",['roles'])
         for result in cursor.stored_results():
             roles = list(result.fetchall())
 
-    if request.method=="POST":
-        next =request.POST.get('next', '')
-        if request.method =="POST":
-            firstname = request.POST.get('firstname')
-            lastname = request.POST.get('lastname')
-            email = request.POST.get('email')
-            password = request.POST.get('password')
-            phone = request.POST.get('mobileNumber')
-            role_id = request.POST.get('role_id')
-            encrypt_password = encrypt_parameter(password)
+        if id != '0':
+            id1 = decrypt_parameter(id)
+            users = get_object_or_404(CustomUser, id=id1)
+            full_name = users.full_name.split(" ", 1) 
+            first_name = full_name[0] 
+            last_name = full_name[1] if len(full_name) > 1 else ""  
 
 
-            full_name = f"{firstname} {lastname}"
-    
-        try:
-                user = CustomUser.objects.create(
-                    full_name= full_name,
+            context = {'users':users,'first_name':first_name,'last_name':last_name,'roles':roles}
+           
+        else:
+
+            context = {'id':id,'roles': roles}
+
+
+    if request.method == "POST":
+        id = request.POST.get('id', '')
+        try:  
+            if id == '0':
+               # Extract data from the request
+                firstname = request.POST.get('firstname')
+                lastname = request.POST.get('lastname')
+                email = request.POST.get('email')
+                password = request.POST.get('password') 
+                phone = request.POST.get('mobileNumber')
+                role_id = request.POST.get('role_id')
+                full_name = f"{firstname} {lastname}"
+
+                # Create user with necessary fields
+                user = CustomUser(
+                    full_name=full_name,
                     email=email,
-                    password=encrypt_password,
-                    phone = phone,
+                    phone=phone,
                     role_id=role_id
                 )
+                user.set_password(password)  
+                user.username = user.email
+                user.is_active = True 
+                # Save the user to the database
                 user.save()
 
-                messages.success(request, "New User successfully Added...!")
 
-                # Authenticate and log in the user
-                user = authenticate(request, firstname=firstname,lastname=lastname, password=encrypt_password,email=email,phone = phone,role_id=role_id)
-                if user is not None:
-                    login(request, user)
-                    return redirect("Account")  
-                else:
-                    Error = "Authentication failed"
-            
+                messages.success(request, "New User successfully added!")
+             
+            else:
+                firstname = request.POST.get('firstname')
+                lastname = request.POST.get('lastname')
+                email = request.POST.get('email')
+                full_name = f"{firstname} {lastname}"
+                phone = request.POST.get('mobileNumber')
+                role_id = request.POST.get('role_id')
+
+                user = CustomUser.objects.get(id=id)
+                user.full_name = full_name
+                user.email = email
+                user.phone = phone
+                user.role_id = role_id
+                user.save()
+
+                messages.success(request, "User details updated successfully!")
+
         except Exception as e:
             tb = traceback.extract_tb(e.__traceback__)
             fun = tb[0].name
@@ -306,9 +365,9 @@ def register_new_user(request):
             response = {'result': 'fail','messages ':'something went wrong !'}   
 
     if request.method=="GET":
-        return render(request,'Account/register_new_user.html',{'Error': Error,'next':next,'roles':roles})
-    
-    return redirect('register_new_user')
+        return render(request,'Account/register_new_user.html',context)
+    elif request.method == "POST":
+        return redirect('/masters?entity=user&type=i')
 
 def menu_admin(request):
     Db.closeConnection()
@@ -320,23 +379,21 @@ def menu_admin(request):
     name = ''
     entity = ''
     type = ''
-    
+    global user
+    user  = request.session.get('user_id', '')
     try:
-        if request.user.is_authenticated ==True:                
-                global user
-                user = request.user.id   
-
+       
         if request.method=="GET":
             entity = request.GET.get('entity', '')
             type = request.GET.get('type', '')
-            cursor.callproc("stp_get_masters",[entity,type,'name'])
+            cursor.callproc("stp_get_masters",[entity,type,'name',user])
             for result in cursor.stored_results():
                 datalist1 = list(result.fetchall())
             name = datalist1[0][0]
-            cursor.callproc("stp_get_masters", [entity, type, 'header'])
+            cursor.callproc("stp_get_masters", [entity, type, 'header',user])
             for result in cursor.stored_results():
                 header = list(result.fetchall())
-            cursor.callproc("stp_get_masters",[entity,type,'data'])
+            cursor.callproc("stp_get_masters",[entity,type,'data',user])
             # Encrypt each row's ID before rendering
             data = []
             for result in cursor.stored_results():
@@ -374,7 +431,8 @@ def delete_menu(request):
     try:
         type = request.GET.get('type', '')
         if request.method == "POST" and type == 'delete':
-            menu_id = request.POST.get('menu_id', '')
+            menu_id1 = request.POST.get('menu_id', '')
+            menu_id = decrypt_parameter(menu_id1)
             try:
                 menu = get_object_or_404(MenuMaster, menu_id=menu_id)
                 menu.delete()
@@ -448,11 +506,11 @@ def menu_master(request):
 
             user_id = request.session.get('user_id', '')
 
-            if user_id:
-                try:
-                    user = CustomUser.objects.get(id=user_id)
-                except CustomUser.DoesNotExist:
-                    user = None
+            # if user_id:
+            #     try:
+            #         user = CustomUser.objects.get(id=user_id)
+            #     except CustomUser.DoesNotExist:
+            #         user = None
 
             if menu_id == '0':
                 menu_count = MenuMaster.objects.count() + 1
@@ -462,7 +520,7 @@ def menu_master(request):
                     MenuMaster.objects.create(
                         menu_name=menu_name, menu_action=menu_action_value, menu_is_parent=parent,
                         menu_parent_id=menu_parent_id, is_sub_menu=sub_parent, sub_menu=sub_menu_id,
-                        is_sub_menu2=sub_parent1, sub_menu2=sub_menu_id1, menu_order=menu_count,menu_icon=icon,created_by= user)
+                        is_sub_menu2=sub_parent1, sub_menu2=sub_menu_id1, menu_order=menu_count,menu_icon=icon,created_by=user_id)
                     messages.success(request, "Menu Successfully Created!")
                 except Exception as e:
                     print(f"An error occurred: {e}")
@@ -477,7 +535,7 @@ def menu_master(request):
                         sub_menu=sub_menu_id,
                         is_sub_menu2=sub_parent1,
                         sub_menu2=sub_menu_id1,
-                        updated_by=user
+                        updated_by=user_id
                     )
                     messages.success(request, "Menu Successfully Updated!")
 
@@ -692,6 +750,104 @@ def menu_order(request):
         elif request.method=="POST":  
             new_url = f'/menu_admin?entity=menu&type=i'
             return redirect(new_url) 
+        
+def change_password(request):
+    Db.closeConnection()  
+    m = Db.get_connection()  
+    cursor = m.cursor()
+    try:
+        if request.method == "POST":
+            password = request.POST.get('password')  # The password entered by the user
+            username = request.session.get('username', '')  # The username from the session
+
+            user = CustomUser.objects.get(email=username)
+                    
+            if check_password(password, user.password):
+                status = "1"
+            else:
+                status = "0" 
+
+    except Exception as e:
+            tb = traceback.extract_tb(e.__traceback__)
+            fun = tb[0].name
+            cursor.callproc("stp_error_log",[fun,str(e),request.user.id])  
+            print(f"error: {e}")
+            messages.error(request, 'Oops...! Something went wrong!')
+            response = {'result': 'fail','messages ':'something went wrong !'}
+    
+    finally:
+        cursor.close()
+        m.commit()
+        m.close()
+        Db.closeConnection()
+        if request.method == "GET":
+            return render(request,'Account/change_password.html')
+        else:
+           return JsonResponse({'status': status})
+
+def reset_password(request):
+    Db.closeConnection()  
+    m = Db.get_connection()  
+    cursor = m.cursor()
+    
+    try:
+        email = request.POST.get('email')
+        if not email:
+            email = request.session.get('username', '')
+            
+
+        password = request.POST.get('password')
+        user = CustomUser.objects.get(email=email)
+
+        # Update password
+        user.set_password(password)
+        user.save()
+
+        messages.success(request, 'Password has been successfully updated.')
+
+    except Exception as e:
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log", [fun, str(e), request.user.id])
+        messages.error(request, 'Oops...! Something went wrong!')
+    
+    finally:
+        cursor.close()
+        m.commit()
+        m.close()
+        Db.closeConnection()
+        return redirect( f'change_password')
+    
+def forget_password_change(request):
+    Db.closeConnection()  
+    m = Db.get_connection()  
+    cursor = m.cursor()
+    
+    try:
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        user = CustomUser.objects.get(email=email)
+
+        user.set_password(password)
+        user.save()
+
+        messages.success(request, 'Password has been successfully updated.')
+
+    except Exception as e:
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log", [fun, str(e), request.user.id])
+        messages.error(request, 'Oops...! Something went wrong!')
+    
+    finally:
+        cursor.close()
+        m.commit()
+        m.close()
+        Db.closeConnection()
+        return redirect( f'Login')
+        
+    
+
 
 
             

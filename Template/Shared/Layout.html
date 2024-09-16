@@ -41,11 +41,11 @@
             <hr class="sidebar-divider my-1">
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
+            {% comment %} <li class="nav-item active">
                 <a class="nav-link" href="/dashboard">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
-            </li>
+            </li> {% endcomment %}
             <ul class="nav" id="accordionSidebar">
                 {% for item in menu_items %}
                     {% if not item.is_parent %}
@@ -425,6 +425,10 @@
                                     <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Activity Log
                                 </a>
+                                <a class="dropdown-item"  href="/change_password">
+                                    <i class="fas fa-thin fa-key mr-2 text-gray-400"></i>
+                                    Change Password
+                                </a>
                                 <div class="dropdown-divider"></div>
                                 <a  class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
@@ -489,6 +493,7 @@
         </div>
     </div>
     {{ redirect_to_login_immediately }}
+
 
     <!-- Bootstrap core JavaScript-->
     {% comment %} <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script> {% endcomment %}

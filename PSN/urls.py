@@ -49,6 +49,9 @@ urlpatterns = [
     path("forgot_password",forgot_password,name='forgot_password'),
     path('search/', search, name='search'),
     path("register_new_user",register_new_user, name="register_new_user"),
+    path("reset_password",reset_password, name="reset_password"),
+    path("change_password",change_password, name="change_password"),
+    path("forget_password_change",forget_password_change, name="forget_password_change"),
 
     # Masters
     path('masters/', masters, name='masters'),
@@ -58,7 +61,8 @@ urlpatterns = [
     path("employee_master",employee_master, name="employee_master"),
     path("upload_excel",upload_excel, name="upload_excel"),
     path("site_master",sm, name="site_master"),
-    
+    path("get_access_control",get_access_control, name="get_access_control"),
+
     #Reports 
     path('common_html', common_html, name='common_html'),
     path('get_filter', get_filter, name='get_filter'),
@@ -90,7 +94,8 @@ urlpatterns = [
     path("error_page",error_page,name='error_page'),
     path("blank",blank,name='blank'),
     path("charts",charts,name='charts'),  
-    path("tables",tables,name='tables'),  
+    path("tables",tables,name='tables'),
+
     
     # path('check_shift/<int:employee_id>/<int:site_id>/', check_shift_for_next_day, name='check_shift_for_next_day'),
     
