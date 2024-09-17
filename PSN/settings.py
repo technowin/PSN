@@ -58,12 +58,28 @@ LOGIN_URL="Account"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
 SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 3600  # 1-hour session timeout
+# Clickjacking Protection
+X_FRAME_OPTIONS = 'DENY'
+
+# Security Headers
+SECURE_HSTS_SECONDS = 3600
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+
+
 ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY', 'oRVCHTumzesh-E71A-bAnjjEDuIlkceL6dvAYiCShp0=')
 
 AUTH_USER_MODEL = 'Account.CustomUser'
 
+# Account Lockout 
+AXES_FAILURE_LIMIT = 5  # Lock out after 5 failed login attempts
+AXES_COOLOFF_TIME = 1
 # Application definition
 
 INSTALLED_APPS = [
@@ -73,6 +89,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'axes',
     'Account',
     'Masters',
     'Notification',
@@ -94,23 +111,51 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_auto_logout.middleware.auto_logout',
     'corsheaders.middleware.CorsMiddleware',
+    'axes.middleware.AxesMiddleware',
 ]
 CORS_ALLOWED_ORIGINS = [
-    'https://salaryregister.lknconsultants.net',
-    'https://complianceaudit.lknconsultants.net',
-    'https://complianceoperation.lknconsultants.net',
-    
+    'http://13.202.157.7'
 ]
-
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_WHITELIST = [
+    'http://13.202.157.7',
+]
 AUTO_LOGOUT = {
     'IDLE_TIME': 600,
     'REDIRECT_TO_LOGIN_IMMEDIATELY': True,
     'MESSAGE': 'The session has expired. Please login again to continue.',
 }
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+   
+]
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),  # Create the logs directory if it doesn't exist
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+    },
+}
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     # Add any additional authentication backends if needed
+    'axes.backends.AxesStandaloneBackend',  # Add this line
+    'django.contrib.auth.backends.ModelBackend',  # Ensure this line exists as well for regular authentication
 ]
 
 ROOT_URLCONF = 'PSN.urls'
@@ -146,7 +191,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', 'OPTIONS': { 'min_length': 8,},
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -171,13 +216,8 @@ TIME_ZONE = 'Asia/Kolkata'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-   
-]
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 # Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
