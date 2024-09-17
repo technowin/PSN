@@ -51,7 +51,7 @@ from django.template.loader import get_template
 import traceback
 
 # Report section
-
+@login_required
 def common_html(request):
     
     Db.closeConnection()

@@ -9,64 +9,27 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
 from pathlib import Path
 import os
 from datetime import timedelta
-API_URL='https://complianceaudit.lknconsultants.net/'
-API_URL_SALARY='https://salaryregister.lknconsultants.net/'
-# API_URL='http://192.168.1.21:45455/'
+
 ALLOWED_HOSTS = ['13.202.157.7']
 # ALLOWED_HOSTS = ['127.0.0.1']
-DEBUG = False
-# Enable timezone support
-
-
-# Set the time zone to IST (India Standard Time)
-
-# DEBUG = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
+# DEBUG = True
 
-# Test Changed
-
-# Test Changed
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=2),  # Change the access token expiry time to 2 days
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),  # Keep the refresh token expiry time as 30 days
-    'ROTATE_REFRESH_TOKENS': False,
-    'BLACKLIST_AFTER_ROTATION': False,
-    'UPDATE_LAST_LOGIN': False,
-}
-
-from celery.schedules import crontab
-
-CELERY_BEAT_SCHEDULE = {
-    'notify_users_2pm': {
-        'task': 'your_app.tasks.check_and_notify_all_users',
-        'schedule': crontab(hour=14, minute=0),  # Run every day at 2 PM
-    },
-    'notify_users_7pm': {
-        'task': 'your_app.tasks.check_and_notify_all_users',
-        'schedule': crontab(hour=19, minute=0),  # Run every day at 7 PM
-    },
-}
 DATABASES = {
     'default': {
-        #'ENGINE': 'django.db.backends.mysql',
+        # 'ENGINE': 'django.db.backends.mysql',
         'ENGINE': 'mysql.connector.django',
-        # 'NAME': 'LKN_PSN',      # Replace with your database name
         'NAME': 'psn_test_db',      # Replace with your database name
-        # 'NAME': 'PSN_live_shubham',      # Replace with your database name
         'USER': 'root',      # Replace with your database user
-        #'PASSWORD': 'Shrims8@2420',  # Password for live RDS
-        # 'PASSWORD': 'ddL7c=5vsjTd8c',  # Password for VM
         'PASSWORD': 'Mysql_7319',  # Replace with your database password
-        # 'HOST': '52.172.154.80',       # IP FOR RDS
         # 'HOST': '13.202.157.7',       # IP FOR TEST
         'HOST': '127.0.0.1',       # IP FOR LOCAL VM
-        'PORT': '3306',            # Replace with your database port
+        'PORT': '3306',            
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
@@ -80,9 +43,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_ROOT = os.path.join(BASE_DIR, '/home/ubuntu/Documents/')
 MEDIA_URL = '/media/'
 
-
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -90,12 +51,20 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-$vute#e^tqlu5ehd!)vv5m3x!z5^7p%jb9hm9272-!6%0ouz*r'
 SECRET_KEY1 = '5pQsZXhU8vKyv7GxThldGn_JLK9UXVYyZD3GwQxsztY='
+LOGOUT_REDIRECT_URL ='Account'
+LOGIN_REDIRECT_URL ='Account'
+LOGIN_URL="Account"
+# Default primary key field type
+# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY', 'oRVCHTumzesh-E71A-bAnjjEDuIlkceL6dvAYiCShp0=')
 
 AUTH_USER_MODEL = 'Account.CustomUser'
 
 # Application definition
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -112,8 +81,9 @@ INSTALLED_APPS = [
 ]
 
 # SESSION_ENGINE ="django.contrib.sessions.backends.signed_cookies"
-#SESSION_ENGINE ="django.contrib.sessions.backends.file"
-#SESSION_FILE_PATH=r"D:\PYTHON PROJECTS\PSN"
+# SESSION_ENGINE ="django.contrib.sessions.backends.file"
+# SESSION_FILE_PATH=r"D:\PYTHON PROJECTS\PSN"
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -168,13 +138,6 @@ WSGI_APPLICATION = 'PSN.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-
-
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -192,7 +155,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -215,21 +177,7 @@ STATICFILES_DIRS = [
    
 ]
 
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-LOGOUT_REDIRECT_URL ='Account'
-LOGIN_REDIRECT_URL ='Account'
-LOGIN_URL="Account"
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-    
-SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
-
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY', 'oRVCHTumzesh-E71A-bAnjjEDuIlkceL6dvAYiCShp0=')
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -238,3 +186,24 @@ EMAIL_PORT = 587  # Use the appropriate port for your SMTP server
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'noreply.Complianceoperation@gmail.com'
 EMAIL_HOST_PASSWORD = 'mgypdsldfzsvyvle'
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=2),  # Change the access token expiry time to 2 days
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),  # Keep the refresh token expiry time as 30 days
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'UPDATE_LAST_LOGIN': False,
+}
+
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'notify_users_2pm': {
+        'task': 'your_app.tasks.check_and_notify_all_users',
+        'schedule': crontab(hour=14, minute=0),  # Run every day at 2 PM
+    },
+    'notify_users_7pm': {
+        'task': 'your_app.tasks.check_and_notify_all_users',
+        'schedule': crontab(hour=19, minute=0),  # Run every day at 7 PM
+    },
+}

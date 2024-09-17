@@ -44,10 +44,10 @@
                                     <div class="col-sm-6">
                                     <select style="border-radius:10em;height: calc(2.5em + .75rem + 2px);font-size: .8rem;" name="role_id" id="role_id" class="form-control">
                                         
-                                        <option value="" {% if users.role_id == '' %}selected{% endif %}>Select</option>
-                                            {% for item in roles %}
-                                                <option value="{{ item.0 }}" {% if item.0 == users.role_id %}selected{% endif %}>{{ item.1 }}</option>
-                                            {% endfor %}
+                                        <option value="" Selected disabled >Select Role</option>
+                                        {% for item in roles %}
+                                            <option value="{{ item.0 }}" {% if item.0 == users.role_id %}selected{% endif %}>{{ item.1 }}</option>
+                                        {% endfor %}
                                         
                                     </select>
                                     </div>
