@@ -136,6 +136,7 @@ def common_dict(unit):
         'name': unit.name,
     }  
     
+@login_required    
 def get_sub_filter(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -169,7 +170,8 @@ def get_sub_filter(request):
         m.close()
         Db.closeConnection()
         return JsonResponse(drop_down, safe=False)  
-    
+
+@login_required
 def add_new_filter(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -201,6 +203,7 @@ def add_new_filter(request):
         data = {'html': html}
         return JsonResponse(data, safe=False)
     
+@login_required
 def partial_report(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -444,6 +447,7 @@ def render_to_pdf(html):
         return HttpResponse("Invalid PDF", status_code=400, content_type='text/plain')
     return HttpResponse(result.getvalue(), content_type='application/pdf')
 
+@login_required
 def report_pdf(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -498,6 +502,7 @@ def report_pdf(request):
         Db.closeConnection()
         return response
     
+@login_required
 def report_xlsx(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -572,6 +577,7 @@ def add_page_number(canvas, doc):
     canvas.drawRightString(200*2.54, 1*2.54*2.54, text)
     canvas.restoreState()    
 
+@login_required
 def save_filters(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -611,6 +617,7 @@ def save_filters(request):
         Db.closeConnection()
         return JsonResponse(response_data,safe=False)
 
+@login_required
 def delete_filters(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -639,6 +646,7 @@ def delete_filters(request):
         Db.closeConnection()
         return JsonResponse(response_data,safe=False)
     
+@login_required
 def saved_filters(request):
     Db.closeConnection()
     m = Db.get_connection()
