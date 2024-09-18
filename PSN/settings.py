@@ -95,6 +95,7 @@ INSTALLED_APPS = [
     'Notification',
     'corsheaders',
     'Reports',
+    'Dashboard'
 ]
 
 # SESSION_ENGINE ="django.contrib.sessions.backends.signed_cookies"
