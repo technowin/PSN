@@ -40,7 +40,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 from django.utils import timezone
 from .models import Log, sc_roster, sc_employee_master, CustomUser 
 
-
+@login_required
 def masters(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -246,7 +246,8 @@ def sample_xlsx(request):
         m.close()
         Db.closeConnection()
         return response      
-  
+
+@login_required  
 def roster_upload(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -331,6 +332,7 @@ def roster_upload(request):
             Db.closeConnection()
             return redirect(f'/masters?entity={entity}&type={type}')     
         
+@login_required        
 def site_master(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -452,6 +454,7 @@ def site_master(request):
         elif request.method=="POST":  
             return redirect( f'/masters?entity=sm&type=i')
         
+@login_required      
 def company_master(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -542,7 +545,8 @@ def company_master(request):
             return render(request, "Master/company_master.html", context)
         elif request.method == "POST":
             return redirect(f'/masters?entity=cm&type=i')
-        
+
+@login_required        
 def employee_master(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -636,7 +640,8 @@ def employee_master(request):
             return render(request, "Master/employee_master.html", context)
         elif request.method=="POST":  
             return redirect(f'/masters?entity=em&type=i')
-    
+
+@login_required  
 def upload_excel(request):
 
     if request.method == 'POST' and request.FILES.get('excelFile'):
