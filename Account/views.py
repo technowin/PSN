@@ -40,6 +40,7 @@ from django.core.exceptions import ValidationError
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.contrib.auth.backends import ModelBackend
 class LoginView(APIView):
     authentication_classes = []
     def post(self, request):
@@ -55,7 +56,7 @@ class LoginView(APIView):
             user = get_object_or_404(CustomUser, email=email)
 
             if user.check_password(password):
-                login(request, user)
+                login(request, user,backend='django.contrib.auth.backends.ModelBackend')
                 user.device_token  = device_token
                 user.save()
                 serializer = UserSerializer(user).data
