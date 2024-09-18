@@ -7,7 +7,6 @@ from django.shortcuts import get_object_or_404, render,redirect
 from django.contrib.auth import authenticate, login ,logout,get_user_model
 from Account.forms import RegistrationForm
 from Account.models import AssignedCompany, CustomUser,MenuMaster,RoleMenuMaster,UserMenuDetails, OTPVerification, password_storage
-
 # import mysql.connector as sql
 from Account.serializers import *
 import Db 
@@ -20,7 +19,6 @@ from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph
-
 from Account.utils import decrypt_email, encrypt_email
 import requests
 import traceback
@@ -28,15 +26,9 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-
-# Counts Import
-
 from django.contrib.auth.hashers import check_password
-
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-
-
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -69,7 +61,6 @@ class LoginView(APIView):
         except Exception as e:
             print(str(e))
             return Response({'message': 'Invalid credentials  '+str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
 
 @csrf_exempt
 def Login(request):
