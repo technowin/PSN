@@ -37,6 +37,9 @@ from django.contrib.auth.hashers import check_password
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 class LoginView(APIView):
     authentication_classes = []
     def post(self, request):
@@ -87,6 +90,7 @@ def Login(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
+                # Rotate session keys after a successful login to prevent session fixation
                 request.session.cycle_key()
                 request.session["username"]=(str(username))
                 request.session["full_name"]=(str(user.full_name))
@@ -316,7 +320,6 @@ def register_new_user(request):
         id = request.POST.get('id', '')
         try:  
             if id == '0':
-               # Extract data from the request
                 firstname = request.POST.get('firstname')
                 lastname = request.POST.get('lastname')
                 email = request.POST.get('email')
@@ -325,22 +328,22 @@ def register_new_user(request):
                 role_id = request.POST.get('role_id')
                 full_name = f"{firstname} {lastname}"
 
-                # Create user with necessary fields
                 user = CustomUser(
-                    full_name=full_name,
-                    email=email,
-                    phone=phone,
-                    role_id=role_id
+                    full_name=full_name, email=email, phone=phone,
+                    role_id=role_id,
                 )
-                user.set_password(password)  
                 user.username = user.email
                 user.is_active = True 
-                # Save the user to the database
-                user.save()
+                try:
+                    validate_password(password, user=user)
+                    user.set_password(password)
+                    user.save()
+                    password_storage.objects.create(user=user, passwordText=password)
+                    messages.success(request, "User registered successfully!")
 
-
-                messages.success(request, "New User successfully added!")
-             
+                except ValidationError as e:
+                    messages.error(request, ' '.join(e.messages))
+                    
             else:
                 firstname = request.POST.get('firstname')
                 lastname = request.POST.get('lastname')

@@ -40,6 +40,7 @@ urlpatterns = [
     path('check_and_notify_user', check_and_notify_user.as_view(), name='check_and_notify_user'),
     path('check_and_notify_all_users', check_and_notify_all_users.as_view(), name='check_and_notify_all_users'),
     path('check_and_notify_default_users', check_and_notify_default_users.as_view(), name='check_and_notify_default_users'),
+    path('DefaultRecords', DefaultRecords.as_view(), name='DefaultRecords'),
     
     # Dashboard
     path("newdashboard",newdashboard,name='newdashboard'),
