@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls.static import static
 from Account.views import *
+from Dashboard.views import *
 # from Masters.models import site_master
 from Masters.views import *
 from Reports.views import *
@@ -41,7 +42,10 @@ urlpatterns = [
     path('check_and_notify_default_users', check_and_notify_default_users.as_view(), name='check_and_notify_default_users'),
     path('DefaultRecords', DefaultRecords.as_view(), name='DefaultRecords'),
     
-    
+    # Dashboard
+    path("newdashboard",newdashboard,name='newdashboard'),
+    path("GetRosterCount",GetRosterCount,name='GetRosterCount'),
+
     # Account
 
     path("", Login,name='Account'),

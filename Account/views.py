@@ -33,13 +33,14 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.contrib.auth.hashers import check_password
 
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+
 
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
+from django.contrib.auth.backends import ModelBackend
 class LoginView(APIView):
     authentication_classes = []
     def post(self, request):
@@ -55,7 +56,7 @@ class LoginView(APIView):
             user = get_object_or_404(CustomUser, email=email)
 
             if user.check_password(password):
-                login(request, user)
+                login(request, user,backend='django.contrib.auth.backends.ModelBackend')
                 user.device_token  = device_token
                 user.save()
                 serializer = UserSerializer(user).data
@@ -90,7 +91,6 @@ def Login(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                # Rotate session keys after a successful login to prevent session fixation
                 request.session.cycle_key()
                 request.session["username"]=(str(username))
                 request.session["full_name"]=(str(user.full_name))
@@ -320,6 +320,8 @@ def register_new_user(request):
         id = request.POST.get('id', '')
         try:  
             if id == '0':
+               # Extract data from the request
+                
                 firstname = request.POST.get('firstname')
                 lastname = request.POST.get('lastname')
                 email = request.POST.get('email')
@@ -339,7 +341,17 @@ def register_new_user(request):
                     user.set_password(password)
                     user.save()
                     password_storage.objects.create(user=user, passwordText=password)
-                    messages.success(request, "User registered successfully!")
+                    assigned_menus = RoleMenuMaster.objects.filter(role_id=role_id)
+
+                # Insert assigned menus into userMenuMaster
+                    for menu in assigned_menus:
+                        UserMenuDetails.objects.create(
+                            user_id=user.id,
+                            menu_id=menu.menu_id,
+                            role_id=role_id
+                    )
+
+                    messages.success(request, "New User successfully added and menus assigned!")
 
                 except ValidationError as e:
                     messages.error(request, ' '.join(e.messages))

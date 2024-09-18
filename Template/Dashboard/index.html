@@ -1,0 +1,730 @@
+{% extends "Shared/Layout.html" %} {% block username %}{{username}}{% endblock %}
+{% block content %}
+{% load static %}
+<link href="{% static 'css/masters.css' %}" rel="stylesheet" type="text/css" >
+ <!-- Begin Page Content -->
+ <div>
+
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+
+        <!-- Earnings (Monthly) Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Employees</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"> {{ total_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa fa-solid fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Earnings (Monthly) Card Example -->
+        {% comment %} <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Confirmed Employees</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{yes_count}}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> {% endcomment %}
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Confirmed Employees
+                            </div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{yes_count}}</div>
+                                </div>
+                                <div class="col">
+                                    <div class="progress progress-sm mr-2">
+                                        <div class="progress-bar bg-info" role="progressbar"
+                                            style="width: {{ no_percentage }}%" 
+                                            aria-valuenow="{{ no_count }}" aria-valuemin="0"
+                                            aria-valuemax="{{ employee_count }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                
+                                                            
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Earnings (Monthly) Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Absent Employees
+                            </div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{no_count}}</div>
+                                </div>
+                                <div class="col">
+                                    <div class="progress progress-sm mr-2">
+                                        <div class="progress-bar bg-info" role="progressbar"
+                                            style="width: {{ no_percentage }}%" 
+                                            aria-valuenow="{{ no_count }}" aria-valuemin="0"
+                                            aria-valuemax="{{ employee_count }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                
+                                                            
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-solid fa-ban fa-2x text-gray-300"></i>
+                        </div>
+                                             
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Requests Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Pending</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{pending_count}}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-sharp fa-regular fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12 col-lg-7">
+            <div class="card shadow mb-4">
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="company-dropdown" class="">Company List<span style="color:red;"> *</span> :</label>
+                        <select name="company_name" id="company_name" class="form-control" required>
+                            {% comment %} <option value="">Select</option> {% endcomment %}
+                            {% for item in company_names %}
+                                <option value="{{ item.0 }}">{{ item.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                
+                    <div class="col-md-4">
+                        <label for="site-dropdown" class="">Site List<span style="color:red;"> *</span> :</label>
+                        <select name="site_name" id="site_name" class="form-control" required>
+                            {% comment %} <option value="" >Select</option> {% endcomment %}
+                            {% for item in site_names %}
+                                <option value="{{ item.0 }}">{{ item.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                
+                    <div class="col-md-4">
+                        <label for="date-input" class="">Date<span style="color:red;"> *</span> :</label>
+                        <input type="date" name="date" id="dateInput" class="form-control" required onchange="handleDateChange()">
+                    </div>
+                </div>                
+
+                
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bar Graph Content  -->
+
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/percent.js"></script>
+    <div class="row">
+
+        <!-- today Bar Chart -->
+        <div class="col-xl-6 col-lg-7">
+            <div class="card shadow mb-4">
+
+                <style>#TodayBarChart { width: 100%; height: 500px; }</style>
+                <script>
+                    am5.ready(function() {
+                        var root = am5.Root.new("TodayBarChart");
+                        root.setThemes([am5themes_Animated.new(root)]);
+                        var chart = root.container.children.push(am5xy.XYChart.new(root, {
+                            panX: true, panY: true, wheelX: "panX", wheelY: "zoomX", pinchZoomX: true, paddingLeft: 0, paddingRight: 1
+                        }));
+                        var cursor = chart.set("cursor", am5xy.XYCursor.new(root, {}));
+                        cursor.lineY.set("visible", false);
+                        var xRenderer = am5xy.AxisRendererX.new(root, { minGridDistance: 30, minorGridEnabled: true });
+                        xRenderer.labels.template.setAll({
+                            rotation: -90, centerY: am5.p50, centerX: am5.p100, paddingRight: 15
+                        });
+                        var xAxis = chart.xAxes.push(am5xy.CategoryAxis.new(root, {
+                            maxDeviation: 0.3, categoryField: "category", renderer: xRenderer, tooltip: am5.Tooltip.new(root, {})
+                        }));
+                        var yRenderer = am5xy.AxisRendererY.new(root, { strokeOpacity: 0.1 });
+                        var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, { maxDeviation: 0.3, renderer: yRenderer }));
+                        var series = chart.series.push(am5xy.ColumnSeries.new(root, {
+                            name: "Series 1", xAxis: xAxis, yAxis: yAxis, valueYField: "value", sequencedInterpolation: true, categoryXField: "category",
+                            tooltip: am5.Tooltip.new(root, { labelText: "{valueY}" })
+                        }));
+                        series.columns.template.setAll({ cornerRadiusTL: 5, cornerRadiusTR: 5, strokeOpacity: 0 });
+                        series.columns.template.adapters.add("fill", (fill, target) => chart.get("colors").getIndex(series.columns.indexOf(target)));
+                        series.columns.template.adapters.add("stroke", (stroke, target) => chart.get("colors").getIndex(series.columns.indexOf(target)));
+                        var data = [
+                            { category: "Total Count", value: {{ total_count }} },
+                            { category: "Yes Count", value: {{ yes_count }} },
+                            { category: "No Count", value: {{ no_count }} },
+                            { category: "Pending Count", value: {{ pending_count }} },
+                            { category: "More Than 8 Hours", value: {{ more_than_8_hours_count }} },
+                            { category: "Less Than 8 Hours", value: {{ less_than_8_hours_count }} }
+                        ];
+                        xAxis.data.setAll(data);
+                        series.data.setAll(data);
+                        series.appear(1000);
+                        chart.appear(1000, 100);
+                    });
+                </script>
+                <div id="TodayBarChart"></div>
+            </div>
+        </div>
+        
+    
+        <!-- Tommorow Bar  Chart -->
+        <div class="col-xl-6 col-lg-7">
+            <div class="card shadow mb-4">
+                <style>#tommorowBarChart { width: 100%; height: 500px; }</style>
+              
+                <script>
+                    am5.ready(function() {
+                        var root = am5.Root.new("tommorowBarChart");
+                        root.setThemes([am5themes_Animated.new(root)]);
+                        var chart = root.container.children.push(am5xy.XYChart.new(root, {
+                            panX: true, panY: true, wheelX: "panX", wheelY: "zoomX", pinchZoomX: true, paddingLeft: 0, paddingRight: 1
+                        }));
+                        var cursor = chart.set("cursor", am5xy.XYCursor.new(root, {}));
+                        cursor.lineY.set("visible", false);
+                        var xRenderer = am5xy.AxisRendererX.new(root, { minGridDistance: 30, minorGridEnabled: true });
+                        xRenderer.labels.template.setAll({
+                            rotation: -90, centerY: am5.p50, centerX: am5.p100, paddingRight: 15
+                        });
+                        xRenderer.grid.template.setAll({ location: 1 });
+                        var xAxis = chart.xAxes.push(am5xy.CategoryAxis.new(root, {
+                            maxDeviation: 0.3, categoryField: "category", renderer: xRenderer, tooltip: am5.Tooltip.new(root, {})
+                        }));
+                        var yRenderer = am5xy.AxisRendererY.new(root, { strokeOpacity: 0.1 });
+                        var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, { maxDeviation: 0.3, renderer: yRenderer }));
+                        var series = chart.series.push(am5xy.ColumnSeries.new(root, {
+                            name: "Series 1", xAxis: xAxis, yAxis: yAxis, valueYField: "value", sequencedInterpolation: true, categoryXField: "category",
+                            tooltip: am5.Tooltip.new(root, { labelText: "{valueY}" })
+                        }));
+                        series.columns.template.setAll({ cornerRadiusTL: 5, cornerRadiusTR: 5, strokeOpacity: 0 });
+                        series.columns.template.adapters.add("fill", (fill, target) => chart.get("colors").getIndex(series.columns.indexOf(target)));
+                        series.columns.template.adapters.add("stroke", (stroke, target) => chart.get("colors").getIndex(series.columns.indexOf(target)));
+                        var data = [
+                            { category: "Total Count", value: {{ nxttotal_count }} },
+                            { category: "Yes Count", value: {{ nxtyes_count }} },
+                            { category: "No Count", value: {{ nxtno_count }} },
+                            { category: "Pending Count", value: {{ nxtpending_count }} },
+                            { category: "More Than 8 Hours", value: {{ nxtmore_than_8_hours_count }} },
+                            { category: "Less Than 8 Hours", value: {{ nxtless_than_8_hours_count }} }
+                        ];
+                        xAxis.data.setAll(data);
+                        series.data.setAll(data);
+                        series.appear(1000);
+                        chart.appear(1000, 100);
+                    });
+                </script>
+                <div id="tommorowBarChart"></div>
+            </div>
+        </div>
+        
+    </div>
+    
+
+    <!-- Content Row -->
+    <div class="row">
+            
+            <div class="col-xl-8 col-lg-7">
+                <div class="card shadow mb-4">
+                <style>
+                    #chartdiv {
+                      width: 100%;
+                      height: 500px;
+                    }
+                    </style>
+                    
+                    <!-- Resources -->
+                    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+                    <script src="https://cdn.amcharts.com/lib/5/percent.js"></script>
+                    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+                    
+                    <!-- Chart code -->
+                    <script>
+                    am5.ready(function() {
+                    
+                    // Create root element
+                    // https://www.amcharts.com/docs/v5/getting-started/#Root_element
+                    var root = am5.Root.new("chartdiv");
+                    
+                    // Set themes
+                    // https://www.amcharts.com/docs/v5/concepts/themes/
+                    root.setThemes([am5themes_Animated.new(root)]);
+                    
+                    var container = root.container.children.push(
+                      am5.Container.new(root, {
+                        width: am5.p100,
+                        height: am5.p100,
+                        layout: root.horizontalLayout
+                      })
+                    );
+                    
+                    // Create main chart
+                    // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/
+                    var chart = container.children.push(
+                      am5percent.PieChart.new(root, {
+                        tooltip: am5.Tooltip.new(root, {})
+                      })
+                    );
+                    
+                    // Create series
+                    // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/#Series
+                    var series = chart.series.push(
+                      am5percent.PieSeries.new(root, {
+                        valueField: "value",
+                        categoryField: "category",
+                        alignLabels: false
+                      })
+                    );
+                    
+                    series.labels.template.setAll({
+                      textType: "circular",
+                      radius: 4
+                    });
+                    series.ticks.template.set("visible", false);
+                    series.slices.template.set("toggleKey", "none");
+                    
+                    // add events
+                    series.slices.template.events.on("click", function(e) {
+                      selectSlice(e.target);
+                    });
+                    
+                    // Create sub chart
+                    // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/
+                    var subChart = container.children.push(
+                      am5percent.PieChart.new(root, {
+                        radius: am5.percent(50),
+                        tooltip: am5.Tooltip.new(root, {})
+                      })
+                    );
+                    
+                    // Create sub series
+                    // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/#Series
+                    var subSeries = subChart.series.push(
+                      am5percent.PieSeries.new(root, {
+                        valueField: "value",
+                        categoryField: "category"
+                      })
+                    );
+                    
+                    subSeries.data.setAll([
+                      { category: "A", value: 0 },
+                      { category: "B", value: 0 },
+                      { category: "C", value: 0 },
+                      { category: "D", value: 0 },
+                      { category: "E", value: 0 },
+                      { category: "F", value: 0 },
+                      { category: "G", value: 0 }
+                    ]);
+                    subSeries.slices.template.set("toggleKey", "none");
+                    
+                    var selectedSlice;
+                    
+                    series.on("startAngle", function() {
+                      updateLines();
+                    });
+                    
+                    container.events.on("boundschanged", function() {
+                      root.events.once("frameended", function() {
+                        updateLines();
+                       })
+                    });
+                    
+                    function updateLines() {
+                      if (selectedSlice) {
+                        var startAngle = selectedSlice.get("startAngle");
+                        var arc = selectedSlice.get("arc");
+                        var radius = selectedSlice.get("radius");
+                    
+                        var x00 = radius * am5.math.cos(startAngle);
+                        var y00 = radius * am5.math.sin(startAngle);
+                    
+                        var x10 = radius * am5.math.cos(startAngle + arc);
+                        var y10 = radius * am5.math.sin(startAngle + arc);
+                    
+                        var subRadius = subSeries.slices.getIndex(0).get("radius");
+                        var x01 = 0;
+                        var y01 = -subRadius;
+                    
+                        var x11 = 0;
+                        var y11 = subRadius;
+                    
+                        var point00 = series.toGlobal({ x: x00, y: y00 });
+                        var point10 = series.toGlobal({ x: x10, y: y10 });
+                    
+                        var point01 = subSeries.toGlobal({ x: x01, y: y01 });
+                        var point11 = subSeries.toGlobal({ x: x11, y: y11 });
+                    
+                        line0.set("points", [point00, point01]);
+                        line1.set("points", [point10, point11]);
+                      }
+                    }
+                    
+                    // lines
+                    var line0 = container.children.push(
+                      am5.Line.new(root, {
+                        position: "absolute",
+                        stroke: root.interfaceColors.get("text"),
+                        strokeDasharray: [2, 2]
+                      })
+                    );
+                    var line1 = container.children.push(
+                      am5.Line.new(root, {
+                        position: "absolute",
+                        stroke: root.interfaceColors.get("text"),
+                        strokeDasharray: [2, 2]
+                      })
+                    );
+                    
+                    // Set data
+                    // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/#Setting_data
+                    series.data.setAll([
+                      {
+                        category: "Lithuania",
+                        value: 500,
+                        subData: [
+                          { category: "A", value: 200 },
+                          { category: "B", value: 150 },
+                          { category: "C", value: 100 },
+                          { category: "D", value: 100 }
+                        ]
+                      },
+                      {
+                        category: "Czechia",
+                        value: 300,
+                        subData: [
+                          { category: "A", value: 150 }
+                        ]
+                      },
+                      {
+                        category: "Ireland",
+                        value: 200,
+                        subData: [
+                          { category: "A", value: 110 },
+                          { category: "B", value: 60 },
+                          { category: "C", value: 30 }
+                        ]
+                      },
+                      {
+                        category: "Germany",
+                        value: 150,
+                        subData: [
+                          { category: "A", value: 80 },
+                          { category: "B", value: 40 },
+                          { category: "C", value: 30 }
+                        ]
+                      },
+                      {
+                        category: "Australia",
+                        value: 140,
+                        subData: [
+                          { category: "A", value: 90 },
+                          { category: "B", value: 40 },
+                          { category: "C", value: 10 }
+                        ]
+                      },
+                      {
+                        category: "Austria",
+                        value: 120,
+                        subData: [
+                          { category: "A", value: 60 },
+                          { category: "B", value: 30 },
+                          { category: "C", value: 30 }
+                        ]
+                      }
+                    ]);
+                    
+                    function selectSlice(slice) {
+                      selectedSlice = slice;
+                      var dataItem = slice.dataItem;
+                      var dataContext = dataItem.dataContext;
+                    
+                      if (dataContext) {
+                        var i = 0;
+                        subSeries.data.each(function(dataObject) {
+                          var dataObj = dataContext.subData[i];
+                          if(dataObj){
+                              if(!subSeries.dataItems[i].get("visible")){
+                                  subSeries.dataItems[i].show();
+                              }
+                              subSeries.data.setIndex(i, dataObj);
+                          }
+                          else{
+                              subSeries.dataItems[i].hide();
+                          }
+                          
+                          i++;
+                        });
+                      }
+                    
+                      var middleAngle = slice.get("startAngle") + slice.get("arc") / 2;
+                      var firstAngle = series.dataItems[0].get("slice").get("startAngle");
+                    
+                      series.animate({
+                        key: "startAngle",
+                        to: firstAngle - middleAngle,
+                        duration: 1000,
+                        easing: am5.ease.out(am5.ease.cubic)
+                      });
+                      series.animate({
+                        key: "endAngle",
+                        to: firstAngle - middleAngle + 360,
+                        duration: 1000,
+                        easing: am5.ease.out(am5.ease.cubic)
+                      });
+                    }
+                    
+                    container.appear(1000, 10);
+                    
+                    series.events.on("datavalidated", function() {
+                      selectSlice(series.slices.getIndex(0));
+                    });
+                    
+                    }); // end am5.ready()
+                    </script>
+                    
+                    <!-- HTML -->
+                    <div id="chartdiv"></div>
+                    amCharts
+                    
+            </div>
+        </div>
+        <div class="col-xl-4 col-lg-7">
+            <div class="card shadow mb-4">
+                <style>
+                    #donotchart {
+                      width: 100%;
+                      height: 500px;
+                    }
+                </style>
+                    
+                    <!-- Resources -->
+                    
+                    <!-- Chart code -->
+                    <script>
+                        am5.ready(function() {
+                        
+                        // Create root element
+                        // https://www.amcharts.com/docs/v5/getting-started/#Root_element
+                        var root = am5.Root.new("donotchart");
+                        
+                        // Set themes
+                        // https://www.amcharts.com/docs/v5/concepts/themes/
+                        root.setThemes([
+                        am5themes_Animated.new(root)
+                        ]);
+                        
+                        // Create chart
+                        // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/
+                        var chart = root.container.children.push(am5percent.PieChart.new(root, {
+                        radius: am5.percent(90),
+                        innerRadius: am5.percent(50),
+                        layout: root.horizontalLayout
+                        }));
+                        
+                        // Create series
+                        // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/#Series
+                        var series = chart.series.push(am5percent.PieSeries.new(root, {
+                        name: "Series",
+                        valueField: "sales",
+                        categoryField: "country"
+                        }));
+                        
+                        // Set data
+                        // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/#Setting_data
+                        series.data.setAll([{
+                        country: "Lithuania",
+                        sales: 501.9
+                        }, {
+                        country: "Czechia",
+                        sales: 301.9
+                        }, {
+                        country: "Ireland",
+                        sales: 201.1
+                        }, {
+                        country: "Germany",
+                        sales: 165.8
+                        }, {
+                        country: "Australia",
+                        sales: 139.9
+                        }, {
+                        country: "Austria",
+                        sales: 128.3
+                        }, {
+                        country: "UK",
+                        sales: 99
+                        }, {
+                        country: "Belgium",
+                        sales: 60
+                        }, {
+                        country: "The Netherlands",
+                        sales: 50
+                        }]);
+                        
+                        // Disabling labels and ticks
+                        series.labels.template.set("visible", false);
+                        series.ticks.template.set("visible", false);
+                        
+                        // Adding gradients
+                        series.slices.template.set("strokeOpacity", 0);
+                        series.slices.template.set("fillGradient", am5.RadialGradient.new(root, {
+                        stops: [{
+                            brighten: -0.8
+                        }, {
+                            brighten: -0.8
+                        }, {
+                            brighten: -0.5
+                        }, {
+                            brighten: 0
+                        }, {
+                            brighten: -0.5
+                        }]
+                        }));
+                        
+                        // Create legend
+                        // https://www.amcharts.com/docs/v5/charts/percent-charts/legend-percent-series/
+                        var legend = chart.children.push(am5.Legend.new(root, {
+                        centerY: am5.percent(50),
+                        y: am5.percent(50),
+                        layout: root.verticalLayout
+                        }));
+                        // set value labels align to right
+                        legend.valueLabels.template.setAll({ textAlign: "right" })
+                        // set width and max width of labels
+                        legend.labels.template.setAll({ 
+                        maxWidth: 140,
+                        width: 140,
+                        oversizedBehavior: "wrap"
+                        });
+                        
+                        legend.data.setAll(series.dataItems);
+                        
+                        
+                        // Play initial series animation
+                        // https://www.amcharts.com/docs/v5/concepts/animations/#Animation_of_series
+                        series.appear(1000, 100);
+                        
+                        }); // end am5.ready()
+                    </script>
+                    
+                    <!-- HTML -->
+                    <div id="donotchart"></div>
+                    
+            </div>
+        </div>
+   
+
+    </div>
+
+</div>
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+
+<!-- End of Main Content -->
+{% comment %} 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var today = new Date().toISOString().split('T')[0];
+        document.getElementById('date-input').value = today;
+    });
+</script> {% endcomment %}
+
+<script>
+    function handleDateChange() {
+        debugger;
+        var selectedDate = $('#dateInput').val();
+        var companyName = $('#company_name').val();
+        var siteName = $('#site_name').val();
+    
+        $.ajax({
+            url: "{% url 'GetRosterCount' %}",
+            type: 'POST',
+            data: {
+                'selectedDate': selectedDate,
+                'companyName': companyName,
+                'siteName': siteName,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                console.log('Success:', response);
+                
+                // Update HTML elements with response data
+                $('#yes_count').text(response.yes_count);
+                $('#no_count').text(response.no_count);
+                $('#pending_count').text(response.pending_count);
+                $('#total_count').text(response.total_count);
+                $('#less_than_8_hours_count').text(response.less_than_8_hours_count);
+                $('#more_than_8_hours_count').text(response.more_than_8_hours_count);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+</script>
+
+
+
+{% endblock %}
