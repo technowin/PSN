@@ -134,25 +134,26 @@ STATICFILES_DIRS = [
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'file': {
-#             'level': 'WARNING',
-#             'class': 'logging.FileHandler',
-#             # 'filename': os.path.join(BASE_DIR, 'D:/Python Project/logs', 'django.log'),  
-#             'filename': os.path.join(Path(__file__).resolve().parent.parent, '/home/ubuntu/Documents/PSN Logs', 'django.log'),  
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['file'],
-#             'level': 'WARNING',
-#             'propagate': True,
-#         },
-#     },
-# }
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            # 'filename': os.path.join(BASE_DIR, 'D:/Python Project/logs', 'django.log'),  
+            'filename': os.path.join('/home/ubuntu/Documents/PSN Logs/', 'django.log'),  
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+    },
+}
+
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     # Add any additional authentication backends if needed
