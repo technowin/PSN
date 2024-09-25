@@ -141,8 +141,8 @@ LOGGING = {
         'file': {
             'level': 'WARNING',
             'class': 'logging.FileHandler',
-            # 'filename': os.path.join(BASE_DIR, 'D:/Python Project/logs', 'django.log'),  
-            'filename': os.path.join('/home/ubuntu/Documents/PSN Logs/', 'django.log'),  
+            # 'filename': os.path.join(BASE_DIR, 'D:/Python Project/PSN Logs', 'django.log'),  
+            'filename': os.path.join(BASE_DIR, '/home/ubuntu/PSN Logs', 'django.log'),  
         },
     },
     'loggers': {
@@ -153,7 +153,6 @@ LOGGING = {
         },
     },
 }
-
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     # Add any additional authentication backends if needed
