@@ -280,7 +280,7 @@ class CustomTokenRefreshView(APIView):
         else:
             return Response({'error': 'Refresh token not provided'}, status=status.HTTP_400_BAD_REQUEST)
 
-@login_required
+
 def forgot_password(request):
     Db.closeConnection()  
     m = Db.get_connection()  
