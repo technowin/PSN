@@ -141,7 +141,8 @@ LOGGING = {
         'file': {
             'level': 'WARNING',
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),  # Create the logs directory if it doesn't exist
+            # 'filename': os.path.join(BASE_DIR, 'D:/Python Project/logs', 'django.log'),  
+            'filename': os.path.join(BASE_DIR, '/home/ubuntu/Documents/logs', 'django.log'),  
         },
     },
     'loggers': {
