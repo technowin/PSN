@@ -44,7 +44,10 @@ urlpatterns = [
     
     # Dashboard
     path("newdashboard",newdashboard,name='newdashboard'),
-    path("GetRosterCount",GetRosterCount,name='GetRosterCount'),
+    path("get_sites",get_sites,name='get_sites'),
+    path("updateGraph",updateGraph, name="updateGraph"),
+    path("get_roster_data",get_roster_data, name="get_roster_data"),
+    path("get_roster_data_tommorow",get_roster_data_tommorow, name="get_roster_data_tommorow"),
 
     # Account
 

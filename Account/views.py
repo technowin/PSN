@@ -192,6 +192,7 @@ class CustomTokenRefreshView(APIView):
         else:
             return Response({'error': 'Refresh token not provided'}, status=status.HTTP_400_BAD_REQUEST)
 
+@login_required
 def forgot_password(request):
     Db.closeConnection()  
     m = Db.get_connection()  
@@ -235,6 +236,7 @@ def logoutView(request):
 from django.db.models import Q
 from Account.models import Item 
 
+@login_required
 def search(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -289,7 +291,7 @@ def tables(request):
     return render(request,'Bootstrap/tables.html')
 
 
-
+@login_required
 def register_new_user(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -385,6 +387,7 @@ def register_new_user(request):
     elif request.method == "POST":
         return redirect('/masters?entity=user&type=i')
 
+@login_required
 def menu_admin(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -471,6 +474,7 @@ def delete_menu(request):
         Db.closeConnection()
     return JsonResponse({'success': False, 'message': 'Invalid request method.'})
 
+@login_required
 def menu_master(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -575,7 +579,8 @@ def menu_master(request):
             return render(request, 'Master/menu_master.html', {'menu': menu,'type': type,'roles': roles, 'users': users,'menu_id': menu_id,'order': 'order' if type == 'order' else None,'menus': menus if menu_id != '0' else None})
         elif request.method == "POST":
             return redirect('/menu_admin?entity=menu&type=i')
-        
+
+
 def assign_menu(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -711,6 +716,7 @@ def get_assigned_values(request):
 
     return JsonResponse(response)
 
+
 def menu_order(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -766,7 +772,8 @@ def menu_order(request):
         elif request.method=="POST":  
             new_url = f'/menu_admin?entity=menu&type=i'
             return redirect(new_url) 
-        
+
+@login_required       
 def change_password(request):
     Db.closeConnection()  
     m = Db.get_connection()  
