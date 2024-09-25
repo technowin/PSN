@@ -96,7 +96,7 @@ def newdashboard(request):
         return render(request, 'Dashboard/index.html', context)
 
 
-
+@login_required
 def get_sites(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -125,7 +125,7 @@ def get_sites(request):
     return JsonResponse({'companywise_site_names': companywise_site_names}, status=200)
 
 
-
+@login_required
 def updateGraph(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -205,7 +205,7 @@ def updateGraph(request):
         print(f"error: {e}")
         return JsonResponse({'result': 'fail', 'message': 'something went wrong!'}, status=500)
     
-
+@login_required
 def get_roster_data(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -239,7 +239,7 @@ def get_roster_data(request):
         m.close()
         Db.closeConnection()
     
-
+@login_required
 def get_roster_data_tommorow(request):
     Db.closeConnection()
     m = Db.get_connection()
