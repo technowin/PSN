@@ -156,7 +156,6 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     # Add any additional authentication backends if needed
     'axes.backends.AxesStandaloneBackend',  # Add this line
-    'django.contrib.auth.backends.ModelBackend',  # Ensure this line exists as well for regular authentication
 ]
 
 ROOT_URLCONF = 'PSN.urls'

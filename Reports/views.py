@@ -326,17 +326,11 @@ def common_fun(columnName,filterid,SubFilterId,sft,entity,user):
         for result in cursor.stored_results():
             column_name = list(result.fetchall())
             
-        # cursor.callproc("stp_get_userforreport",[user])   
-        # for result in cursor.stored_results():
-        #     for items in result.fetchall():
-        #         comp = items[0]
-        #         loc = items[1]
-                
-        #     # make list here
-        # cursor.callproc("stp_get_typeforreport",[user]) 
-        # for result in cursor.stored_results():
-        #     for items in result.fetchall():
-        #         user_type_val = items[0]
+        cursor.callproc("get_user_role_map",[user])   
+        for result in cursor.stored_results():
+            for items in result.fetchall():
+                company = items[0]
+                worksite = items[1]
                 
         if columnName == '': 
             column_name_arr = [col[0] for col in column_name] 
@@ -369,20 +363,21 @@ def common_fun(columnName,filterid,SubFilterId,sft,entity,user):
                 else:
                     where_clause += " and " + where_clause1[z]
                     
-                # if not where_clause:
-                #     where_extra = where_extra + " where " + " company_id in (" + str(comp) + ")" 
-                # else:
-                #     where_extra = where_extra + " and " + " company_id in (" + str(comp) +")" 
-                # if not where_clause:
-                #     where_extra = where_extra + " where " + " location_id in (" + str(loc) +")" 
-                # else:
-                #     where_extra = where_extra + " and " + " location_id in (" + str(loc) +")" 
-                  
-                # if not where_clause:
-                #     where_extra = where_extra + " where " + " type in (" + str(user_type_val) +")"
-                # else:
-                #     where_extra = where_extra + " and " + " type in (" + str(user_type_val) +")"
-                    
+        if not where_clause:
+            where_extra = " where "
+        else: where_extra = " and "
+        
+        if entity in ['em']:
+            where_extra += "worksite in (" + str(worksite) + ")"
+        elif entity in ['cm']:
+            where_extra += "company_id in (" + str(company) + ")"
+        elif entity in ['sm']:
+            where_extra += "t1.company_id in (" + str(company) + ") and site_name in (" + str(worksite) + ")"
+        elif entity in ['r']:
+            where_extra += "t1.company_id in (" + str(company) + ") and worksite in (" + str(worksite) + ")"
+        elif entity in ['nr']:
+            where_extra += "t2.company_id in (" + str(company) + ") and t3.worksite in (" + str(worksite) + ")"
+                            
             if join_query1[z] not in join_clause:
                 join_clause += join_query1[z]
 

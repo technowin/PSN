@@ -102,6 +102,7 @@ class application_search(models.Model):
     name =models.TextField(null=True,blank=True)
     description =models.TextField(null=True,blank=True)
     href =models.TextField(null=True,blank=True)
+    menu_id =models.TextField(null=True,blank=True)
     is_active =models.BooleanField(null=True,blank=True,default=True)
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='app_search_created',blank=True, null=True,db_column='created_by')
