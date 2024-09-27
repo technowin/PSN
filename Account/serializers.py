@@ -15,8 +15,8 @@ class UserSerializer(serializers.ModelSerializer):
     #             return None
     #     return None
 class LoginSerializer(serializers.Serializer):
-    email = serializers.CharField()
-    password = serializers.CharField()
+    # email = serializers.CharField()
+    # password = serializers.CharField()
     device_token = serializers.CharField()
     phone = serializers.CharField()
 
