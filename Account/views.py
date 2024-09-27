@@ -799,8 +799,7 @@ def reset_password(request):
         m.close()
         Db.closeConnection()
         return redirect( f'change_password')
-    
-@login_required    
+       
 def forget_password_change(request):
     Db.closeConnection()  
     m = Db.get_connection()  
