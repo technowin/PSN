@@ -50,11 +50,11 @@ class LoginView(APIView):
             user = get_object_or_404(CustomUser, phone=phone)
             if(user):
                 try:
-                    if user.role !="5":
-                        return Response({'message': 'User Does Not Have Necessary Role To Login  '+str(e)}, status=status.HTTP_400_BAD_REQUEST)  
+                    if user.role_id != 5:
+                        return Response({'message': 'User Does Not Have Necessary Role To Login  '}, status=status.HTTP_400_BAD_REQUEST)  
                 except Exception as e:
                     print(str(e))
-                    return Response({'message': 'User Not Found'+str(e)}, status=status.HTTP_400_BAD_REQUEST)  
+                    return Response({'message': 'User Not Found'}, status=status.HTTP_400_BAD_REQUEST)  
                  
             try:
                 employee = get_object_or_404(sc_employee_master,mobile_no=phone)
@@ -69,13 +69,13 @@ class LoginView(APIView):
                     return JsonResponse({'access_token': str(refresh.access_token),'refresh_token': str(refresh),'data':serializer}, status=status.HTTP_200_OK,safe=False)
             except Exception as e:
                 print(str(e))
-                return Response({'message': 'User Not Found In Employee Master  '+str(e)}, status=status.HTTP_400_BAD_REQUEST)  
+                return Response({'message': 'User Not Found In Employee Master  '}, status=status.HTTP_400_BAD_REQUEST)  
                 # return JsonResponse(serializer, status=status.HTTP_200_OK,safe=False)
             # else:
             #     return JsonResponse({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED,safe=False)
         except Exception as e:
             print(str(e))
-            return Response({'message': 'Invalid credentials  '+str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Invalid credentials  '}, status=status.HTTP_400_BAD_REQUEST)
 
 @csrf_exempt
 def Login(request):
