@@ -14,6 +14,7 @@ import bcrypt
 from django.contrib.auth.decorators import login_required
 # from .models import SignUpModel
 # from .forms import SignUpForm
+from Masters.models import sc_employee_master
 from PSN.encryption import *
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
@@ -47,16 +48,16 @@ class LoginView(APIView):
 
             # Manually check the provided username and password
             user = get_object_or_404(CustomUser, phone=phone)
-            
-            
-            # if user.check_password(password):
-            login(request, user,backend='django.contrib.auth.backends.ModelBackend')
-            user.device_token  = device_token
-            user.save()
-            serializer = UserSerializer(user).data
-            
-            refresh = RefreshToken.for_user(user)
-            return JsonResponse({'access_token': str(refresh.access_token),'refresh_token': str(refresh),'data':serializer}, status=status.HTTP_200_OK,safe=False)
+            employee = get_object_or_404(sc_employee_master,mobile_no=phone)
+            if(employee):
+                # if user.check_password(password):
+                login(request, user,backend='django.contrib.auth.backends.ModelBackend')
+                user.device_token  = device_token
+                user.save()
+                serializer = UserSerializer(user).data
+                
+                refresh = RefreshToken.for_user(user)
+                return JsonResponse({'access_token': str(refresh.access_token),'refresh_token': str(refresh),'data':serializer}, status=status.HTTP_200_OK,safe=False)
                 # return JsonResponse(serializer, status=status.HTTP_200_OK,safe=False)
             # else:
             #     return JsonResponse({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED,safe=False)
