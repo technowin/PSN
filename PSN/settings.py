@@ -24,7 +24,7 @@ DATABASES = {
     'default': {
         # 'ENGINE': 'django.db.backends.mysql',
         'ENGINE': 'mysql.connector.django',
-        'NAME': 'psn_test_db',      # Replace with your database name
+        'NAME': 'psn_db',      # Replace with your database name
         'USER': 'root',      # Replace with your database user
         'PASSWORD': 'Mysql_7319',  # Replace with your database password
         # 'HOST': '13.202.157.7',       # IP FOR TEST
@@ -141,7 +141,8 @@ LOGGING = {
         'file': {
             'level': 'WARNING',
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),  # Create the logs directory if it doesn't exist
+            # 'filename': os.path.join(BASE_DIR, 'D:/Python Project/PSN Logs', 'django.log'),  
+            'filename': os.path.join(BASE_DIR, '/home/ubuntu/PSN Logs', 'django.log'),  
         },
     },
     'loggers': {
