@@ -719,150 +719,241 @@
     });
 </script>
 <script>
-    am5.ready(function() {
-        var root = am5.Root.new("chartdiv");
-        root.setThemes([am5themes_Animated.new(root)]);
-            
-        var container = root.container.children.push(am5.Container.new(root, { width: am5.p100, height: am5.p100, layout: root.horizontalLayout }));
-        var chart = container.children.push(am5percent.PieChart.new(root, { tooltip: am5.Tooltip.new(root, {}) }));
-        var series = chart.series.push(am5percent.PieSeries.new(root, { valueField: "value", categoryField: "category", alignLabels: false }));
-            
-        series.labels.template.setAll({ textType: "circular", radius: 4 });
-        series.ticks.template.set("visible", false);
-        series.slices.template.set("toggleKey", "none");
-                
-        series.slices.template.events.on("click", function(e) { selectSlice(e.target); });
-                
-        var subChart = container.children.push(am5percent.PieChart.new(root, { radius: am5.percent(50), tooltip: am5.Tooltip.new(root, {}) }));
-        var subSeries = subChart.series.push(am5percent.PieSeries.new(root, { valueField: "value", categoryField: "category" }));
-            
-        subSeries.data.setAll([{ category: "A", value: 0 }, { category: "B", value: 0 }, { category: "C", value: 0 }, { category: "D", value: 0 }, { category: "E", value: 0 }, { category: "F", value: 0 }, { category: "G", value: 0 }]);
-        subSeries.slices.template.set("toggleKey", "none");
-            
-        var selectedSlice;
-        series.on("startAngle", updateLines);
-        container.events.on("boundschanged", function() { root.events.once("frameended", updateLines); });
-            
-        function updateLines() {
-            if (selectedSlice) {
-                var startAngle = selectedSlice.get("startAngle"), arc = selectedSlice.get("arc"), radius = selectedSlice.get("radius");
-                var x00 = radius * am5.math.cos(startAngle), y00 = radius * am5.math.sin(startAngle);
-                var x10 = radius * am5.math.cos(startAngle + arc), y10 = radius * am5.math.sin(startAngle + arc);
-                var subRadius = subSeries.slices.getIndex(0).get("radius");
-                var point00 = series.toGlobal({ x: x00, y: y00 }), point10 = series.toGlobal({ x: x10, y: y10 });
-                var point01 = subSeries.toGlobal({ x: 0, y: -subRadius }), point11 = subSeries.toGlobal({ x: 0, y: subRadius });
-                line0.set("points", [point00, point01]);
-                line1.set("points", [point10, point11]);
+        am5.ready(function () {
+            var root = am5.Root.new("chartdiv");
+            root.setThemes([am5themes_Animated.new(root)]);
+        
+            var container = root.container.children.push(
+                am5.Container.new(root, {
+                    width: am5.p100,
+                    height: am5.p100,
+                    layout: root.horizontalLayout,
+                })
+            );
+        
+            var chart = container.children.push(
+                am5percent.PieChart.new(root, {
+                    tooltip: am5.Tooltip.new(root, {}),
+                })
+            );
+        
+            var series = chart.series.push(
+                am5percent.PieSeries.new(root, {
+                    valueField: "value",
+                    categoryField: "category",
+                    alignLabels: false,
+                })
+            );
+        
+            series.labels.template.setAll({
+                textType: "circular",
+                radius: 4,
+            });
+        
+            series.ticks.template.set("visible", false);
+            series.slices.template.set("toggleKey", "none");
+        
+            series.slices.template.events.on("click", function (e) {
+                selectSlice(e.target);
+            });
+        
+            var subChart = container.children.push(
+                am5percent.PieChart.new(root, {
+                    radius: am5.percent(50),
+                    tooltip: am5.Tooltip.new(root, {}),
+                })
+            );
+        
+            var subSeries = subChart.series.push(
+                am5percent.PieSeries.new(root, {
+                    valueField: "value",
+                    categoryField: "category",
+                })
+            );
+        
+            subSeries.data.setAll([
+                { category: "A", value: 0 },
+                { category: "B", value: 0 },
+                { category: "C", value: 0 },
+                { category: "D", value: 0 },
+                { category: "E", value: 0 },
+                { category: "F", value: 0 },
+                { category: "G", value: 0 },
+            ]);
+        
+            subSeries.slices.template.set("toggleKey", "none");
+        
+            var selectedSlice;
+        
+            series.on("startAngle", updateLines);
+            container.events.on("boundschanged", function () {
+                root.events.once("frameended", updateLines);
+            });
+        
+            function updateLines() {
+                if (selectedSlice) {
+                    var startAngle = selectedSlice.get("startAngle"),
+                        arc = selectedSlice.get("arc"),
+                        radius = selectedSlice.get("radius");
+                    var x00 = radius * am5.math.cos(startAngle),
+                        y00 = radius * am5.math.sin(startAngle);
+                    var x10 = radius * am5.math.cos(startAngle + arc),
+                        y10 = radius * am5.math.sin(startAngle + arc);
+                    var subRadius = subSeries.slices.getIndex(0).get("radius");
+                    var point00 = series.toGlobal({ x: x00, y: y00 }),
+                        point10 = series.toGlobal({ x: x10, y: y10 });
+                    var point01 = subSeries.toGlobal({ x: 0, y: -subRadius }),
+                        point11 = subSeries.toGlobal({ x: 0, y: subRadius });
+                    line0.set("points", [point00, point01]);
+                    line1.set("points", [point10, point11]);
                 }
             }
-            
-            var line0 = container.children.push(am5.Line.new(root, { position: "absolute", stroke: root.interfaceColors.get("text"), strokeDasharray: [2, 2] }));
-            var line1 = container.children.push(am5.Line.new(root, { position: "absolute", stroke: root.interfaceColors.get("text"), strokeDasharray: [2, 2] }));
-            
-            var results = {{ results|safe }};
-            var formattedData = formatData(results);
-            
-                series.data.setAll(formattedData);
-            
-                function formatData(data) {
-                    return data.map(worksite => ({
-                        category: worksite.worksite_name,
-                        value: worksite.percent,
-                        subData: [
-                            { category: "Yes", value: worksite.yes_count },
-                            { category: "No", value: worksite.no_count },
-                            { category: "Pending", value: worksite.pending_count }
-                        ]
-                    }));
-                }
-                
-            
-                function selectSlice(slice) {
-                    selectedSlice = slice;
+        
+            var line0 = container.children.push(
+                am5.Line.new(root, {
+                    position: "absolute",
+                    stroke: root.interfaceColors.get("text"),
+                    strokeDasharray: [2, 2],
+                })
+            );
+            var line1 = container.children.push(
+                am5.Line.new(root, {
+                    position: "absolute",
+                    stroke: root.interfaceColors.get("text"),
+                    strokeDasharray: [2, 2],
+                })
+            );
+        
+            // Function to format the data before rendering
+            function formatData(data) {
+                return data.map((worksite) => ({
+                    category: worksite.worksite_name,
+                    value: worksite.percent,
+                    subData: [
+                        { category: "Yes", value: worksite.yes_count },
+                        { category: "No", value: worksite.no_count },
+                        { category: "Pending", value: worksite.pending_count },
+                    ],
+                }));
+            }
+        
+            // Function to handle slice selection
+            function selectSlice(slice) {
+                selectedSlice = slice;
+        
+                if (slice && slice.dataItem && slice.dataItem.dataContext) {
                     var dataContext = slice.dataItem.dataContext;
                     if (dataContext) {
-                        subSeries.data.each((dataObject, i) => {
+                        subSeries.data.each(function (dataObject, i) {
                             var dataObj = dataContext.subData[i];
                             if (dataObj) {
-                                if (!subSeries.dataItems[i].get("visible")) subSeries.dataItems[i].show();
+                                if (!subSeries.dataItems[i].get("visible"))
+                                    subSeries.dataItems[i].show();
                                 subSeries.data.setIndex(i, dataObj);
                             } else {
                                 subSeries.dataItems[i].hide();
                             }
                         });
                     }
-                    
+        
                     var middleAngle = slice.get("startAngle") + slice.get("arc") / 2;
                     var firstAngle = series.dataItems[0].get("slice").get("startAngle");
-                    series.animate({ key: "startAngle", to: firstAngle - middleAngle, duration: 1000, easing: am5.ease.out(am5.ease.cubic) });
-                    series.animate({ key: "endAngle", to: firstAngle - middleAngle + 360, duration: 1000, easing: am5.ease.out(am5.ease.cubic) });
+                    series.animate({
+                        key: "startAngle",
+                        to: firstAngle - middleAngle,
+                        duration: 1000,
+                        easing: am5.ease.out(am5.ease.cubic),
+                    });
+                    series.animate({
+                        key: "endAngle",
+                        to: firstAngle - middleAngle + 360,
+                        duration: 1000,
+                        easing: am5.ease.out(am5.ease.cubic),
+                    });
                 }
-            
-                container.appear(1000, 10);
-                series.events.on("datavalidated", function() { selectSlice(series.slices.getIndex(0)); });
+            }
         
-                // Function to update chart data
-                window.updateChartData = function(newData) {
-                    var formattedData = formatData(newData);
-                    series.data.setAll(formattedData);
+            // Initial data loading
+            var results = {{ results|safe }};
+            var formattedData = formatData(results);
+            series.data.setAll(formattedData);
         
-                    // If there is a selected slice, update the subSeries data
-                    if (selectedSlice) {
-                        var dataContext = selectedSlice.dataItem.dataContext;
-                        if (dataContext) {
-                            subSeries.data.each((dataObject, i) => {
-                                var dataObj = dataContext.subData[i];
-                                if (dataObj) {
-                                    if (!subSeries.dataItems[i].get("visible")) subSeries.dataItems[i].show();
-                                    subSeries.data.setIndex(i, dataObj);
-                                } else {
-                                    subSeries.dataItems[i].hide();
-                                }
-                            });
-                        }
-                    }
-                };
+            // Automatically select the first slice when data is validated
+            series.events.on("datavalidated", function () {
+                if (series.slices.length > 0) {
+                    selectSlice(series.slices.getIndex(0));
+                }
             });
-</script>
         
-<script>
-
-function updateChartData(newData) {
-                // Format the new data for the main PieChart
-    var formattedData = newData.map(worksite => ({
-        category: worksite.worksite_name,
-        value: worksite.percent,
-        subData: [
-            { category: "Yes", value: worksite.yes_count },
-            { category: "No", value: worksite.no_count },
-            { category: "Pending", value: worksite.pending_count }
-        ]
-    }));
-            
-                // Update the main series data
-    series.data.setAll(formattedData);
-                
-                // If you want to reset the subSeries data, you can do this:
-    if (selectedSlice) {
-        var dataContext = selectedSlice.dataItem.dataContext;
-            if (dataContext) {
-                subSeries.data.each((dataObject, i) => {
-                var dataObj = dataContext.subData[i];
-                    if (dataObj) {
-                        if (!subSeries.dataItems[i].get("visible")) subSeries.dataItems[i].show();
-                        subSeries.data.setIndex(i, dataObj);
-                    } else {
-                        subSeries.dataItems[i].hide();
+            // Function to update chart data dynamically
+            window.updateChartData = function (newData) {
+                var formattedData = formatData(newData);
+                series.data.setAll(formattedData);
+        
+                // Update subSeries data if there's a selected slice
+                if (selectedSlice && selectedSlice.dataItem && selectedSlice.dataItem.dataContext) {
+                    var dataContext = selectedSlice.dataItem.dataContext;
+                    if (dataContext) {
+                        subSeries.data.each(function (dataObject, i) {
+                            var dataObj = dataContext.subData[i];
+                            if (dataObj) {
+                                if (!subSeries.dataItems[i].get("visible"))
+                                    subSeries.dataItems[i].show();
+                                subSeries.data.setIndex(i, dataObj);
+                            } else {
+                                subSeries.dataItems[i].hide();
+                            }
+                        });
                     }
-                });
-            }
-        }
-                
-                // Optionally, you can also re-select the first slice after updating the data
-        series.events.on("datavalidated", function() {
-            selectSlice(series.slices.getIndex(0));
+                }
+            };
+        
+            // Appear animation
+            container.appear(1000, 10);
         });
+        
+    </script>
+            
+    <script>
+    
+    function updateChartData(newData) {
+                    // Format the new data for the main PieChart
+        var formattedData = newData.map(worksite => ({
+            category: worksite.worksite_name,
+            value: worksite.percent,
+            subData: [
+                { category: "Yes", value: worksite.yes_count },
+                { category: "No", value: worksite.no_count },
+                { category: "Pending", value: worksite.pending_count }
+            ]
+        }));
+                
+                    // Update the main series data
+        series.data.setAll(formattedData);
+                    
+                    // If you want to reset the subSeries data, you can do this:
+        if (selectedSlice) {
+            var dataContext = selectedSlice.dataItem.dataContext;
+                if (dataContext) {
+                    subSeries.data.each((dataObject, i) => {
+                    var dataObj = dataContext.subData[i];
+                        if (dataObj) {
+                            if (!subSeries.dataItems[i].get("visible")) subSeries.dataItems[i].show();
+                            subSeries.data.setIndex(i, dataObj);
+                        } else {
+                            subSeries.dataItems[i].hide();
+                        }
+                    });
+                }
             }
+                    
+                    // Optionally, you can also re-select the first slice after updating the data
+            series.events.on("datavalidated", function() {
+                selectSlice(series.slices.getIndex(0));
+            });
+                }
+    
+    </script>
 
 </script>
 
