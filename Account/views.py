@@ -14,6 +14,7 @@ import bcrypt
 from django.contrib.auth.decorators import login_required
 # from .models import SignUpModel
 # from .forms import SignUpForm
+from Masters.models import sc_employee_master
 from PSN.encryption import *
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
@@ -40,27 +41,41 @@ class LoginView(APIView):
             serializer = LoginSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
 
-            email = serializer.validated_data['email']
-            password = serializer.validated_data['password']
+            # email = serializer.validated_data['email']
+            phone = serializer.validated_data['phone']
+            # password = serializer.validated_data['password']
             device_token = serializer.validated_data['device_token']
 
             # Manually check the provided username and password
-            user = get_object_or_404(CustomUser, email=email)
-
-            if user.check_password(password):
-                login(request, user,backend='django.contrib.auth.backends.ModelBackend')
-                user.device_token  = device_token
-                user.save()
-                serializer = UserSerializer(user).data
-                
-                refresh = RefreshToken.for_user(user)
-                return JsonResponse({'access_token': str(refresh.access_token),'refresh_token': str(refresh),'data':serializer}, status=status.HTTP_200_OK,safe=False)
+            user = get_object_or_404(CustomUser, phone=phone)
+            if(user):
+                try:
+                    if user.role_id != 5:
+                        return Response({'message': 'User Does Not Have Necessary Role To Login  '}, status=status.HTTP_400_BAD_REQUEST)  
+                except Exception as e:
+                    print(str(e))
+                    return Response({'message': 'User Not Found'}, status=status.HTTP_400_BAD_REQUEST)  
+                 
+            try:
+                employee = get_object_or_404(sc_employee_master,mobile_no=phone)
+                if(employee):
+                    # if user.check_password(password):
+                    login(request, user,backend='django.contrib.auth.backends.ModelBackend')
+                    user.device_token  = device_token
+                    user.save()
+                    serializer = UserSerializer(user).data
+                    
+                    refresh = RefreshToken.for_user(user)
+                    return JsonResponse({'access_token': str(refresh.access_token),'refresh_token': str(refresh),'data':serializer}, status=status.HTTP_200_OK,safe=False)
+            except Exception as e:
+                print(str(e))
+                return Response({'message': 'User Not Found In Employee Master  '}, status=status.HTTP_400_BAD_REQUEST)  
                 # return JsonResponse(serializer, status=status.HTTP_200_OK,safe=False)
-            else:
-                return JsonResponse({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED,safe=False)
+            # else:
+            #     return JsonResponse({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED,safe=False)
         except Exception as e:
             print(str(e))
-            return Response({'message': 'Invalid credentials  '+str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Invalid credentials  '}, status=status.HTTP_400_BAD_REQUEST)
 
 @csrf_exempt
 def Login(request):
@@ -225,7 +240,7 @@ class RegistrationView(APIView):
             data = request.data.copy()
             
             # Check if role_id is provided, otherwise set default value to 1
-            role_id = data.pop('role_id', 1)
+            role_id = data.pop('role_id', 5)
 
             # Check if is_active is provided, otherwise set default value to False
             is_active = data.pop('is_active', True)
@@ -799,8 +814,7 @@ def reset_password(request):
         m.close()
         Db.closeConnection()
         return redirect( f'change_password')
-    
-@login_required    
+       
 def forget_password_change(request):
     Db.closeConnection()  
     m = Db.get_connection()  

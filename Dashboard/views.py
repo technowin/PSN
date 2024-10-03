@@ -41,13 +41,13 @@ def newdashboard(request):
         for result in cursor.stored_results():
             site_names = list(result.fetchall())
 
-        cursor.callproc("stp_get_worksite_percent_count_pie", ['1'])
+        cursor.callproc("stp_get_worksite_percent_count_pie", [user_id])
         fetched_results = []
     
         for result in cursor.stored_results():
             fetched_results = result.fetchall()
 
-        cursor.callproc("stp_get_worksite_percent_count_pie2", ['1'])
+        cursor.callproc("stp_get_worksite_percent_count_pie2", [user_id])
         
         results = []
         for result in cursor.stored_results():
