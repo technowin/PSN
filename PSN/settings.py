@@ -27,8 +27,8 @@ DATABASES = {
         'NAME': 'psn_db',      # Replace with your database name
         'USER': 'root',      # Replace with your database user
         'PASSWORD': 'Mysql_7319',  # Replace with your database password
-        # 'HOST': '13.202.157.7',       # IP FOR TEST
-        'HOST': '127.0.0.1',       # IP FOR LOCAL VM
+        'HOST': '13.202.157.7',       # IP FOR TEST
+        # 'HOST': '127.0.0.1',       # IP FOR LOCAL VM
         'PORT': '3306',            
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
@@ -241,7 +241,7 @@ from celery.schedules import crontab
 CELERY_BEAT_SCHEDULE = {
     'notify_users_2pm': {
         'task': 'your_app.tasks.check_and_notify_all_users',
-        'schedule': crontab(hour=14, minute=0),  # Run every day at 2 PM
+        'schedule': crontab(hour=17, minute=0),  # Run every day at 2 PM
     },
     'notify_users_7pm': {
         'task': 'your_app.tasks.check_and_notify_all_users',
