@@ -241,7 +241,7 @@ from celery.schedules import crontab
 CELERY_BEAT_SCHEDULE = {
     'notify_users_2pm': {
         'task': 'your_app.tasks.check_and_notify_all_users',
-        'schedule': crontab(hour=17, minute=1),  # Run every day at 2 PM
+        'schedule': crontab(hour=17, minute=20),  # Run every day at 2 PM
     },
     'notify_users_7pm': {
         'task': 'your_app.tasks.check_and_notify_all_users',
