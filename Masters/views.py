@@ -546,6 +546,102 @@ def company_master(request):
         elif request.method == "POST":
             return redirect(f'/masters?entity=cm&type=i')
 
+# @login_required        
+# def employee_master(request):
+#     Db.closeConnection()
+#     m = Db.get_connection()
+#     cursor=m.cursor()
+#     global user
+#     user  = request.session.get('user_id', '')
+#     try:
+        
+#         if request.method == "GET":
+#             id = request.GET.get('id', '')
+            
+#             cursor.callproc("stp_get_company_names")
+#             for result in cursor.stored_results():
+#                 company_names = list(result.fetchall())
+#             cursor.callproc("stp_get_employee_status")
+#             for result in cursor.stored_results():
+#                 employee_status = list(result.fetchall())
+#             cursor.callproc("stp_get_dropdown_values",('site',))
+#             for result in cursor.stored_results():
+#                 site_name = list(result.fetchall())
+#             if id == "0":
+#                 if request.method == "GET":
+#                     context = {'id':id, 'employee_status':employee_status, 'employee_status_id': '','site_name':site_name}
+
+#             else:
+#                 id1 = request.GET.get('id', '')
+#                 id = decrypt_parameter(id1)
+#                 cursor.callproc("stp_edit_employee_master", (id,))
+#                 for result in cursor.stored_results():
+#                     data = result.fetchall()[0]  
+#                     context = {
+#                         'site_name':site_name,
+#                         'employee_status':employee_status,
+#                         'id':data[0],
+#                         'employee_id' : data[1],
+#                         'employee_name': data[2],
+#                         'mobile_no': data[3],
+#                         'site_name_value': data[4],
+#                         'employee_status_id': data[5],
+#                         'is_active': data[6]
+#                     }
+
+#         if request.method == "POST" :
+#             id = request.POST.get('id', '')
+#             if id == '0':
+
+#                 employeeId = request.POST.get('employee_id', '')
+#                 employeeName = request.POST.get('employee_name', '')
+#                 mobileNo = request.POST.get('mobile_no', '')
+#                 site_name = request.POST.get('site_name', '')
+#                 # employeeStatus = request.POST.get('employee_status_name', '')
+#                 # activebtn = request.POST.get('status_value', '')
+
+#                 params = [
+#                     employeeId, 
+#                     employeeName, 
+#                     mobileNo, 
+#                     site_name
+#                     # employeeStatus,
+#                     # activebtn
+#                 ]
+                
+#                 cursor.callproc("stp_insert_employee_master", params)
+#                 for result in cursor.stored_results():
+#                         datalist = list(result.fetchall())
+#                 if datalist[0][0] == "success":
+#                     messages.success(request, 'Data successfully entered !')
+#                 else: messages.error(request, datalist[0][0])
+#             else:
+#                 id = request.POST.get('id', '')
+#                 employee_id = request.POST.get('employee_id', '')
+#                 employee_name = request.POST.get('employee_name', '')
+#                 mobile_no = request.POST.get('mobile_no', '')
+#                 site_name = request.POST.get('site_name', '')
+#                 employee_status = request.POST.get('employee_status_name', '')
+#                 is_active = request.POST.get('status_value', '')  
+                            
+#                 params = [id,employee_id,employee_name,mobile_no,site_name,employee_status,is_active]    
+#                 cursor.callproc("stp_update_employee_master",params) 
+#                 messages.success(request, "Data successfully Updated!")
+
+#     except Exception as e:
+#         tb = traceback.extract_tb(e.__traceback__)
+#         fun = tb[0].name
+#         cursor.callproc("stp_error_log", [fun, str(e), user])  
+#         messages.error(request, 'Oops...! Something went wrong!')
+#     finally:
+#         cursor.close()
+#         m.commit()
+#         m.close()
+#         Db.closeConnection()
+#         if request.method=="GET":
+#             return render(request, "Master/employee_master.html", context)
+#         elif request.method=="POST":  
+#             return redirect(f'/masters?entity=em&type=i')
 @login_required        
 def employee_master(request):
     Db.closeConnection()
@@ -558,7 +654,9 @@ def employee_master(request):
         if request.method == "GET":
             id = request.GET.get('id', '')
             
-
+            cursor.callproc("stp_get_company_names")
+            for result in cursor.stored_results():
+                company_names = list(result.fetchall())
             cursor.callproc("stp_get_employee_status")
             for result in cursor.stored_results():
                 employee_status = list(result.fetchall())
@@ -567,7 +665,7 @@ def employee_master(request):
                 site_name = list(result.fetchall())
             if id == "0":
                 if request.method == "GET":
-                    context = {'id':id, 'employee_status':employee_status, 'employee_status_id': '','site_name':site_name}
+                    context = {'id':id, 'employee_status':employee_status,'company_names': company_names, 'employee_status_id': '','site_name':site_name}
 
             else:
                 id1 = request.GET.get('id', '')
@@ -576,16 +674,19 @@ def employee_master(request):
                 for result in cursor.stored_results():
                     data = result.fetchall()[0]  
                     context = {
-                        'site_name':site_name,
-                        'employee_status':employee_status,
-                        'id':data[0],
-                        'employee_id' : data[1],
+                        'site_name': site_name,
+                        'employee_status': employee_status,
+                        'company_names': company_names,
+                        'id': data[0],
+                        'employee_id': data[1],
                         'employee_name': data[2],
                         'mobile_no': data[3],
                         'site_name_value': data[4],
-                        'employee_status_id': data[5],
-                        'is_active': data[6]
+                        'is_active': data[7],
+                        'company_name': data[5],  # Ensure this holds the company ID, not the name
+                        'employee_status_id': data[6]
                     }
+
 
         if request.method == "POST" :
             id = request.POST.get('id', '')
@@ -595,6 +696,7 @@ def employee_master(request):
                 employeeName = request.POST.get('employee_name', '')
                 mobileNo = request.POST.get('mobile_no', '')
                 site_name = request.POST.get('site_name', '')
+                CompanyId = request.POST.get('company_id', '')
                 # employeeStatus = request.POST.get('employee_status_name', '')
                 # activebtn = request.POST.get('status_value', '')
 
@@ -602,7 +704,8 @@ def employee_master(request):
                     employeeId, 
                     employeeName, 
                     mobileNo, 
-                    site_name
+                    site_name,
+                    CompanyId
                     # employeeStatus,
                     # activebtn
                 ]
@@ -619,10 +722,11 @@ def employee_master(request):
                 employee_name = request.POST.get('employee_name', '')
                 mobile_no = request.POST.get('mobile_no', '')
                 site_name = request.POST.get('site_name', '')
+                CompanyId = request.POST.get('company_id', '')
                 employee_status = request.POST.get('employee_status_name', '')
                 is_active = request.POST.get('status_value', '')  
                             
-                params = [id,employee_id,employee_name,mobile_no,site_name,employee_status,is_active]    
+                params = [id,employee_id,employee_name,mobile_no,site_name,CompanyId,employee_status,is_active]    
                 cursor.callproc("stp_update_employee_master",params) 
                 messages.success(request, "Data successfully Updated!")
 
@@ -660,7 +764,7 @@ def upload_excel(request):
             cursor = m.cursor()
             entity = request.POST.get('entity', '')
             type = request.POST.get('type', '')
-            company_id = request.POST.get('company_id', None)
+            company_id1 = request.POST.get('company_id', None)
             cursor.callproc("stp_get_masters", [entity, type, 'sample_xlsx',user])
             for result in cursor.stored_results():
                 columns = [col[0] for col in result.fetchall()]
@@ -668,31 +772,50 @@ def upload_excel(request):
                 messages.error(request, 'Oops...! The uploaded Excel file does not contain the required columns.!')
                 return redirect(f'/masters?entity={entity}&type={type}')
             upload_for = {'em': 'employee master','sm': 'site master','cm': 'company master','r': 'roster'}[entity]
-            cursor.callproc('stp_insert_checksum', (upload_for,company_id,str(datetime.now().month),str(datetime.now().year),file_name))
+            cursor.callproc('stp_insert_checksum', (upload_for,company_id1,str(datetime.now().month),str(datetime.now().year),file_name))
             for result in cursor.stored_results():
                 c = list(result.fetchall())
             checksum_id = c[0][0]
 
+            # if entity == 'em':
+            #     for index,row in df.iterrows():
+            #         params = tuple(str(row.get(column, '')) for column in columns)
+            #         cursor.callproc('stp_insert_employee_master', params)
+            #         for result in cursor.stored_results():
+            #                 r = list(result.fetchall())
+            #         if r[0][0] not in ("success", "updated"):
+            #             cursor.callproc('stp_insert_error_log', [upload_for, company_id,'',file_name,datetime.now().date(),str(r[0][0]),checksum_id])
+            #         if r[0][0] == "success": success_count += 1 
+            #         elif r[0][0] == "updated": update_count += 1  
+            #         else: error_count += 1
             if entity == 'em':
                 for index,row in df.iterrows():
                     params = tuple(str(row.get(column, '')) for column in columns)
+    
+                    # Get the company instance and add company_id to params
+                    params += (str(company_id1),) # Assuming company_id is an integer
+                    
+                    # Debugging: Print params to verify
+                    print("Params being passed to stored procedure:", params)
+                    
+                    # Call the stored procedure
                     cursor.callproc('stp_insert_employee_master', params)
                     for result in cursor.stored_results():
                             r = list(result.fetchall())
                     if r[0][0] not in ("success", "updated"):
-                        cursor.callproc('stp_insert_error_log', [upload_for, company_id,'',file_name,datetime.now().date(),str(r[0][0]),checksum_id])
+                        cursor.callproc('stp_insert_error_log', [upload_for, company_id1,'',file_name,datetime.now().date(),str(r[0][0]),checksum_id])
                     if r[0][0] == "success": success_count += 1 
                     elif r[0][0] == "updated": update_count += 1  
                     else: error_count += 1
             elif entity == 'sm':
                 for index,row in df.iterrows():
                     params = tuple(str(row.get(column, '')) for column in columns)
-                    params += (str(company_id),)
+                    params += (str(company_id1),)
                     cursor.callproc('stp_insert_site_master', params)
                     for result in cursor.stored_results():
                             r = list(result.fetchall())
                     if r[0][0] not in ("success", "updated"):
-                        cursor.callproc('stp_insert_error_log', [upload_for, company_id,'',file_name,datetime.now().date(),str(r[0][0]),checksum_id])
+                        cursor.callproc('stp_insert_error_log', [upload_for, company_id1,'',file_name,datetime.now().date(),str(r[0][0]),checksum_id])
                     if r[0][0] == "success": success_count += 1 
                     elif r[0][0] == "updated": update_count += 1  
                     else: error_count += 1
@@ -703,12 +826,12 @@ def upload_excel(request):
                     for result in cursor.stored_results():
                             r = list(result.fetchall())
                     if r[0][0] not in ("success", "updated"):
-                        cursor.callproc('stp_insert_error_log', [upload_for, company_id,'',file_name,datetime.now().date(),str(r[0][0]),checksum_id])
+                        cursor.callproc('stp_insert_error_log', [upload_for, company_id1,'',file_name,datetime.now().date(),str(r[0][0]),checksum_id])
                     if r[0][0] == "success": success_count += 1 
                     elif r[0][0] == "updated": update_count += 1  
                     else: error_count += 1
             checksum_msg = f"Total Rows Processed: {total_rows}, Successful Entries: {success_count}" f"{f', Updates: {update_count}' if update_count > 0 else ''}" f"{f', Errors: {error_count}' if error_count > 0 else ''}"
-            cursor.callproc('stp_update_checksum', (upload_for,company_id,'',str(datetime.now().month),str(datetime.now().year),file_name,checksum_msg,error_count,update_count,checksum_id))
+            cursor.callproc('stp_update_checksum', (upload_for,company_id1,'',str(datetime.now().month),str(datetime.now().year),file_name,checksum_msg,error_count,update_count,checksum_id))
             if error_count == 0 and update_count == 0 and success_count > 0:
                 messages.success(request, f"All data uploaded successfully!.")
             elif error_count == 0 and success_count == 0 and update_count > 0:

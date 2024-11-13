@@ -35,17 +35,22 @@
                     <input type="hidden" value="{{ id }}" name="id" >
 
                     <div class="row mb-3">
+
                         <div class="col-md-3">
-                            <label for="EmployeeNumber" class="form-label">Employee No.<span style="color:red;"> *</span> :</label>
-                            <input type="text" value="{{ employee_id }}" name="employee_id" class="form-control" id="EmployeeNumber" placeholder="Enter Employee Id" required>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="EmployeeName" class="form-label">Employee Name<span style="color:red;"> *</span> :</label>
-                            <input type="text" value="{{ employee_name }}" name="employee_name" class="form-control" id="EmployeeName" placeholder="Enter Employee Name" required>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="MobileNumber" class="form-label">Mobile Number<span style="color:red;"> *</span> :</label>
-                            <input type="number" value="{{ mobile_no }}" name="mobile_no" class="form-control" id="MobileNumber" placeholder="Enter Person Mobile Number" required>
+                            <label for="company_id" class="form-label" >Company<span style="color:red;"> *</span> :</label>
+                            <select name="company_id" id="company_id" class="form-control">
+                                {% if company_id == '0' %}
+                                <option value="" selected disabled>Select</option>
+                                    {% for item in company_names %}
+                                        <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                    {% endfor %}
+                                {% else %}
+                                   <option value="" {% if company_name == '' %}selected{% endif %}>Select</option> 
+                                    {% for item in company_names %}
+                                        <option value="{{ item.0 }}" {% if item.0 == company_name %}selected{% endif %}>{{ item.1 }}</option>
+                                    {% endfor %} 
+                                {% endif%} 
+                            </select>
                         </div>
                         <div class="col-md-3">
                             <label for="site_name" class="form-label">Worksite<span style="color:red;"> *</span> :</label>
@@ -63,10 +68,24 @@
                                 {% endif%}    
                             </select>
                         </div>
+                        <div class="col-md-3">
+                            <label for="EmployeeNumber" class="form-label">Employee No.<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ employee_id }}" name="employee_id" class="form-control" id="EmployeeNumber" placeholder="Enter Employee Id" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="EmployeeName" class="form-label">Employee Name<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ employee_name }}" name="employee_name" class="form-control" id="EmployeeName" placeholder="Enter Employee Name" required>
+                        </div>
+                       
+                        
                     </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label for="MobileNumber" class="form-label">Mobile Number<span style="color:red;"> *</span> :</label>
+                            <input type="number" value="{{ mobile_no }}" name="mobile_no" class="form-control" id="MobileNumber" placeholder="Enter Person Mobile Number" required>
+                        </div>
                     
                     {% if id != '0' %}
-                        <div class="row mb-3">
                             <div class="col-md-3">
                                     <label for="employee_status_id" class="form-label">Employeee Status<span style="color:red;"> *</span> :</label>
                                     <select name="employee_status_name" id="dropdown" class="form-control">
@@ -94,10 +113,9 @@
                                 </label>
                                 <input type="text" id="statusValue" name="status_value" value="{{ is_active }}" hidden>
                             </div>
+                    {% endif %}
                         </div>
                         <input type="hidden" id="hiddenActiveStatus" name="employee_status" value="0">
-
-                    {% endif %}
 
                     
 

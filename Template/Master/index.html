@@ -137,6 +137,20 @@
                 </div>
                 <hr>
                 {% endif %}
+                {% if entity == 'em' %}
+                <div class="d-flex justify-content-center align-items-center">
+                  <div class="col-md-6 mb-3">
+                    <label for="company_id" class="form-label">Company</label>
+                    <select id="company_id" name="company_id" class="form-control" required>
+                      <option value="" selected>Select</option>
+                      {% for item in company_names %}
+                      <option value="{{ item.0 }}">{{ item.1 }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <hr>
+                {% endif %}
                 <span class="formupl-title">Upload your file</span>
                 <p class="formupl-paragraph">File should be an Excel</p>
                 <label for="excelFile" class="drop-container">
