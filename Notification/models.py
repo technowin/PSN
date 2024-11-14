@@ -21,4 +21,12 @@ class notification_log(models.Model):
         db_table = 'notification_log'
     def __str__(self):
         return self.employee_id
+    
+class test_table(models.Model):
+    id = models.AutoField(primary_key=True)
+    test_time =  models.DateTimeField(null=True,blank=True,auto_now_add=True)
+    
+    class Meta:
+            db_table = 'test_table'
+    
 

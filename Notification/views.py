@@ -44,8 +44,10 @@ from google.auth.transport.requests import Request
 from rest_framework import status
 
 from Masters.serializers import ScRosterSerializer
-from Notification.models import notification_log
+from Notification.models import notification_log, test_table
 from datetime import datetime, timedelta
+
+from Notification.serializers import TestTableSerializer
 class check_and_notify_user(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -78,7 +80,7 @@ class check_and_notify_all_users(APIView):
         current_time = timezone.now()
         errors = []
         success = []
-        for user in users:
+        for user in users: 
             employee = sc_employee_master.objects.filter(mobile_no=user.phone).first()
 
             if not employee:
@@ -193,6 +195,18 @@ class check_and_notify_all_users(APIView):
         else:
             return Response({'success':success}, status=status.HTTP_200_OK)
             
+class TestApi(APIView):
+    def post(self, request):
+        # Create a new instance of TestTable with the current timestamp
+        test_instance = test_table.objects.create(test_time=timezone.now())
+        
+        # Serialize the newly created instance
+        serializer = TestTableSerializer(test_instance)
+        
+        # Return the serialized data with a 201 CREATED status
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
 
 class check_and_notify_default_users(APIView):
     def get(self, request):

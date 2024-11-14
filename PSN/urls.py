@@ -41,6 +41,7 @@ urlpatterns = [
     path('check_and_notify_all_users', check_and_notify_all_users.as_view(), name='check_and_notify_all_users'),
     path('check_and_notify_default_users', check_and_notify_default_users.as_view(), name='check_and_notify_default_users'),
     path('DefaultRecords', DefaultRecords.as_view(), name='DefaultRecords'),
+    path('TestApi', TestApi.as_view(), name='TestApi'),
     
     # Dashboard
     path("newdashboard",newdashboard,name='newdashboard'),
