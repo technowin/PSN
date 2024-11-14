@@ -80,6 +80,11 @@ class check_and_notify_all_users(APIView):
         current_time = timezone.now()
         errors = []
         success = []
+
+        test_instance = test_table.objects.create(test_time=timezone.now())
+        
+        # Serialize the newly created instance
+        serializer = TestTableSerializer(test_instance)
         for user in users: 
             employee = sc_employee_master.objects.filter(mobile_no=user.phone).first()
 
