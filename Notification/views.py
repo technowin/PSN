@@ -221,80 +221,75 @@ class check_and_notify_all_users(APIView):
             if shifts.exists():
                 current_datetime = datetime.now()
 
-                for shift in shifts:
-                    if '-' in shift.shift_time:
-                        # Split 'shift_time' by '-' and parse start and end times
-                        start_time_str, end_time_str = shift.shift_time.split('-')
-                        start_time_str = start_time_str.strip()
-                        end_time_str = end_time_str.strip()
+            for shift in shifts:
+                if '-' in shift.shift_time:
+                    # Split 'shift_time' by '-' and parse start and end times
+                    start_time_str, end_time_str = shift.shift_time.split('-')
+                    start_time_str = start_time_str.strip()
+                    end_time_str = end_time_str.strip()
 
-                        # Combine the shift_date and start_time to create a datetime object
-                        shift_datetime_str = f"{shift.shift_date} {start_time_str}"
-                        shift_datetime = datetime.strptime(shift_datetime_str, '%Y-%m-%d %H:%M')
-                        shift_datetime_minus_4_hours = shift_datetime - timedelta(hours=4)
-                        shift_datetime_minus_8_hours = shift_datetime - timedelta(hours=8)
+                    # Combine the shift_date and start_time to create a datetime object
+                    shift_datetime_str = f"{shift.shift_date} {start_time_str}"
+                    shift_datetime = datetime.strptime(shift_datetime_str, '%Y-%m-%d %H:%M')
+                    shift_datetime_minus_4_hours = shift_datetime - timedelta(hours=4)
+                    shift_datetime_minus_8_hours = shift_datetime - timedelta(hours=8)
 
-                        # Check if the shift_datetime is within the next 24 hours
-                        if current_datetime <= shift_datetime <= current_datetime + timedelta(hours=24) and current_datetime <= shift_datetime_minus_4_hours:
-                            # Check if a notification_log entry already exists for this sc_roster_id
-                            existing_notification = notification_log.objects.filter(
-                                sc_roster_id=shift
-                            ).exists()
+                    # Check if the shift_datetime is within the next 24 hours and the current time is 4 hours before the shift
+                    if current_datetime <= shift_datetime <= current_datetime + timedelta(hours=24) and current_datetime <= shift_datetime_minus_4_hours:
+                        
+                        # Check if a notification_log entry already exists for this sc_roster_id
+                        existing_notification = notification_log.objects.filter(sc_roster_id=shift).exists()
+                        
+                        if not existing_notification:
+                            filtered_shifts.append(shift)
+                            serializer = ScRosterSerializer(shift)
+                            shift_data = serializer.data
+                            parameter_type = parameter_master.objects.get(parameter_id=11)
 
-                            if not existing_notification:
-                                # Add to filtered_shifts list if it meets the condition
-                                filtered_shifts.append(shift)
+                            # Create a notification entry
+                            notification_entry = notification_log.objects.create(
+                                sc_roster_id=shift,
+                                notification_sent=timezone.now(),  # Use timezone for current time
+                                notification_message="Notification for shift confirmation",
+                                created_at=timezone.now(),
+                                type=parameter_type,
+                                created_by=user,
+                                updated_at=timezone.now(),
+                                updated_by=user
+                            )
 
-                                # Serialize shift data
-                                serializer = ScRosterSerializer(shift)
-                                shift_data = serializer.data
+                            notification_log_id = notification_entry.id
 
-                                # Set up and create a new notification log entry
-                                parameter_type = parameter_master.objects.get(parameter_id=11)
-                                notification_entry = notification_log.objects.create(
-                                    sc_roster_id=shift,
-                                    notification_sent=current_time,
-                                    notification_message="Notification for shift confirmation",
-                                    created_at=current_time,
-                                    type=parameter_type,
-                                    created_by=user,
-                                    updated_at=current_time,
-                                    updated_by=user
-                                )
+                            # Send the push notification
+                            response = send_push_notification(user, shift_data, notification_log_id)
 
-                                notification_log_id = notification_entry.id
+                            if response != "success":
+                                # Split the response to handle different error cases
+                                error_details = response.split("--")
 
-                                # Send the push notification
-                                a = send_push_notification(user, shift_data, notification_log_id)
-                                if a != "success":
-                                    # Handle errors from the push notification response
-                                    c = a.split("--")
-                                    if len(c) == 2:
-                                        if c[1] == "Requested entity was not found.":
-                                            notification_entry.notification_message = "App Is Not Installed"
-                                        elif c[1] == "The registration token is not a valid FCM registration token":
-                                            notification_entry.notification_message = "User Not Correctly Registered to the App. Please Login Again."
-                                        else:
-                                            notification_entry.notification_message = a
+                                if len(error_details) == 2:
+                                    if error_details[1] == "Requested entity was not found.":
+                                        notification_entry.notification_message = "App Is Not Installed"
+                                    elif error_details[1] == "The registration token is not a valid FCM registration token":
+                                        notification_entry.notification_message = "User Not Correctly Registered to the App. Please Login Again."
                                     else:
-                                        notification_entry.notification_message = a
-                                    
-                                    notification_entry.save()
-                                    errors.append(f"Error sending notification to {user.full_name} - {a}")
+                                        notification_entry.notification_message = response  # General error message
                                 else:
-                                    # Mark notification as successfully sent
-                                    notification_entry.notification_received = timezone.now()
+                                    notification_entry.notification_received = timezone.now()  # Success case
                                     notification_entry.save()
-                                    success.append(f"Successfully sent notification to {user.full_name} - {a}")
-                            else:
-                                # Skip notification if it already exists
-                                success.append(f"Notification already exists for {shift} - Skipping notification.")
 
-                
-            if len(errors)>0:
-                return Response({'error':errors,'success':success}, status=status.HTTP_200_OK)
+                                notification_entry.save()
+                                errors.append(f"Error sending notification to {user.full_name} - {response}")
+                            else:
+                                notification_entry.notification_received = timezone.now()  # Success case
+                                notification_entry.save()
+                                success.append(f"Successfully sent notification to {user.full_name}")
+
+            # Return the response based on errors or successes
+            if errors:
+                return Response({'error': errors, 'success': success}, status=status.HTTP_200_OK)
             else:
-                return Response({'success':success}, status=status.HTTP_200_OK)
+                return Response({'success': success}, status=status.HTTP_200_OK)
             
 
 class check_and_notify_all_users_reminder(APIView):
