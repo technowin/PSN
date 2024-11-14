@@ -108,7 +108,8 @@ class check_and_notify_all_users(APIView):
                         # Combine the shift_date and start_time to create a datetime object
                         shift_datetime_str = f"{shift.shift_date} {start_time_str}"
                         shift_datetime = datetime.strptime(shift_datetime_str, '%Y-%m-%d %H:%M')
-                        shift_datetime_minus_4_hours = shift_datetime - timedelta(hours=4)
+                        # shift_datetime_minus_4_hours = shift_datetime - timedelta(hours=4)
+                        shift_datetime_minus_4_hours = shift_datetime - timedelta(hours=23)
                         shift_datetime_minus_8_hours = shift_datetime - timedelta(hours=8)
                         # Check if the shift_datetime is within the next 24 hours from the current datetime
                         if current_datetime <= shift_datetime <= current_datetime + timedelta(hours=24) and current_datetime <= shift_datetime_minus_4_hours:
