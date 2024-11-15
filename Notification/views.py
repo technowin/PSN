@@ -199,8 +199,9 @@ class check_and_notify_all_users_reminder(APIView):
                         shift_datetime_str = f"{shift.shift_date} {start_time_str}"
                         shift_datetime = datetime.strptime(shift_datetime_str, '%Y-%m-%d %H:%M')
                         shift_datetime_minus_4_hours = shift_datetime - timedelta(hours=4)
+                        shift_datetime_minus_8_hours = shift_datetime - timedelta(hours=8)
                         # Check if the shift_datetime is within the next 24 hours from the current datetime
-                        if current_datetime <= shift_datetime <= current_datetime + timedelta(hours=24) and current_datetime <= shift_datetime_minus_4_hours:
+                        if current_datetime <= shift_datetime_minus_4_hours  and shift_datetime_minus_8_hours <= current_datetime :
                             
                             # Add to the filtered_shifts list if it meets the condition
                             existing_notification = notification_log.objects.filter(sc_roster_id=shift,type_id =12).exists()
