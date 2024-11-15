@@ -170,87 +170,74 @@ class check_and_notify_all_users_reminder(APIView):
         current_time = timezone.now()
         errors = []
         success = []
-        for user in users: 
+        for user in users:
             employee = sc_employee_master.objects.filter(mobile_no=user.phone).first()
 
             if not employee:
                 continue
-            current_date = datetime.now().date()
+
+            current_date = current_time.date()
             next_day = current_date + timedelta(days=1)
-            shifts = sc_roster.objects.filter(employee_id=employee.employee_id,confirmation__isnull=True,  shift_date__in=[current_date, next_day] ) # Filters for today or tomorrow )
             
-            filtered_shifts = []
+            shifts = sc_roster.objects.filter(
+                employee_id=employee.employee_id,
+                confirmation__isnull=True,
+                shift_date__in=[current_date, next_day]
+            )
 
-            # Current datetime
             if shifts.exists():
-            
-                current_datetime = datetime.now()
-                ser =  ScRosterSerializer(shifts,many=True)
+                current_datetime = current_time
                 for shift in shifts:
-                    # shift = shifts.first() 
                     if '-' in shift.shift_time:
-                        # Split 'shift_time' by '-'
                         start_time_str, end_time_str = shift.shift_time.split('-')
-                        # Trim the whitespace from both parts
                         start_time_str = start_time_str.strip()
-                        end_time_str = end_time_str.strip()
-
-                        # Combine the shift_date and start_time to create a datetime object
+                        
                         shift_datetime_str = f"{shift.shift_date} {start_time_str}"
-                        shift_datetime = datetime.strptime(shift_datetime_str, '%Y-%m-%d %H:%M')
+                        shift_datetime = timezone.datetime.strptime(shift_datetime_str, '%Y-%m-%d %H:%M').astimezone(timezone.get_current_timezone())
                         shift_datetime_minus_4_hours = shift_datetime - timedelta(hours=4)
                         shift_datetime_minus_8_hours = shift_datetime - timedelta(hours=8)
-                        # Check if the shift_datetime is within the next 24 hours from the current datetime
-                        if current_datetime <= shift_datetime_minus_4_hours  and shift_datetime_minus_8_hours <= current_datetime :
+
+                        if shift_datetime_minus_8_hours <= current_datetime <= shift_datetime_minus_4_hours:
+                            existing_notification = notification_log.objects.filter(sc_roster_id=shift, type_id=12).exists()
                             
-                            # Add to the filtered_shifts list if it meets the condition
-                            existing_notification = notification_log.objects.filter(sc_roster_id=shift,type_id =12).exists()
-                        
                             if not existing_notification:
-                                filtered_shifts.append(shift)
-                                
-                                
                                 serializer = ScRosterSerializer(shift)
-                                
                                 shift_data = serializer.data
                                 parameter_type = parameter_master.objects.get(parameter_id=12)
+                                
                                 notification_entry = notification_log.objects.create(
                                     sc_roster_id=shift,
                                     notification_sent=current_time,
                                     notification_message="Notification for shift confirmation",
                                     created_at=current_time,
-                                    type=parameter_type ,
-                                    created_by=user,  # assuming the current user is the creator
+                                    type=parameter_type,
+                                    created_by=user,
                                     updated_at=current_time,
-                                    updated_by=user  # assuming the current user is the updater
+                                    updated_by=user
                                 )
                                 notification_log_id = notification_entry.id
-                                a = send_push_notification(user,shift_data,notification_log_id)
-                                if(a!= "success"):
-                                    c = a.split("--")
-                                    if(len(c) == 2):
-                                        if(c[1] == "Requested entity was not found."):
-                                            notification_entry.notification_message = "App Is Not Installed"  # Update with the error message
-                                            notification_entry.save()     
-                                        elif(c[1] == "The registration token is not a valid FCM registration token")  :
-                                            notification_entry.notification_message = "User Not Correctly Registered to the App. Please Login Again."  # Update with the error message
-                                            notification_entry.save()     
-                                            
-                                        
+                                notification_status = send_push_notification(user, shift_data, notification_log_id)
+
+                                if notification_status != "success":
+                                    error_message = notification_status.split("--")
+                                    if len(error_message) == 2:
+                                        if error_message[1] == "Requested entity was not found.":
+                                            notification_entry.notification_message = "App is not installed"
+                                        elif error_message[1] == "The registration token is not a valid FCM registration token":
+                                            notification_entry.notification_message = "User not correctly registered to the app. Please log in again."
                                     else:
-                                        notification_entry.notification_message = a  # Update with the error message
-                                        notification_entry.save()
-                                    errors.append(f"Error sending notification to {user.full_name} - {a}")
-                                else :
+                                        notification_entry.notification_message = notification_status
+                                    notification_entry.save()
+                                    errors.append(f"Error sending notification to {user.full_name} - {notification_status}")
+                                else:
                                     notification_entry.notification_received = timezone.now()
                                     notification_entry.save()
-                                    success.append(f"successfully sent notification to {user.full_name} - {a}")
-                        
-            
-        if len(errors)>0:
-            return Response({'error':errors,'success':success}, status=status.HTTP_200_OK)
-        else:
-            return Response({'success':success}, status=status.HTTP_200_OK)
+                                    success.append(f"Successfully sent notification to {user.full_name}")
+
+        response_data = {'success': success}
+        if errors:
+            response_data['error'] = errors
+        return Response(response_data, status=status.HTTP_200_OK)
             
             
 class TestApi(APIView):
