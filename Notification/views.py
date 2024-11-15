@@ -83,7 +83,7 @@ class check_and_notify_all_users(APIView):
         for user in users: 
             employee = sc_employee_master.objects.filter(mobile_no=user.phone).first()
 
-            if not employee or user.phone!='8291104778':
+            if not employee:
                 continue
             current_date = datetime.now().date()
             next_day = current_date + timedelta(days=1)
