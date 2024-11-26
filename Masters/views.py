@@ -25,7 +25,7 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.contrib import messages
 import openpyxl
-from openpyxl.styles import Font, Border, Side
+from openpyxl.styles import Font, Border, Side, Alignment
 import calendar
 from datetime import datetime, timedelta
 from django.utils import timezone
@@ -1025,5 +1025,439 @@ class confirm_notification(APIView):
             return Response({'error': 'notification_log not found.'}, status=404)
         except Exception as e:
             return Response({'error': str(e)}, status=500)
+        
+
+# Palavee Attendance Changes
+
+@login_required
+def attendance_masters(request):
+    Db.closeConnection()
+    m = Db.get_connection()
+    cursor=m.cursor()
+    pre_url = request.META.get('HTTP_REFERER')
+    header, data = [], []
+    entity, type, name = '', '', ''
+    global user
+    user  = request.session.get('user_id', '')
+    try:
+         
+        if request.method=="GET":
+            entity = 'au'
+            type = 'err'
+            cursor.callproc("stp_get_masters",[entity,type,'name',user])
+            for result in cursor.stored_results():
+                datalist1 = list(result.fetchall())
+            name = datalist1[0][0]
+            cursor.callproc("stp_get_masters", [entity, type, 'header',user])
+            for result in cursor.stored_results():
+                header = list(result.fetchall())
+            cursor.callproc("stp_get_dropdown_values",['company'])
+            for result in cursor.stored_results():
+                company_names = list(result.fetchall())
+            cursor.callproc("stp_get_dropdown_values",['site'])
+            for result in cursor.stored_results():
+                site_name = list(result.fetchall())
+            cursor.callproc("stp_get_dropdown_values",['site'])
+            for result in cursor.stored_results():
+                site_name = list(result.fetchall())
+            # cursor.callproc("stp_attendance_index",[user])
+            # for result in cursor.stored_results():
+            #     site_name = list(result.fetchall())
+            cursor.callproc("stp_get_attendance_data",[user])
+            for result in cursor.stored_results():
+                data = list(result.fetchall())
+                formatted_data = [
+                    {
+                      
+                        "employee_id": row[0],
+                        "employee_name": row[1],
+                        "company_id": row[2],
+                        "worksite": row[3],
+                        "attendance_date": row[4],
+                        "shift_time": row[5],
+                        "attendance_in": row[6],
+                        "attendance_out": row[7],
+                        "id_edit": row[8],
+                    }
+                    for row in data
+                ]
+            if entity == 'au' and type == 'i':
+                cursor.callproc("stp_get_assigned_company",[user])
+                for result in cursor.stored_results():
+                    company_names = list(result.fetchall())
+                           
+    except Exception as e:
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),user])  
+        messages.error(request, 'Oops...! Something went wrong!')
+    finally:
+        cursor.close()
+        m.commit()
+        m.close()
+        Db.closeConnection()
+        if request.method=="GET":
+            return render(request,'Master/Attendance_upload_index.html', {'entity':entity,'type':type,'name':name,'header':header,'company_names':company_names,'site_name':site_name,'data':formatted_data,'pre_url':pre_url})
+        elif request.method=="POST":  
+            new_url = f'/masters?entity={entity}&type={type}'
+            return redirect(new_url) 
+        
+ # Import your CompanyMaster model
+
+
+
+def attendance_sample(request):
+    Db.closeConnection()
+    m = Db.get_connection()
+    cursor = m.cursor()
+
+    # Fetch the selected values from the POST request
+    selected_company_id = request.POST.get('company_id')
+    selected_site_id = request.POST.get('site_id')
+    selected_date = request.POST.get('date_id')
+
+    # Fetch the company name using the company_id
+    param = [selected_company_id]
+    cursor.callproc("stp_attendance_company_list", param)
+    for result in cursor.stored_results():
+        company_name = list(result.fetchall())
+        company_name1 = company_name[0]
+    selected_companyN = company_name1[0]
+
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.title = "Attendance Sample"
+
+    # Set the data in A1, combining company, site, and date (Bold)
+    sheet["A1"] = f"{selected_companyN} | {selected_site_id} | {selected_date}"
+
+    # Merge cells A1 to I1
+    sheet.merge_cells("A1:I1")
+
+    # Apply bold font and center alignment to the merged cell
+    sheet["A1"].font = Font(bold=True)
+    sheet["A1"].alignment = Alignment(horizontal="center", vertical="center")
+
+    # Lock A1 (merged cell) to make it non-editable
+    sheet["A1"].protection = openpyxl.styles.Protection(locked=True)
+
+    # Create headers for the data in row 2 (Bold)
+    sheet["A2"] = "Employee ID"
+    sheet["B2"] = "Attendance In (24 hours format)"
+    sheet["C2"] = "Attendance Out (24 hours format)"
+
+    # Make headers bold and center-aligned, then lock them
+    for cell in [sheet["A2"], sheet["B2"], sheet["C2"]]:
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+       
+    # Set column widths based on the content of the header
+    sheet.column_dimensions['A'].width = max(len("Employee ID"), len(str(sheet["A2"].value))) + 2
+    sheet.column_dimensions['B'].width = max(len("Attendance In (24 hours format)"), len(str(sheet["B2"].value))) + 2
+    sheet.column_dimensions['C'].width = max(len("Attendance Out (24 hours format)"), len(str(sheet["C2"].value))) + 2
+
+    # Set the time format for "Attendance In" and "Attendance Out" columns (B and C)
+    sheet["B2"].number_format = 'HH:MM'  # 24-hour time format
+    sheet["C2"].number_format = 'HH:MM'  # 24-hour time format
+
+    # Add sample data (replace with actual data query if needed)
+    sample_data = [
+        (101, "09:00", "17:00"),
+        (102, "10:00", "18:00"),
+    ]
+
+    # Fill the sample data into the sheet
+    for row_num, data in enumerate(sample_data, start=3):  # Start from row 3
+        sheet[f"A{row_num}"] = data[0]
+        # Convert string time to time format
+        sheet[f"B{row_num}"] = datetime.strptime(data[1], "%H:%M").time()
+        sheet[f"C{row_num}"] = datetime.strptime(data[2], "%H:%M").time()
+
+    # Center align all cells in the data section
+    for col in "ABC":
+        for row in range(3, len(sample_data) + 3):  # Starting from row 3
+            cell = sheet[f"{col}{row}"]
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+            cell.protection = openpyxl.styles.Protection(locked=False)  # Unlock data rows (from row 3 onwards)
+
+    # # Protect the worksheet to prevent editing of locked cells (only row 1 and 2 will be locked)
+    # sheet.protection.enable()
+
+    # Create a response to download the file
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="attendance_sample.xlsx"'
+
+    # Save the workbook to the response
+    workbook.save(response)
+    return response
+
+
+
+def get_comp_sites(request):
+    Db.closeConnection()
+    m = Db.get_connection()
+    cursor = m.cursor()
+    
+    try:
+        user_id = request.session.get('user_id', '')
+        selectedCompany = request.POST.get('selectedCompany','')
+        cursor.callproc("stp_get_company_wise_site_names", [user_id,selectedCompany])
+        for result in cursor.stored_results():
+            companywise_site_names = list(result.fetchall())
+
+    except Exception as e:
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log", [fun, str(e), request.user.id])
+        print(f"error: {e}")
+        return JsonResponse({'result': 'fail', 'message': 'something went wrong!'}, status=500)
+    
+    finally:
+        cursor.close()
+        m.commit()
+        m.close()
+        Db.closeConnection()
+
+    return JsonResponse({'companywise_site_names': companywise_site_names}, status=200)
+
+
+def save_attendance(request):
+    if request.method == 'POST':
+        Db.closeConnection()
+        m = Db.get_connection()
+        cursor = m.cursor()
+
+        try:
+            # Get data from POST request
+            id = request.POST.get('id')
+            employee_id = request.POST.get('employee_id')
+            attendance_in = request.POST.get('attendance_in')
+            attendance_out = request.POST.get('attendance_out')
+
+            # Call stored procedure to save attendance
+            cursor.callproc("stp_save_attendance", [id, employee_id, attendance_in, attendance_out])
+
+        except Exception as e:
+            cursor.callproc("stp_error_log", ["save_attendance", str(e), request.user.id])
+            return JsonResponse({"result": "fail", "message": "Error saving attendance"}, status=500)
+
+        finally:
+            cursor.close()
+            m.commit()
+            m.close()
+            Db.closeConnection()
+
+        return JsonResponse({"result": "success", "message": "Attendance saved successfully"})
+
+    return JsonResponse({"result": "fail", "message": "Invalid request method"}, status=400)
+
+# Function to call the stored procedure and fetch filtered data
+def filter_attendance_data(request):
+    Db.closeConnection()
+    m = Db.get_connection()
+    cursor = m.cursor()
+    if request.method == 'GET':
+        company_id = request.GET.get('company_id')
+        site_id = request.GET.get('site_id')
+        attendance_date = request.GET.get('attendance_date')
+
+        cursor.callproc("stp_filterdateattendance_view", [company_id,site_id,attendance_date])
+        for result in cursor.stored_results():
+            data = list(result.fetchall())
+        formatted_data = [
+                    {
+                      
+                        "employee_id": row[0],
+                        "employee_name": row[1],
+                        "company_id": row[2],
+                        "worksite": row[3],
+                        "attendance_date": row[4],
+                        "shift_time": row[5],
+                        "attendance_in": row[6],
+                        "attendance_out": row[7],
+                        "id_edit": row[8],
+                    }
+                    for row in data
+        ]
+
+        return JsonResponse({'data': formatted_data})
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+@login_required
+def check_upload_existence(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        company_id = data.get('company_id')
+        site_id = data.get('site_id')
+        date_id = data.get('date_id')
+
+        # Check if the combination already exists in the database
+        existing_upload = sc_roster.objects.filter(
+            company_id=company_id,
+            site_id=site_id,
+            date=date_id
+        ).exists()
+
+        return JsonResponse({'exists': existing_upload})
+
+
+@login_required
+def attendance_upload_excel(request):
+    Db.closeConnection()  # Close previous DB connections
+    m = Db.get_connection()  # Get a new DB connection
+    cursor = m.cursor()
+    
+    if request.method == 'POST' and request.FILES.get('excelFile'):
+        try:
+            excel_file = request.FILES.get('excelFile')
+
+            # Check if file is provided
+            if not excel_file:
+                messages.error({'message': 'No file uploaded', 'status': 'error'})
+
+            # Read the Excel file into a DataFrame, specifying that the header starts at the 2nd row (index 1)
+            df = pd.read_excel(excel_file, header=1)  # Adjust header to the correct row index
+            file_name = excel_file.name
+            total_rows = len(df)
+            update_count = error_count = 0  # Removed success_count, tracking only updates and errors
+            checksum_id = None
+            r = None
+
+            # Initialize user for logging purposes
+            global user
+            user = request.session.get('user_id', '')
+
+            if df.empty:
+                messages.error({'message': 'Uploaded Excel file is empty', 'status': 'error'})
+
+            # Logging to check the file content and structure
+            print("File uploaded successfully")
+            print(df.head())  # This will print the first few rows of the uploaded file
+
+            company_id = request.POST.get('company_id')
+            worksite = request.POST.get('site_id')
+            attendance_date = request.POST.get('date_id')
+
+            # Validate the input fields
+            if not (company_id and worksite and attendance_date):
+                messages.error({'message': 'Missing required fields', 'status': 'error'})
+
+            # Convert `attendance_date` to date object
+            attendance_date_obj = datetime.strptime(attendance_date, "%Y-%m-%d").date()
+
+            # Generate checksum_id before processing rows
+            cursor.callproc('stp_insert_checksum', ('attendance_upload', company_id, str(datetime.now().month), str(datetime.now().year), file_name))
+            for result in cursor.stored_results():
+                c = list(result.fetchall())
+            checksum_id = c[0][0]  # Get checksum_id after insertion
+
+            # Loop through each row in the DataFrame and get the employee data
+            for index, row in df.iterrows():
+                # Extract data from the Excel row
+                employee_id = row.get('Employee ID', None)
+                attendance_in = row.get('Attendance In (24 hours format)', None)
+                attendance_out = row.get('Attendance Out (24 hours format)', None)
+
+                # Check for missing fields in the current row
+                if not (attendance_in and attendance_out and employee_id):
+                    error_count += 1
+                    continue  # Skip rows with missing data
+
+                # Check if the combination of company, site, and attendance_date exists in the database for the current row
+                record_exists = sc_roster.objects.filter(
+                    company=company_id,
+                    worksite=worksite,
+                    attendance_date=attendance_date_obj
+                ).exists()
+
+                if not record_exists:
+                    # If the combination does not exist, log an error for this row
+                    error_count += 1
+                    print(f"Error: No record found for company: {company_id}, site: {worksite}, date: {attendance_date_obj} at row {index + 1}")
+                    continue  # Skip this row and move to the next one
+
+                # **Check if the employee belongs to the correct company and site**
+                employee_belongs = sc_roster.objects.filter(
+                    employee_id=employee_id,
+                    company=company_id,
+                    worksite=worksite
+                ).exists()
+
+                if not employee_belongs:
+                    # Log the error: Employee does not belong to the correct company and site
+                    error_message = f"Employee ID {employee_id} does not belong to company and worksite"
+
+                    # Call the stored procedure to insert the error log into file_errorlog
+                    cursor.callproc('stp_attendance_error_log', [
+                        'attendance_upload',  # The "upload_for"
+                        company_id,            # company_id
+                        worksite,              # worksite
+                        file_name,             # file_name (from the uploaded file)
+                        datetime.now().date(), # Current date
+                        error_message,         # The error message
+                        checksum_id            # checksum_id (if applicable)
+                    ])
+                    error_count += 1
+                    print(f"Error: {error_message}")
+                    continue  # Skip this row and move to the next one
+
+                # Prepare parameters for the stored procedure call
+                params = [
+                    company_id,
+                    worksite,
+                    attendance_date_obj,  # Ensure the date is passed as a datetime object
+                    employee_id,
+                    attendance_in,
+                    attendance_out
+                    
+                ]
+
+                # Call the stored procedure to update only attendance_in and attendance_out
+                cursor.callproc('stp_attendance_update', params)
+
+                # Process the result of the stored procedure
+                try:
+                    for result in cursor.stored_results():
+                        r = list(result.fetchall())
+
+                        # Log errors if the result is not 'updated'
+                        if r[0][0] != "update":
+                            # If not updated, insert error log
+                            cursor.callproc('stp_attendance_error_log', [
+                                'attendance_upload',  # The "upload_for"
+                                company_id,            # company_id
+                                '',                    # Empty worksite as placeholder
+                                file_name,             # file_name
+                                datetime.now().date(), # Current date
+                                str(r[0][0]),          # Error message or status from the stored procedure
+                                checksum_id            # checksum_id
+                            ])
+                            error_count += 1  # Increment error_count if not updated
+
+                        else:
+                            update_count += 1  # Increment update_count if the record was updated
+
+                except Exception as e:
+                    print(f"Error occurred in result processing: {str(e)}")  # Log the error
+
+            # Prepare and return the response message
+            checksum_msg = f"Total Rows Processed: {total_rows}" f"{f', Updates: {update_count}' if update_count > 0 else ''}" f"{f', Errors: {error_count}' if error_count > 0 else ''}"
+            cursor.callproc('stp_update_checksum', ( 'attendance_upload',company_id,'',str(datetime.now().month),str(datetime.now().year),file_name,checksum_msg,error_count,update_count,checksum_id))
+            if error_count == 0 and update_count == 0:
+                messages.success(request, f"All data uploaded successfully!.")
+            elif error_count == 0  and update_count > 0:
+                messages.warning(request, f"All data updated successfully!.")
+            else:messages.warning(request, f"The upload processed {total_rows} rows"  f"{f', {update_count} updates' if update_count > 0 else ''}" f", and {error_count} errors; please check the error logs for details.")
+
+        except Exception as e:
+            tb = traceback.extract_tb(e.__traceback__)
+            fun = tb[0].name
+            cursor.callproc("stp_error_log", [fun, str(e), user])  
+            messages.error(request, 'Oops...! Something went wrong!')
+
+        finally:
+            new_url = f'/attendance_masters?entity=au&type=err'
+            return redirect(new_url)
 
     

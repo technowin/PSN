@@ -109,6 +109,14 @@ urlpatterns = [
 
     
     # path('check_shift/<int:employee_id>/<int:site_id>/', check_shift_for_next_day, name='check_shift_for_next_day'),
+
+    #changes by Palavee Attendance
+    path('attendance_masters', attendance_masters, name='attendance_masters'),
+    path('filter-attendance/', filter_attendance_data, name='filter_attendance_data'),
+    path("attendance_sample",attendance_sample,name="attendance_sample"),
+    path("get_comp_sites",get_comp_sites,name="get_comp_sites"),
+    path("save_attendance",save_attendance,name="save_attendance"),
+    path("attendance_upload_excel",attendance_upload_excel, name="attendance_upload_excel"),
     
 
 ]

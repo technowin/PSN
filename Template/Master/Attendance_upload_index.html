@@ -1,0 +1,795 @@
+{% extends "Shared/Layout.html" %} {% block username %}{{username}}{% endblock %}
+{% block content %}
+{% load static %}
+{% comment %} {% csrf_token %} {% endcomment %}
+
+ <!-- Custom styles for this html-->
+ <link href="{% static 'css/masters.css' %}" rel="stylesheet" type="text/css" >
+ <link href="{% static 'css/table.css' %}" rel="stylesheet" type="text/css" >
+ <link href="{% static 'css/activebtn.css' %}" rel="stylesheet" type="text/css" >
+ 
+ <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+ <!-- Include DataTables CSS -->
+ <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+ <!-- Include DataTables JS -->
+ <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<!-- Selectize css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
+<style>
+    /* More specific selector to ensure override */
+    .swal2-container .swal2-popup.small-swal-popup {
+        width: 500px !important; /* Force the width */
+        height: 400px !important;
+        max-width: 70% !important; /* Ensure the width adapts if the screen is smaller */
+        padding: 0px 2px 5px 1px  !important; /* Adjust padding as needed */
+        font-size: 12px !important; /* Adjust font size to match smaller size */
+    }
+
+    /* Optional: You can adjust the text area or inner elements if needed */
+    .swal2-html-container {
+        text-align: left !important;
+    }
+</style>
+
+
+ <body>
+    <div class="container mt-5" style="max-width: 1800px;">
+        <!-- Large Card for Employee Master Upload -->
+        <div class="card">
+            <div class="card-body">
+                <div class="row col-lg-12">
+                    <div class="col-md-5">
+                        <h2 class="text-left" style="color:#B12121;">
+                            <b> Attendance Upload Index</b>
+                        </h2>
+                    </div>
+          
+
+                      <!-- Sample Download Button -->
+                      <div class="col-md-1">
+                        <a href="{% if entity == 'au' %}#{% else %}/sample_xlsx?entity={{entity}}&type={{type}}{% endif %}" class="Btn1" hover-tooltip="Download Attendance Sample" tooltip-position="top"
+                        type="button" {% if entity == 'au' %} data-toggle="modal" data-target="#attendance_sample_xlsx_id" {% endif %}>
+                            <svg class="svgIcon" viewBox="0 0 384 512" height="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M169.4 470.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 370.8V64c0-17.7-14.3-32-32-32s-32 14.3-32 32v306.7L54.6 265.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"></path>
+                            </svg>
+                            <span class="icon2"></span>
+                        </a>
+                    </div>
+
+                    <div class="col-md-3" style="">
+                        <button type="submit" id="Btn3" class="btn btn-primary" data-toggle="modal" data-target="#upload_model_id">Upload</button>
+                    </div>
+                  
+                        <div class="col-md-3">
+                        <!-- Form to send entity and type as hidden inputs -->
+                        <form method="GET" action="/masters">
+                            <input type="hidden" name="entity" value="au">
+                            <input type="hidden" name="type" value="err">
+                            <button class="btn_err">
+                                <div class="sign_err">
+                                    <svg viewBox="0 0 512 512"><path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 392c-17.67 0-32-14.33-32-32 0-17.67 14.33-32 32-32s32 14.33 32 32c0 17.67-14.33 32-32 32zm32-128c0 17.67-14.33 32-32 32s-32-14.33-32-32V176c0-17.67 14.33-32 32-32s32 14.33 32 32v96z"/></svg>
+                                </div>
+                                <div class="text_err">Error Logs</div>
+                            </button> 
+                        </form>
+                    </div>
+                </div>  
+                <br><br>
+             <!-- Form to Upload Attendance -->
+<form id="filterForm" method="GET" action="{% url 'attendance_masters' %}">
+    <div class="row mb-3">
+        <!-- Company Dropdown -->
+        <div class="col-md-4">
+            <label for="company_id" class="form-label">Company <span style="color:red;"> *</span> :</label>
+            <select name="company_id" id="company_id" class="form-control" required onchange="updateAttendanceTable()">
+                <option disabled>Select</option>
+                {% for item in company_names %}
+                    <option value="{{ item.0 }}" {% if item.0 == company_id_value %}selected{% endif %}>
+                        {{ item.1 }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Worksite Dropdown -->
+        <div class="col-md-4">
+            <label for="site_id" class="form-label">Worksite <span style="color:red;"> *</span> :</label>
+            <select name="site_id" id="site_id" class="form-control" required onchange="updateAttendanceTable()">
+                <option disabled>Select</option>
+                {% for item in site_name %}
+                    <option value="{{ item.0 }}" {% if item.0 == site_id_value %}selected{% endif %}>
+                        {{ item.1 }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Date Input -->
+        <div class="col-md-4">
+            <label for="date_id" class="form-label">Date</label>
+            <input 
+                type="date" 
+                id="date_id" 
+                name="date_id" 
+                class="form-control" 
+                onchange="updateAttendanceTable()"
+                required 
+            >
+        </div>
+     
+        </div>
+    </div>
+</form>
+<br>
+<br>
+
+<!-- Table for Attendance -->
+<div class="table-responsive">
+    <form id="attendanceTableForm" method="POST" action="{% url 'attendance_masters' %}">
+        {% csrf_token %}
+        <table id="attendanceTable" class="table table-bordered table-hover" style="width: 100%;">
+            <thead>
+                <tr>
+                     <th hidden>id</th>
+                    <th>Employee Id</th>
+                    <th>Employee Name</th>
+                    <th>Company</th>
+                    <th>Worksite</th>
+                    <th>Date</th>
+                    <th>Shift Time</th>
+                    <th>In Time</th>
+                    <th>Out Time</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr style="color:black">
+                    <td hidden>{{ row.id_edit }}</td>
+                    <td>{{ row.employee_id }}</td>
+                    <td>{{ row.employee_name }}</td>
+                    <td>{{ row.company_id }}</td>
+                    <td>{{ row.worksite }}</td>
+                    <td>{{ row.attendance_date }}</td>
+                    <td>{{ row.shift_time }}</td>
+                    
+                    <td>
+                        <input 
+                            type="text" 
+                            class="form-control attendance-in" 
+                            value="{{ row.attendance_in|default:":" }}" 
+                            disabled 
+                            data-original="{{ row.attendance_in|default:":" }}"  
+                        />
+                    </td>
+                    <td>
+                        <input 
+                            type="text" 
+                            class="form-control attendance-out" 
+                            value="{{ row.attendance_out|default:":" }}" 
+                            disabled 
+                            data-original="{{ row.attendance_out|default:":" }}"  
+                        />
+                    </td>
+                    <td>
+                        <button 
+                            type="button" 
+                            class="btn btn-secondary toggle-edit-btn" 
+                            data-employee-id="{{ row.employee_id }}">
+                            Edit
+                        </button>
+                        <button 
+                            type="button" 
+                            class="btn btn-success save-edit-btn d-none" 
+                            data-employee-id="{{ row.employee_id }}"
+                            data-edit-idN="{{ row.id_edit }}"
+                            id="btnSubmit"
+                            style="margin-top: 15px;">
+                            Save
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+</div>
+</div>
+</div>
+
+    <!-- Employee Upload Modal -->
+<div class="modal fade" id="upload_model_id">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 30%; height: 50%;" role="document">
+        <form class="formupl" id="upload_form" method="POST" enctype="multipart/form-data" action="{% url 'attendance_upload_excel' %}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="color:black">Employee Upload</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+
+                <div class="modal-body">
+                
+                    {% csrf_token %}
+                    <input type="hidden" name="entity" value="{{ entity }}">
+                    <input type="hidden" name="type" value="{{ type }}">
+
+                    <div class="row d-flex justify-content-center align-items-center">
+                        <!-- Company Dropdown -->
+                        <div class="col-md-6 mb-3">
+                            <label for="company_id" class="form-label" style="font-weight: bold;">Company</label>
+                            <select id="company_id" name="company_id" class="form-control" required>
+                                <option value="" selected>Select</option>
+                                {% for item in company_names %}
+                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Worksite Dropdown -->
+                        <div class="col-md-6 mb-3">
+                            <label for="site_id" class="form-label" style="font-weight: bold;">Worksite</label>
+                            <select id="site_id" name="site_id" class="form-control" required>
+                               <option value="" selected>Select</option>
+                                {% for item in site_name %}
+                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Date Input -->
+                        <div class="col-md-6 mb-3">
+                            <label for="date_id" class="form-label">Date</label>
+                            <input type="date" id="model_date" name="date_id" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <center>
+                        <span class="formupl-title">Upload your file</span>
+                        <p class="formupl-paragraph">
+                            <p><b>File should be an Excel</b></p>
+                        </p>
+                    </center>
+
+                    <label for="file-input" class="drop-container">
+                        <span class="drop-title">Drop files here</span>
+                        or
+                        <input type="file" id="file-input" name="excelFile" accept=".xlsx, .xls" required>
+                    </label>
+                
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" id="helpBtn">Help</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button id="uploadBtn" type="submit" class="btn btn-primary">Upload</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+    
+  <!-- Attendance Sample Download Modal -->
+<div class="modal fade bd-example-modal-sm" id="attendance_sample_xlsx_id">
+    <div class="modal-dialog modal-lg" style="max-width: 30%; height: 50%;" role="document"> <!-- Increased width and height -->
+        <div class="modal-content" style="height: 100%; overflow-y: auto;"> <!-- Content auto-scroll if needed -->
+            <div class="modal-header">
+                <h5 class="modal-title" style="color:black">Download Attendance Sample format</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="sample_xlsx_form" method="POST" enctype="multipart/form-data" action="{% url 'attendance_sample' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="entity" value="{{ entity }}">
+                    <input type="hidden" name="type" value="{{ type }}">
+                    <input type="hidden" id="company_name_id" name="company_names" value="{{ company_names }}">
+                    
+                    <!-- Company Dropdown -->
+                    <div class="row d-flex justify-content-center align-items-center">
+                        <div class="col-md-6 mb-3">
+                            <label for="company_id" class="form-label" style="font-weight: bold;">Company</label>
+                            <select id="company_id" name="company_id" class="form-control" required>
+                                <option value="" selected>Select</option>
+                                {% for item in company_names %}
+                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+    
+                        <!-- Worksite Dropdown -->
+                        <div class="col-md-6 mb-3">
+                            <label for="site_id" class="form-label" style="font-weight: bold;">Worksite</label>
+                            <select id="site_id" name="site_id" class="form-control" required>
+                                <option value="" selected>Select</option>
+                                {% for item in site_name %}
+                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+    
+                        <!-- Date Input -->
+                        <div class="col-md-6 mb-3">
+                            <label for="date_id" class="form-label">Date</label>
+                            <input type="date" id="attendance_date" name="date_id" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" form="sample_xlsx_form">Download</button>
+                    </div>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+
+
+</body>
+    
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{% if messages %}
+  {% for message in messages %}
+    <script>
+    Swal.fire({
+      title: "{{ message.tags }}",
+      text: "{{ message }}",
+      icon: "{{ message.tags }}",
+      confirmButtonText: "OK",
+    });
+  </script>
+  {% endfor %}
+{% endif %}
+
+
+<script>
+    document.getElementById('submitBtn').addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent form submission for some reason
+        console.log("Form submission is prevented.");
+        // You can do additional validation or AJAX calls here.
+        // To manually submit the form with the specific form_id:
+        document.getElementById('form_id').submit();
+    });
+</script>
+
+<script>
+    $('#attendanceTable').DataTable({
+        "paging": true, // Enables pagination
+        "pageLength": 10, // Number of rows per page
+        "lengthChange": true, // Option to change number of rows per page
+        "lengthMenu": [10, 25, 50, 100], // Customizes the "Show entries" dropdown options
+        "info": true, // Display page info (e.g. "Showing 1 to 10 of 50 entries")
+        "responsive": true // Makes the table responsive on smaller screens
+    });
+</script>
+
+<script>
+    window.onload = function() {
+        const dateInput = document.getElementById('date_id');
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+    };
+</script>
+
+
+<script>
+    // Set today's date as the max date for the date input
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date_id').setAttribute('max', today);
+</script>
+
+<script>
+    const todaydate = new Date().toISOString().split('T')[0];
+    document.getElementById('model_date').setAttribute('max', todaydate);
+</script>
+
+<script>
+    const attendancedate = new Date().toISOString().split('T')[0];
+    document.getElementById('attendance_date').setAttribute('max', attendancedate);
+</script>
+
+<script>
+    // SweetAlert popup when the Help button is clicked
+    document.getElementById('helpBtn').addEventListener('click', function() {
+        Swal.fire({
+            title: 'Need Help?',
+            text: 'Here you can upload your employee data in Excel format. Make sure to follow the instructions for file format.',
+            icon: 'info',
+            confirmButtonText: 'Got it!',
+            allowOutsideClick: false, // Prevent closing by clicking outside
+            allowEscapeKey: false, // Prevent closing by pressing escape key
+        }).then(function() {
+            // After closing the SweetAlert, show the modal again if it was closed
+            $('#upload_model_id').modal('show');
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $("#dataTable").DataTable({
+        //order: [[0, 'desc']],
+        "ordering": false,
+        initComplete: function () {
+          this.api()
+            .columns()
+            .every(function () {
+              var column = this;
+              var select = $(
+                '<select style="width:100%;border-radius: 10px;background-color:whitesmoke ;color: black;"><option value="">All</option></select>'
+              )
+                .appendTo($(column.header()).empty())
+                .on("change", function () {
+                  var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                  column.search(val ? "^" + val + "$" : "", true, false).draw();
+                });
+              column
+                .data()
+                .unique()
+                .sort()
+                .each(function (d, j) {
+                  var ce = d;
+                  if (
+                    ce.includes("<a") ||
+                    ce.includes("span") ||
+                    ce.includes("<input") ||
+                    ce.includes("select") ||
+                    ce.includes("textarea")
+                  ) {
+                  } else {
+                    select.append('<option value="' + d + '">' + d + "</option>");
+                  }
+                });
+            });
+        },
+        pageLength: 10,
+        lengthMenu: [
+          [5, 10, 25, 50, 100, 200, 300, 400, 500, -1],
+          [5, 10, 25, 50, 100, 200, 300, 400, 500, "All"],
+        ],
+      });
+    });
+  </script>
+
+
+  <script>
+    function searchTable() {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("attendanceTable");
+        tr = table.getElementsByTagName("tr");
+
+        // Loop through all table rows, and hide those that don't match the search query
+        for (i = 1; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[1]; // We're searching by designation name (second column)
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+</script>
+
+<script>
+$('#company_id').change(function() {
+    var selectedCompany = $(this).val();
+    if (selectedCompany) {
+        $.ajax({
+            url: "{% url 'get_comp_sites' %}",  
+            type: "POST",
+            data: {
+                'selectedCompany': selectedCompany,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'  
+            },
+            success: function(response) {
+                $('#site_id').empty();
+               
+                $.each(response.companywise_site_names, function(index, value) {
+                    $('#site_id').append('<option value="' + value[0] + '">' + value[1] + '</option>');
+                });
+
+                $('#site_id').trigger('change'); // Trigger change to update graph
+            },
+            error: function(error) {
+                console.log("Error fetching site names:", error);
+            }
+        });
+    } else {
+        $('#site_id').empty();
+    }
+}); 
+
+</script>
+
+<script>
+    document.getElementById("date_id").addEventListener("change", function () {
+        const shiftDate = this.value;
+    
+        fetch('/save_attendance', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}' // Django CSRF token
+            },
+            body: JSON.stringify({
+                date_id: shiftDate,
+                // Include other necessary data
+            })
+        })
+        .then(response => response.json())
+        .then(data => console.log(data))
+        .catch(error => console.error('Error:', error));
+    });
+</script>
+
+<script>
+    // Delegate toggle button click to dynamically added rows
+    $('#attendanceTable').on('click', '.toggle-edit-btn', function () {
+        var row = $(this).closest('tr');  // Get the row closest to the clicked button
+    
+        // Find the input fields and buttons in this specific row
+        var attendanceIn = row.find('.attendance-in');
+        var attendanceOut = row.find('.attendance-out');
+        var saveBtn = row.find('.save-edit-btn');
+        var cancelBtn = row.find('.cancel-edit-btn'); // Optional, if you have a cancel button
+    
+        // Check if the fields are currently disabled (so we can toggle them)
+        var isEditing = attendanceIn.is(':disabled');
+    
+        // Enable or disable the attendance inputs based on current state
+        attendanceIn.prop('disabled', !isEditing);
+        attendanceOut.prop('disabled', !isEditing);
+    
+        // Toggle button text and styles for 'Edit' and 'Cancel'
+        $(this).toggleClass('btn-secondary btn-danger').text(isEditing ? 'Cancel' : 'Edit');
+        saveBtn.toggleClass('d-none');  // Show the 'Save' button
+        if (cancelBtn) cancelBtn.toggleClass('d-none'); // Optionally show the 'Cancel' button
+    });
+    
+    // Delegate save button click to dynamically added rows
+    $('#attendanceTable').on('click', '.save-edit-btn', function () {
+        var row = $(this).closest('tr');
+        var rowId = row.find('td:first').text().trim(); // Get the row ID from the hidden input
+        var employeeId = $(this).data('employee-id'); // Get employee ID from data attribute
+        var attendanceIn = row.find('.attendance-in').val();
+        var attendanceOut = row.find('.attendance-out').val();
+    
+        // Send data via AJAX to the server to save the attendance
+        $.ajax({
+            url: "{% url 'save_attendance' %}",  // Django route for saving attendance
+            type: "POST",
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                id: rowId,  // Send the row ID
+                employee_id: employeeId,
+                attendance_in: attendanceIn,
+                attendance_out: attendanceOut
+            },
+            success: function (response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Attendance Updated',
+                    text: 'Attendance updated successfully!',
+                    showConfirmButton: false,
+                    timer: 2000 // Auto close after 2 seconds
+                }).then(() => {
+                    // Optionally update the row data in the table without reloading the page
+                    row.find('.attendance-in').val(attendanceIn).prop('disabled', true);
+                    row.find('.attendance-out').val(attendanceOut).prop('disabled', true);
+                    row.find('.toggle-edit-btn').removeClass('btn-danger').addClass('btn-secondary').text('Edit');
+                    row.find('.save-edit-btn').addClass('d-none');
+                    row.find('.cancel-edit-btn').addClass('d-none');
+                });
+            },
+            error: function (error) {
+                console.error("Error updating attendance:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error saving attendance. Please try again.',
+                    confirmButtonText: 'Close'
+                });
+            }
+        });
+    });
+    
+    // Delegate cancel button click to dynamically added rows
+    $('#attendanceTable').on('click', '.cancel-edit-btn', function () {
+        var row = $(this).closest('tr');
+    
+        // Revert any changes in the input fields
+        var attendanceIn = row.find('.attendance-in');
+        var attendanceOut = row.find('.attendance-out');
+    
+        attendanceIn.prop('disabled', true);
+        attendanceOut.prop('disabled', true);
+    
+        // Revert to the original values in case of cancel
+        var originalIn = attendanceIn.data('original');
+        var originalOut = attendanceOut.data('original');
+    
+        attendanceIn.val(originalIn);
+        attendanceOut.val(originalOut);
+    
+        // Hide Save and Cancel buttons, reset Edit button
+        row.find('.save-edit-btn').addClass('d-none');
+        row.find('.cancel-edit-btn').addClass('d-none');
+        row.find('.toggle-edit-btn').removeClass('btn-danger').addClass('btn-secondary').text('Edit');
+    });
+    </script>
+    
+<script>
+    function updateAttendanceTable() {
+        debugger;
+        // Get the selected values
+        var companyId = document.getElementById('company_id').value;
+        var siteId = document.getElementById('site_id').value;
+        var attendanceDate = document.getElementById('date_id').value;
+
+        // Send AJAX request to the server
+        $.ajax({
+            url: "{% url 'filter_attendance_data' %}",  // Update this with the correct Django view URL
+            type: "GET",
+            data: {
+                company_id: companyId,
+                site_id: siteId,
+                attendance_date: attendanceDate
+            },
+            success: function (response) {
+                // Clear the existing table body
+                $('#attendanceTable tbody').empty();
+
+                // Populate the table with new data
+                $.each(response.data, function (index, row) {
+                    var tableRow = `
+                        <tr style="color:black">
+                            <td hidden>${row.id_edit}</td>
+                            <td>${row.employee_id}</td>
+                            <td>${row.employee_name}</td>
+                            <td>${row.company_id}</td>
+                            <td>${row.worksite}</td>
+                            <td>${row.attendance_date}</td>
+                            <td>${row.shift_time}</td>
+                            <td>
+                                <input 
+                                    type="text" 
+                                    class="form-control attendance-in" 
+                                    value="${row.attendance_in || ':'}" 
+                                    disabled 
+                                    data-original="${row.attendance_in || ':'}" 
+                                />
+                            </td>
+                            <td>
+                                <input 
+                                    type="text" 
+                                    class="form-control attendance-out" 
+                                    value="${row.attendance_out || ':'}" 
+                                    disabled 
+                                    data-original="${row.attendance_out || ':'}" 
+                                />
+                            </td>
+                            <td>
+                                <button 
+                                    type="button" 
+                                    class="btn btn-secondary toggle-edit-btn" 
+                                    data-employee-id="${row.employee_id}">
+                                    Edit
+                                </button>
+                                <button 
+                                    type="button" 
+                                    class="btn btn-success save-edit-btn d-none" 
+                                    data-employee-id="${row.employee_id}" 
+                                    data-edit-idN="${row.id_edit}" 
+                                    style="margin-top: 15px;">
+                                    Save
+                                </button>
+                            </td>
+                        </tr>`;
+                    $('#attendanceTable tbody').append(tableRow);
+                });
+            },
+            error: function (error) {
+                console.error("Error updating attendance table:", error);
+                alert('Error fetching data. Please try again.');
+            }
+        });
+    }
+</script>
+
+<script>
+    document.getElementById('uploadBtn').addEventListener('click', function () {
+        debugger;
+        var company_id = document.getElementById('company_id').value;
+        var site_id = document.getElementById('site_id').value;
+        var date_id = document.getElementById('model_date').value;
+    
+        // Perform an AJAX request to check if the combination exists
+        $.ajax({
+            url: 'attendance_upload_excel',  
+            type: 'POST', 
+            data: {
+                company_id: company_id,
+                site_id: site_id,
+                date_id: date_id,
+                csrfmiddlewaretoken: '{{ csrf_token }}'  // Make sure this is the correct Django template tag
+            },
+            success: function (response) {
+                if (response.exists) {
+                    // Show SweetAlert asking whether to update or keep the existing file
+                    Swal.fire({
+                        title: 'File Already Exists',
+                        text: 'This combination already exists. Do you want to update the file?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, Update',
+                        cancelButtonText: 'No, Keep It',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // If user confirms, submit the form to update the file
+                            document.getElementById('upload_form').submit();
+                        }
+                        // If canceled, do nothing and keep the file
+                    });
+                } else {
+                    // If combination doesn't exist, submit the form directly
+                    document.getElementById('upload_form').submit();
+                }
+            },
+            error: function (xhr, status, error) {
+                // Handle error if the AJAX request fails
+                console.error('Error checking upload existence:', error);
+            }
+        });
+    });
+    
+    
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('attendanceForm'); // Update with your form ID
+
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken'), // CSRF token if required
+                    }
+                });
+
+                const result = await response.json(); // Parse the JSON response
+
+                if (result.status === 'success') {
+                    alert(result.message); // Show the success message as a popup
+                } else {
+                    alert(`Error: ${result.message}`); // Show the error message as a popup
+                }
+
+            } catch (error) {
+                alert(`An unexpected error occurred: ${error.message}`); // Handle network or other errors
+            }
+        });
+    });
+</script>
+
+
+
+ {% endblock %} 
