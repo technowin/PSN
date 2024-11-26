@@ -62,7 +62,7 @@
                         <div class="col-md-12">
                             <label for="menu_parent" class="form-label">Menu Parent<span style="color:red;"></span></label>
                             <select name="menu_parent" id="dropdown" class="form-control">
-                                <option value="" Selected disabled>Select</option>
+                                <option value="" Selected>Select</option>
                                 {% for item in menu %}
                                     <option value="{{ item.0 }}" {% if item.0 == menus.menu_parent_id %}selected{% endif %}>
                                         {{ item.1 }}
@@ -91,7 +91,7 @@
                         <div class="col-md-12">
                             <label for="sub_menu_parent" class="form-label">Sub Menu Parent<span style="color:red;"></span></label>
                             <select name="sub_menu_parent" id="dropdown" class="form-control">
-                                <option value="" Selected disabled >Select</option>
+                                <option value="" Selected >Select</option>
                                 {% for item in menu %}
                                     <option value="{{ item.0 }}" {% if item.0 == menus.sub_menu %}selected{% endif %}>
                                         {{ item.1 }}
@@ -120,7 +120,7 @@
                         <div class="col-md-12">
                             <label for="sub_menu_parent1" class="form-label">Sub Menu Parent 2<span style="color:red;"></span></label>
                             <select name="sub_menu_parent1" id="dropdown" class="form-control">
-                                <option value="" Selected disabled>Select</option>
+                                <option value="" Selected>Select</option>
                                 {% for item in menu %}
                                     <option value="{{ item.0 }}" {% if item.0 == menus.sub_menu2 %}selected{% endif %}>
                                         {{ item.1 }}
