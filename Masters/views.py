@@ -1447,7 +1447,7 @@ def attendance_upload_excel(request):
             if error_count == 0 and update_count == 0:
                 messages.success(request, f"All data uploaded successfully!.")
             elif error_count == 0  and update_count > 0:
-                messages.warning(request, f"All data updated successfully!.")
+                messages.success(request, f"All data updated successfully!.")
             else:messages.warning(request, f"The upload processed {total_rows} rows"  f"{f', {update_count} updates' if update_count > 0 else ''}" f", and {error_count} errors; please check the error logs for details.")
 
         except Exception as e:
