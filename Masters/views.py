@@ -173,8 +173,13 @@ def masters(request):
         if request.method=="GET":
             return render(request,'Master/index.html', {'entity':entity,'type':type,'name':name,'header':header,'company_names':company_names,'data':data,'pre_url':pre_url,'site_name':site_name})
         elif request.method=="POST":  
-            new_url = f'/masters?entity={entity}&type={type}'
-            return redirect(new_url) 
+            if entity == 'r':
+                new_url = f'/masters?entity={entity}&type=i'
+                return redirect(new_url)
+            else:
+                new_url = f'/masters?entity={entity}&type={type}'
+                return redirect(new_url)
+         
         
 def gen_roster_xlsx_col(columns,month_input):
     year, month = map(int, month_input.split('-'))
