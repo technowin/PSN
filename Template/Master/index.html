@@ -545,7 +545,7 @@
                           <select name="worksite" id="worksite" class=" " multiple required>
                               <option value="" disabled>Select</option>
                               {% for item in data %}
-                                  <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                  <option value="{{ item.0 }}">{{ item.0 }}</option>
                               {% endfor %}
                           </select>
                       </div>
@@ -583,7 +583,7 @@
   document.getElementById("month_year").min = new Date().toISOString().slice(0, 7);
 </script>
 <script>
-  $(document).ready(function() {
+  {% comment %} $(document).ready(function() {
     
     $('#worksite').selectize({plugins:['remove_button'],delimiter:',',persist:false,create:false,selectOnTab:false,maxItems:null,
     onInitialize: function() {var control = this;control.clear();}});
@@ -618,7 +618,74 @@
 
     });
 
-  });
+  }); {% endcomment %}
+
+  $(document).ready(function () {
+    $('#worksite').selectize({plugins: ['remove_button'],delimiter: ',',persist: false,create: false,selectOnTab: false,maxItems: null,
+      onInitialize: function () {var control = this;control.clear();},
+    });
+
+    var company = $('#company_id').selectize({plugins: ['remove_button'],delimiter: ',',persist: false,create: false,selectOnTab: false,maxItems: null,
+      onInitialize: function () {var control = this;control.clear();},
+    });
+
+    company.on('change', async function () {
+        var worksite = $('#worksite')[0].selectize;
+        var selectedCompanies = $('#company_id').val(); // Get selected companies
+        var type = $('#type').val();
+        var ur = $('#ur').val();
+
+        // Fetch worksites for selected companies
+        $.ajax({
+            url: '/get_access_control',
+            type: 'POST',
+            datatype: 'json',
+            traditional: true,
+            data: {
+                type1: 'worksites',
+                type: type,
+                ur: ur,
+                company_id: selectedCompanies,
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+            success: function (res) {
+                console.log("Response:", res); // Debug response
+                var ws = $('#worksite')[0].selectize;
+
+                // Clear all options and re-add based on the selected companies
+                ws.clearOptions();
+                if (res.worksite && res.worksite.length > 0) {
+                    res.worksite.forEach(function (item) {
+                        ws.addOption({ value: item[0], text: item[0] });
+                    });
+                }
+
+                // Remove worksites that are selected and don't belong to the selected companies
+                var currentWorksites = ws.getValue(); // Get currently selected worksites
+                var validWorksites = res.worksite.map(item => item[0]); // Valid worksites for selected companies
+
+                // Update selected worksites to only valid ones
+                var updatedWorksites = currentWorksites.filter(site => validWorksites.includes(site));
+
+                // Set the updated worksites
+                ws.setValue(updatedWorksites);
+
+                // Remove any invalid worksites from the dropdown options (those that belong to removed companies)
+                ws.clearOptions(); // Clear options before adding valid ones
+                res.worksite.forEach(function (item) {
+                    ws.addOption({ value: item[0], text: item[0] });
+                });
+
+                ws.refreshOptions(); // Refresh the dropdown options
+
+            },
+            error: function (err) {
+                console.error("AJAX Error:", err);
+            },
+        });
+    });
+});
+
 </script>
 <script>
   $('#ur').change(function() {

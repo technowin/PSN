@@ -19,8 +19,6 @@ class Roles(models.Model):
     class Meta:
         db_table = 'roles'
 
-
-
 # Create your models here.
 class company_master(models.Model):
     company_id = models.AutoField(primary_key=True)
@@ -39,7 +37,6 @@ class company_master(models.Model):
         db_table = 'company_master'
     def __str__(self):
         return self.company_name
-
 
 
 class parameter_master(models.Model):

@@ -11,6 +11,7 @@ import bcrypt
 from django.contrib.auth.decorators import login_required
 from Masters.serializers import ScRosterSerializer
 from Notification.models import notification_log
+from Masters.models import site_master as sit
 from Notification.serializers import NotificationSerializer
 from PSN.encryption import *
 from django.http import HttpResponse
@@ -119,46 +120,122 @@ def masters(request):
                     messages.success(request, 'Data updated successfully !')
             elif entity == 'urm' and (type == 'acu' or type == 'acr'):
                 
+            #     created_by = request.session.get('user_id', '')
+            #     ur = request.POST.get('ur', '')
+            #     selected_company_ids = list(map(int, request.POST.getlist('company_id')))
+            #     selected_worksites  = request.POST.getlist('worksite')
+            #     company_worksite_map = {}
+                
+            #     if not selected_company_ids or not selected_worksites:
+            #         messages.error(request, 'Company or worksite data is missing!')
+            #         return redirect(f'/masters?entity={entity}&type=urm')
+            #     if type not in ['acu', 'acr'] or not ur:
+            #         messages.error(request, 'Invalid data received.')
+            #         return redirect(f'/masters?entity={entity}&type=urm')
+                
+            #     cursor.callproc("stp_get_company_worksite",[",".join(request.POST.getlist('company_id'))])
+            #     for result in cursor.stored_results():
+            #         company_worksites  = list(result.fetchall())
+                    
+            #     for company_id, worksite_name in company_worksites:
+            #         if company_id not in company_worksite_map:
+            #             company_worksite_map[company_id] = []
+            #         company_worksite_map[company_id].append(worksite_name)
+                
+            #     filtered_combinations = []
+            #     for company_id in selected_company_ids:
+            #         valid_worksites = company_worksite_map.get(company_id, [])
+            #         # Filter worksites that were actually selected by the user
+            #         selected_valid_worksites = [ws for ws in selected_worksites if ws in valid_worksites]
+            #         filtered_combinations.extend([(company_id, ws) for ws in selected_valid_worksites])
+                    
+            #     cursor.callproc("stp_delete_access_control",[type,ur])
+            #     r=''
+            #     for company_id, worksite in filtered_combinations:
+            #         cursor.callproc("stp_post_access_control",[type,ur,company_id,worksite,created_by])
+            #         for result in cursor.stored_results():
+            #                 r = list(result.fetchall())
+            #     type='urm'
+            #     if r[0][0] == "success":
+            #         messages.success(request, 'Data updated successfully !')
+                
+            # else : messages.error(request, 'Oops...! Something went wrong!')
                 created_by = request.session.get('user_id', '')
                 ur = request.POST.get('ur', '')
-                selected_company_ids = list(map(int, request.POST.getlist('company_id')))
-                selected_worksites  = request.POST.getlist('worksite')
+                selected_company_ids = list(map(int, request.POST.getlist('company_id', [])))
+                selected_worksites = request.POST.getlist('worksite', [])
                 company_worksite_map = {}
-                
+
+                # Validate input
                 if not selected_company_ids or not selected_worksites:
                     messages.error(request, 'Company or worksite data is missing!')
                     return redirect(f'/masters?entity={entity}&type=urm')
+
                 if type not in ['acu', 'acr'] or not ur:
                     messages.error(request, 'Invalid data received.')
                     return redirect(f'/masters?entity={entity}&type=urm')
-                
-                cursor.callproc("stp_get_company_worksite",[",".join(request.POST.getlist('company_id'))])
-                for result in cursor.stored_results():
-                    company_worksites  = list(result.fetchall())
-                    
-                for company_id, worksite_name in company_worksites:
-                    if company_id not in company_worksite_map:
-                        company_worksite_map[company_id] = []
-                    company_worksite_map[company_id].append(worksite_name)
-                
-                filtered_combinations = []
-                for company_id in selected_company_ids:
-                    valid_worksites = company_worksite_map.get(company_id, [])
-                    # Filter worksites that were actually selected by the user
-                    selected_valid_worksites = [ws for ws in selected_worksites if ws in valid_worksites]
-                    filtered_combinations.extend([(company_id, ws) for ws in selected_valid_worksites])
-                    
-                cursor.callproc("stp_delete_access_control",[type,ur])
-                r=''
-                for company_id, worksite in filtered_combinations:
-                    cursor.callproc("stp_post_access_control",[type,ur,company_id,worksite,created_by])
+
+                # Extract city names from "Company Name - City Name"
+                selected_worksite_cities = [ws.split(" - ")[-1].strip() for ws in selected_worksites]
+
+                # Fetch company-worksite mappings
+                try:
+                    cursor.callproc("stp_get_company_worksite", [",".join(map(str, selected_company_ids))])
                     for result in cursor.stored_results():
-                            r = list(result.fetchall())
-                type='urm'
-                if r[0][0] == "success":
-                    messages.success(request, 'Data updated successfully !')
-                
-            else : messages.error(request, 'Oops...! Something went wrong!')
+                        company_worksites = list(result.fetchall())
+
+                    # Build a map of company_id to worksite names
+                    for company_id, worksite_name in company_worksites:
+                        if company_id not in company_worksite_map:
+                            company_worksite_map[company_id] = []
+                        company_worksite_map[company_id].append(worksite_name)
+
+                    # Filter valid combinations of company_id and worksites
+                    filtered_combinations = []
+                    # Maintain a set to track already processed (company_id, site_id) combinations
+                    processed_combinations = set()
+
+                    for company_id in selected_company_ids:
+                        valid_worksites = company_worksite_map.get(company_id, [])
+                        # Filter worksites that match the extracted city names and exist in the site_master table
+                        selected_valid_worksites = [ws for ws in selected_worksite_cities if ws in valid_worksites]
+
+                        for worksite in selected_valid_worksites:
+                            # Use Django ORM to fetch site_id for each valid combination of company_id and worksite_name
+                            try:
+                                site = sit.objects.get(site_name=worksite, company_id=company_id)  # Filtering by both site_name and company_id
+                                site_id = site.site_id
+                                
+                                # Check if the combination is already processed
+                                if (company_id, site_id) not in processed_combinations:
+                                    filtered_combinations.append((company_id, site_id, worksite))
+                                    processed_combinations.add((company_id, site_id))  # Mark this combination as processed
+                            except sit.DoesNotExist:
+                                # Skip the combination if no site is found for the given company and worksite
+                                continue
+
+
+                    # Delete existing access control
+                    cursor.callproc("stp_delete_access_control", [type, ur])
+
+                    # Insert new access control data
+                    insertion_results = []
+                    for company_id, site_id, worksite in filtered_combinations:
+                        cursor.callproc("stp_post_access_control", [type, ur, company_id, worksite,site_id, created_by])
+                        for result in cursor.stored_results():
+                            insertion_results = list(result.fetchall())
+
+                    type = 'urm'
+                    if insertion_results and insertion_results[0][0] == "success":
+                        messages.success(request, 'Data updated successfully!')
+                    else:
+                        messages.error(request, 'Failed to update data. Please try again.')
+                                
+                except Exception as e:
+                    tb = traceback.extract_tb(e.__traceback__)
+                    fun = tb[0].name
+                    cursor.callproc("stp_error_log",[fun,str(e),user])  
+                    messages.error(request, 'Oops...! Something went wrong!')
                              
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
@@ -858,6 +935,46 @@ def upload_excel(request):
             Db.closeConnection()
             return redirect(f'/masters?entity={entity}&type=i')
 
+# def get_access_control(request):
+#     Db.closeConnection()
+#     m = Db.get_connection()
+#     cursor=m.cursor()
+#     company = []
+#     worksite = []
+#     global user
+#     user  = request.session.get('user_id', '')
+#     try:
+#         if request.method == "POST":
+#             type = request.POST.get('type','')
+#             ur = request.POST.get('ur', '')
+#             cursor.callproc("stp_get_access_control_val", [type,ur,'company'])
+#             for result in cursor.stored_results():
+#                 company = list(result.fetchall())
+#             cursor.callproc("stp_get_access_control_val", [type,ur,'worksite'])
+#             for result in cursor.stored_results():
+#                 worksite = list(result.fetchall())
+#             if type == 'worksites':
+#                 company_id = request.POST.getlist('company_id','')
+#                 company_ids = ','.join(company_id)
+#                 cursor.callproc("stp_get_access_control_val", [type,company_ids,'worksites'])
+#                 for result in cursor.stored_results():
+#                     worksite = list(result.fetchall())
+                    
+#             response = {'result': 'success', 'company': company, 'worksite': worksite}
+#         else: response = {'result': 'fail', 'message': 'Invalid request method'}
+
+#     except Exception as e:
+#         tb = traceback.extract_tb(e.__traceback__)
+#         cursor.callproc("stp_error_log", [tb[0].name, str(e), user])
+#         print(f"error: {e}")
+#         response = {'result': 'fail', 'message': 'Something went wrong!'}
+
+#     finally:
+#         cursor.close()
+#         m.close()
+#         Db.closeConnection()
+#         return JsonResponse(response)
+
 def get_access_control(request):
     Db.closeConnection()
     m = Db.get_connection()
@@ -868,6 +985,7 @@ def get_access_control(request):
     user  = request.session.get('user_id', '')
     try:
         if request.method == "POST":
+            type1 = request.POST.get('type1','')
             type = request.POST.get('type','')
             ur = request.POST.get('ur', '')
             cursor.callproc("stp_get_access_control_val", [type,ur,'company'])
@@ -876,14 +994,27 @@ def get_access_control(request):
             cursor.callproc("stp_get_access_control_val", [type,ur,'worksite'])
             for result in cursor.stored_results():
                 worksite = list(result.fetchall())
-            if type == 'worksites':
+            if type1 == 'worksites':
                 company_id = request.POST.getlist('company_id','')
                 company_ids = ','.join(company_id)
-                cursor.callproc("stp_get_access_control_val", [type,company_ids,'worksites'])
+                cursor.callproc("stp_get_access_control_val", [type1,company_ids,'worksites'])
                 for result in cursor.stored_results():
                     worksite = list(result.fetchall())
-                    
-            response = {'result': 'success', 'company': company, 'worksite': worksite}
+                response = {
+                'result': 'success',
+                'worksite':worksite,
+                'company': company,
+                'worksite': worksite,
+                }
+            else:     
+                response = {
+                'result': 'success',
+                'worksite':worksite,
+                'company': company,
+                }
+
+        # Return JSON response
+            return JsonResponse(response)
         else: response = {'result': 'fail', 'message': 'Invalid request method'}
 
     except Exception as e:
@@ -897,6 +1028,7 @@ def get_access_control(request):
         m.close()
         Db.closeConnection()
         return JsonResponse(response)
+
 class RosterDataAPIView(APIView):
     # Ensure the user is authenticated using JWT
     permission_classes = [IsAuthenticated]

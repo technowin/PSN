@@ -108,6 +108,7 @@ class user_role_map(models.Model):
     role_id = models.BigIntegerField(null=True, blank=True)
     company_id = models.BigIntegerField(null=True, blank=True)
     worksite = models.TextField(null=True, blank=True)
+    site_id = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(null=True, blank=True, auto_now_add=True)
     created_by = models.TextField(null=True, blank=True)
     updated_at = models.DateTimeField(null=True, blank=True, auto_now=True)
