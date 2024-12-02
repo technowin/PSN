@@ -236,6 +236,47 @@
                       </div>
                       {% endif %}
                   {% endif %}     
+                  {% if entity == 'r' %}
+                  <br>
+                  <br>
+                  
+                  <div class="col-lg-12">
+                    <div class="row mb-3 align-items-center">
+                      <!-- Company Dropdown -->
+                      <div class="col-md-4">
+                        <label for="company_id" class="form-label" style="width: 500%;">Company <span style="color:red;"> *</span> :</label>
+                        <select name="company_id" id="companyDropdown" class="form-control" required>
+                            <option disabled>Select</option>
+                            {% for item in company_names %}
+                                <option value="{{ item.0 }}" {% if item.0 == company_id_value %}selected{% endif %}>
+                                    {{ item.1 }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                
+                    <!-- Worksite Dropdown -->
+                    <div class="col-md-4">
+                        <label for="worksite" class="form-label" style="width: 500%;">Worksite<span style="color:red;"> *</span> :</label>
+                        <select name="worksite" id="worksiteDropdown" class="form-control" required>
+                            <option value="" disabled>Select</option>
+                            {% for item in site_name %}
+                                <option value="{{ item.0 }}">{{ item.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                
+                    <!-- Date Input -->
+                    <div class="col-md-4">
+                        <label for="date_id" class="form-label" style="width: 500%;">Date<span style="color:red;"> *</span> :</label>
+                        <input type="date" id="roster_date_id" name="date_id" class="form-control" required>
+                    </div>
+                </div>
+              </div>
+              
+           
+  
+{% endif %}
                    {% if entity == 'sm' %}
                      <!-- <div class="col-lg-1" style="justify-content: right; align-items: right;">
                           <a onclick="showMessage()" href="#">
@@ -713,6 +754,200 @@
     }
 
   </script>
+
+  <script>
+
+    $('#company_modal_id').change(function() {
+        var selectedCompany = $(this).val();
+        if (selectedCompany) {
+            $.ajax({
+                url: "{% url 'get_comp_sites' %}",  
+                type: "POST",
+                data: {
+                    'selectedCompany': selectedCompany,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'  
+                },
+                success: function(response) {
+                    $('#site_modal_id').empty();
+                   
+                    $.each(response.companywise_site_names, function(index, value) {
+                        $('#site_modal_id').append('<option value="' + value[0] + '">' + value[1] + '</option>');
+                    });
+    
+                    $('#site_modal_id').trigger('change'); // Trigger change to update graph
+                },
+                error: function(error) {
+                    console.log("Error fetching site names:", error);
+                }
+            });
+        } else {
+            $('#site_modal_id').empty();
+        }
+    }); 
+</script>
+<script>
+  window.onload = function() {
+      const dateInput = document.getElementById('roster_date_id');
+      const today = new Date().toISOString().split('T')[0];
+      dateInput.value = today;
+  };
+</script>
+
+
+<script>
+  // Set today's date as the max date for the date input
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('roster_date_id').setAttribute('max', today);
+</script>
+
+<script>
+  $('#companyDropdown').change(function() {
+      var selectedCompany = $(this).val();
+      if (selectedCompany) {
+          $.ajax({
+              url: "{% url 'get_worksites' %}",  
+              type: "POST",
+              data: {
+                  'selectedCompany': selectedCompany,
+                  'csrfmiddlewaretoken': '{{ csrf_token }}'  
+              },
+              success: function(response) {
+                  $('#worksiteDropdown').empty();
+                 
+                  $.each(response.companywise_site_names, function(index, value) {
+                      $('#worksiteDropdown').append('<option value="' + value[0] + '">' + value[1] + '</option>');
+                  });
+  
+                  $('#worksiteDropdown').trigger('change'); // Trigger change to update graph
+              },
+              error: function(error) {
+                  console.log("Error fetching site names:", error);
+              }
+          });
+      } else {
+          $('#worksiteDropdown').empty();
+      }
+  }); 
+</script>
+
+
+
+<script>
+{% comment %} $('#company_id #site_id #date_id').change(function() {
+    debugger;
+    // Get the selected values
+    var companyId = document.getElementById('company_id').value;
+    var siteId = document.getElementById('site_id').value;
+    var shift_date = document.getElementById('date_id').value;
+
+    // Send AJAX request to the server
+    $.ajax({
+        url: "{% url 'filter_roster_data' %}",  // Update this with the correct Django view URL
+        type: "GET",
+        data: {
+            company_id: companyId,
+            site_id: siteId,
+            shift_date: shift_date
+        },
+        success: function (response) {
+          debugger;
+            // Log response for debugging
+            console.log(response.data);
+
+            // Clear the existing table body and rebuild the table
+            $('#dataTable tbody').empty();
+
+            // Populate the table with new data dynamically
+            var tableRows = '';
+            $.each(response.data, function (index, row) {
+                var tableRow = `
+                    <tr style="color:black">
+                        <td>${index + 1}</td>
+                        ${row.map(function(cell, cellIndex) {
+                            if (cellIndex !== 0) {
+                                return `<td>${cell}</td>`;
+                            }
+                        }).join('')}
+                        <td>
+                            <a href="/masters?month=${row[0]}&entity=r&type=ed&empid=${row[1]}" class="edit-button">
+                                <svg class="edit-svgIcon" viewBox="0 0 512 512">
+                                    <path d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"></path>
+                                </svg>
+                            </a>
+                        </td>
+                    </tr>`;
+                tableRows += tableRow;
+            });
+
+            // Append the new rows to the table body
+            $('#dataTable tbody').append(tableRows);
+        },
+        error: function (error) {
+            console.error("Error updating roster table:", error);
+            alert('Error fetching data. Please try again.');
+        }
+    });
+}) {% endcomment %}
+
+$(document).ready(function () {
+  // Bind change events to individual elements
+  $('#companyDropdown, #worksiteDropdown, #roster_date_id').change(function () {
+      debugger;
+      // Get the selected values from the inputs
+      var companyId = document.getElementById('companyDropdown').value;
+      var siteId = document.getElementById('worksiteDropdown').value;
+      var shift_date = document.getElementById('roster_date_id').value;
+
+      // Send AJAX request to the server
+      $.ajax({
+          url: "{% url 'filter_roster_data' %}",  // Ensure this URL tag is rendered correctly in Django
+          type: "GET",
+          data: {
+            company_id: companyId,
+            site_id: siteId,
+            shift_date: shift_date
+          },
+          success: function (response) {
+              debugger;
+              // Log response for debugging
+              console.log(response.data);
+
+              // Clear the existing table body and rebuild the table
+              $('#dataTable tbody').empty();
+
+               // Populate the table with new data
+               $.each(response.data, function (index, row) {
+                var tableRow = `
+                    <tr style="color:black">
+                        <td hidden>${row.id_edit}</td>
+                        <td>${row.id_edit}</td>
+                        <td>${row.employee_id}</td>
+                        <td>${row.employee_name}</td>
+                        <td>${row.company_id}</td>
+                        <td>${row.worksite}</td>
+                        <td>${row.uploaded_date}</td>
+                        <td>
+                            
+                              <a href="/masters?month=${row.shift_date}&entity=r&type=ed&empid=${row.employee_id}" class="edit-button">
+                                  <svg class="edit-svgIcon" viewBox="0 0 512 512">
+                                      <path d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"></path>
+                                  </svg>
+                              </a>
+              
+                        </td>
+                    </tr>`;
+                $('#dataTable tbody').append(tableRow);
+            });
+        },
+          error: function (error) {
+              console.error("Error updating roster table:", error);
+              alert('Error fetching data. Please try again.');
+          }
+      });
+  });
+});
+
+</script>
 
 <!-- End of Main Content -->
 {% endblock %}

@@ -160,7 +160,7 @@ class sc_roster(models.Model):
     confirmation_date = models.DateTimeField(null=True,blank=True)
     attendance_in = models.TextField(null=True,blank=True)
     attendance_out = models.TextField(null=True,blank=True)
-    attendance_date = models.DateField(null=True,blank=True)
+    attendance_date = models.DateTimeField(null=True,blank=True)
     checksum = models.ForeignKey(file_checksum, on_delete=models.CASCADE,related_name='checksum_roster',blank=True, null=True)
     uploaded_date = models.DateTimeField(null=True,blank=True,auto_now_add=True)
     uploaded_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='uploaded_by',blank=True, null=True,db_column='uploaded_by')

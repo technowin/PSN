@@ -117,6 +117,10 @@ urlpatterns = [
     path("get_comp_sites",get_comp_sites,name="get_comp_sites"),
     path("save_attendance",save_attendance,name="save_attendance"),
     path("attendance_upload_excel",attendance_upload_excel, name="attendance_upload_excel"),
+
+
+    path('filter-roster/', filter_roster_data, name='filter_roster_data'),
+    path("get_worksites",get_worksites,name="get_worksites"),
     
 
 ]
