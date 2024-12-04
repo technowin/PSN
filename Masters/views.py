@@ -160,34 +160,81 @@ def masters(request):
             #         messages.success(request, 'Data updated successfully !')
                 
             # else : messages.error(request, 'Oops...! Something went wrong!')
-                created_by = request.session.get('user_id', '')
-                ur = request.POST.get('ur', '')
-                selected_worksite = request.POST.getlist('worksite', [])
-                company_worksite_map = {}
+                # created_by = request.session.get('user_id', '')
+                # ur = request.POST.get('ur', '')
+                # selected_worksite = request.POST.getlist('worksite', [])
+                # company_worksite_map = {}
 
-                # Validate input
-                if not selected_worksite:
-                    messages.error(request, 'Worksite data is missing!')
-                    return redirect(f'/masters?entity={entity}&type=urm')
+                # # Validate input
+                # if not selected_worksite:
+                #     messages.error(request, 'Worksite data is missing!')
+                #     return redirect(f'/masters?entity={entity}&type=urm')
 
-                if type not in ['acu', 'acr'] or not ur:
-                    messages.error(request, 'Invalid data received.')
-                    return redirect(f'/masters?entity={entity}&type=urm')
+                # if type not in ['acu', 'acr'] or not ur:
+                #     messages.error(request, 'Invalid data received.')
+                #     return redirect(f'/masters?entity={entity}&type=urm')
+
+                # selected_worksite_pairs = [
+                #     tuple(ws.split(" - ", 1)) for ws in selected_worksite if " - " in ws
+                # ]
+                # if not selected_worksite_pairs:
+                #     messages.error(request, 'Invalid worksite format. Expected "Company Name - Worksite Name".')
+                #     return redirect(f'/masters?entity={entity}&type=urm')
+                # valid_combinations = []
+                # for company_name, worksite_name in selected_worksite_pairs:
+                #     try:
+                #         company = com.objects.get(company_name=company_name)
+                #         company_id = company.company_id
+                #     except com.DoesNotExist:
+                #         messages.error(request, f'Company "{company_name}" does not exist.')
+                #         continue
+                #     # Check if the worksite exists for the company in SiteMaster
+                #     if sit.objects.filter(company_id=company_id, site_name=worksite_name).exists():
+                #         valid_combinations.append((company_id, worksite_name))
+                #     else:
+                #         messages.error(request, f'Worksite "{worksite_name}" does not exist for company "{company_name}".')  # Assuming first column is company_id
+                #         # Check if worksite exists for the company in site_master
+                #         cursor.callproc("stp_get_company_worksite", [company_id])
+                #         validation_result = [row for result in cursor.stored_results() for row in result.fetchall()]
+                #         if validation_result and validation_result[0][0] == 'valid':
+                #             valid_combinations.append((company_id, worksite_name))
+                #     if not valid_combinations:
+                #         messages.error(request, 'No valid company-worksite combinations found.')
+                #         return redirect(f'/masters?entity={entity}&type=urm')
+                #     # Remove existing mappings
+                #     cursor.callproc("stp_delete_access_control", [type, ur])
+                #     # Insert valid combinations into user_role_map
+                #     for company_id, worksite_name in valid_combinations:
+                #         cursor.callproc("stp_post_access_control", [type, ur, company_id, worksite_name, created_by])
+                #     messages.success(request, 'Data updated successfully!')
 
                 try:
-                    # Split selected_worksite into company_name and worksite_name
+                    created_by = request.session.get('user_id', '')
+                    ur = request.POST.get('ur', '')
+                    selected_worksite = request.POST.getlist('worksite', [])
+                    company_worksite_map = {}
+
+                    # Validate input
+                    if not selected_worksite:
+                        messages.error(request, 'Worksite data is missing!')
+                        return redirect(f'/masters?entity={entity}&type=urm')
+
+                    if type not in ['acu', 'acr'] or not ur:
+                        messages.error(request, 'Invalid data received.')
+                        return redirect(f'/masters?entity={entity}&type=urm')
+
+                    # Parse selected worksites into company-worksite pairs
                     selected_worksite_pairs = [
                         tuple(ws.split(" - ", 1)) for ws in selected_worksite if " - " in ws
                     ]
-
                     if not selected_worksite_pairs:
                         messages.error(request, 'Invalid worksite format. Expected "Company Name - Worksite Name".')
                         return redirect(f'/masters?entity={entity}&type=urm')
 
                     valid_combinations = []
                     for company_name, worksite_name in selected_worksite_pairs:
-    # Fetch company_id using ORM
                         try:
+                            # Fetch company_id using ORM
                             company = com.objects.get(company_name=company_name)
                             company_id = company.company_id
                         except com.DoesNotExist:
@@ -198,34 +245,37 @@ def masters(request):
                         if sit.objects.filter(company_id=company_id, site_name=worksite_name).exists():
                             valid_combinations.append((company_id, worksite_name))
                         else:
-                            messages.error(request, f'Worksite "{worksite_name}" does not exist for company "{company_name}".')  # Assuming first column is company_id
+                            messages.error(request, f'Worksite "{worksite_name}" does not exist for company "{company_name}".')
 
-                            # Check if worksite exists for the company in site_master
-                            cursor.callproc("stp_get_company_worksite", [company_id])
-                            validation_result = [row for result in cursor.stored_results() for row in result.fetchall()]
+                    if not valid_combinations:
+                        messages.error(request, 'No valid company-worksite combinations found.')
 
-                            if validation_result and validation_result[0][0] == 'valid':
-                                valid_combinations.append((company_id, worksite_name))
+                    # Remove existing mappings
+                    cursor.callproc("stp_delete_access_control", [type, ur])
 
-                        if not valid_combinations:
-                            messages.error(request, 'No valid company-worksite combinations found.')
-                            return redirect(f'/masters?entity={entity}&type=urm')
+                    # Insert new mappings
+                    insertion_status = "failure"
+                    for company_id, worksite_name in valid_combinations:
+                        cursor.callproc("stp_post_access_control", [type, ur, company_id, worksite_name, created_by])
+                        for result in cursor.stored_results():
+                            r = list(result.fetchall())
+                            if r and r[0][0] == "success":
+                                insertion_status = "success"
 
-                        # Remove existing mappings
-                        cursor.callproc("stp_delete_access_control", [type, ur])
-
-                        # Insert valid combinations into user_role_map
-                        for company_id, worksite_name in valid_combinations:
-                            cursor.callproc("stp_post_access_control", [type, ur, company_id, worksite_name, created_by])
-
+                    # Redirect based on insertion status
+                    if insertion_status == "success":
                         messages.success(request, 'Data updated successfully!')
-
+                    else:
+                        messages.error(request, 'Oops...! Something went wrong!')
                 except Exception as e:
                     tb = traceback.extract_tb(e.__traceback__)
                     fun = tb[0].name
-                    cursor.callproc("stp_error_log", [fun, str(e), created_by])
+                    cursor.callproc("stp_error_log",[fun,str(e),user])  
                     messages.error(request, 'Oops...! Something went wrong!')
-                             
+
+                    
+            else : messages.error(request, 'Oops...! Something went wrong!')
+
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
         fun = tb[0].name
@@ -241,6 +291,9 @@ def masters(request):
         elif request.method=="POST":  
             if entity == 'r':
                 new_url = f'/masters?entity={entity}&type=i'
+                return redirect(new_url)
+            elif entity == 'urm':
+                new_url = f'/masters?entity={entity}&type=urm'
                 return redirect(new_url)
             else:
                 new_url = f'/masters?entity={entity}&type={type}'
