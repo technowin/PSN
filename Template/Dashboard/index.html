@@ -360,8 +360,9 @@
                 { category: "Employees Affirmed", value: {{ today_result.1 }} },
                 { category: "Employees Declined", value: {{ today_result.2 }} },
                 { category: "Pending Employees", value: {{ today_result.3 }} },
-                { category: "More Than 8 Hours", value: {{ today_result.4 }} },
-                { category: "Less Than 8 Hours", value: {{ today_result.5 }} }
+                { category: "Absent Employees", value: {{ today_result.4 }} },
+                { category: "More Than 8 Hours", value: {{ today_result.5 }} },
+                { category: "Less Than 8 Hours", value: {{ today_result.6 }} }
             ];
             xAxisToday.data.setAll(initialDataToday);
             seriesToday.data.setAll(initialDataToday);
@@ -491,9 +492,9 @@
                 { category: "All Employees", value: {{ tommorow_result.0 }} },
                 { category: "Employees Affirmed", value: {{ tommorow_result.1 }} },
                 { category: "Employees Declined", value: {{ tommorow_result.2 }} },
-                { category: "Pending Employees", value: {{ tommorow_result.3 }} },
-                { category: "More Than 8 Hours", value: {{ tommorow_result.4 }} },
-                { category: "Less Than 8 Hours", value: {{ tommorow_result.5 }} }
+                { category: "Pending Employees", value: {{ tommorow_result.3 }} }
+                // { category: "More Than 8 Hours", value: {{ tommorow_result.4 }} },
+                // { category: "Less Than 8 Hours", value: {{ tommorow_result.5 }} }
             ];
             xAxisTomorrow.data.setAll(initialDataTomorrow);
             seriesTomorrow.data.setAll(initialDataTomorrow);
@@ -642,6 +643,7 @@
                 { category: "Employees Affirmed", value: data.yes_count },
                 { category: "Employees Declined", value: data.no_count },
                 { category: "Pending Employees", value: data.pending_count },
+                { category: "Absent Employees", value: data.absent_count },
                 { category: "More Than 8 Hours", value: data.more_than_8_hours_count },
                 { category: "Less Than 8 Hours", value: data.less_than_8_hours_count }
             ];
@@ -662,9 +664,9 @@
                 { category: "All Employees", value: data1.nxttotal_count },
                 { category: "Employees Affirmed", value: data1.nxtyes_count },
                 { category: "Employees Declined", value: data1.nxtno_count },
-                { category: "Pending Employees", value: data1.nxtpending_count },
-                { category: "More Than 8 Hours", value: data1.nxtmore_than_8_hours_count },
-                { category: "Less Than 8 Hours", value: data1.nxtless_than_8_hours_count }
+                { category: "Pending Employees", value: data1.nxtpending_count }
+               // { category: "More Than 8 Hours", value: data1.nxtmore_than_8_hours_count },
+               // { category: "Less Than 8 Hours", value: data1.nxtless_than_8_hours_count }
             ];
 
             if (chartTomorrow && xAxisTomorrow && seriesTomorrow) {

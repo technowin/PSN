@@ -147,8 +147,9 @@ def updateGraph(request):
                     'yes_count': fetched_result[1],
                     'no_count': fetched_result[2],
                     'pending_count': fetched_result[3],
-                    'more_than_8_hours_count': fetched_result[4],
-                    'less_than_8_hours_count': fetched_result[5]
+                    'absent_count': fetched_result[4],
+                    'more_than_8_hours_count': fetched_result[5],
+                    'less_than_8_hours_count': fetched_result[6]
                 }
 
         cursor.callproc("stp_get_tommorow_roster_graph_filter", [company_id, site_name, shift_date])
@@ -160,9 +161,9 @@ def updateGraph(request):
                     'nxttotal_count': fetched_result[0],
                     'nxtyes_count': fetched_result[1],
                     'nxtno_count': fetched_result[2],
-                    'nxtpending_count': fetched_result[3],
-                    'nxtmore_than_8_hours_count': fetched_result[4],
-                    'nxtless_than_8_hours_count': fetched_result[5]
+                    'nxtpending_count': fetched_result[3]
+                    # 'nxtmore_than_8_hours_count': fetched_result[4],
+                    # 'nxtless_than_8_hours_count': fetched_result[5]
                 }
 
         cursor.callproc("stp_get_worksite_percent_count_pie_filter", [company_id,shift_date])
