@@ -835,8 +835,8 @@ def employee_master(request):
 
                 employeeId = request.POST.get('employee_id', '')
                 employeeName = request.POST.get('employee_name', '')
-                mobileNo = request.POST.get('mobile_no', '')
                 site_name = request.POST.get('site_name', '')
+                mobileNo = request.POST.get('mobile_no', '')
                 CompanyId = request.POST.get('company_id', '')
                 # employeeStatus = request.POST.get('employee_status_name', '')
                 # activebtn = request.POST.get('status_value', '')
