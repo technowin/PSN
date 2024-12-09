@@ -843,9 +843,9 @@ def employee_master(request):
 
                 params = [
                     employeeId, 
-                    employeeName, 
-                    mobileNo, 
+                    employeeName,
                     site_name,
+                    mobileNo,
                     CompanyId
                     # employeeStatus,
                     # activebtn
