@@ -41,6 +41,8 @@ urlpatterns = [
     path('check_and_notify_all_users', check_and_notify_all_users.as_view(), name='check_and_notify_all_users'),
     path('check_and_notify_all_users_reminder', check_and_notify_all_users_reminder.as_view(), name='check_and_notify_all_users+_reminder'),
     path('check_and_notify_default_users', check_and_notify_default_users.as_view(), name='check_and_notify_default_users'),
+    # path('show_notification', show_notification.as_view(), name='show_notification'),
+    # path('save_notification', save_notification.as_view(), name='save_notification'),
     path('DefaultRecords', DefaultRecords.as_view(), name='DefaultRecords'),
     path('TestApi', TestApi.as_view(), name='TestApi'),
     

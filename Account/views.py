@@ -64,9 +64,10 @@ class LoginView(APIView):
                     user.device_token  = device_token
                     user.save()
                     serializer = UserSerializer(user).data
+                    employee_id = employee.employee_id
                     
                     refresh = RefreshToken.for_user(user)
-                    return JsonResponse({'access_token': str(refresh.access_token),'refresh_token': str(refresh),'data':serializer}, status=status.HTTP_200_OK,safe=False)
+                    return JsonResponse({'access_token': str(refresh.access_token),'refresh_token': str(refresh),'data':serializer,'employee_id':employee_id}, status=status.HTTP_200_OK,safe=False)
             except Exception as e:
                 print(str(e))
                 return Response({'message': 'User Not Found In Employee Master  '}, status=status.HTTP_400_BAD_REQUEST)  
