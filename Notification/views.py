@@ -47,7 +47,7 @@ from Masters.serializers import ScRosterSerializer
 from Notification.models import notification_log, test_table
 from datetime import datetime, timedelta
 
-from Notification.serializers import TestTableSerializer
+from Notification.serializers import NotificationLogSerializer, TestTableSerializer
 class check_and_notify_user(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -474,81 +474,84 @@ class DefaultRecords(APIView):
             )
         
 
-# class show_notification(APIView):
+class show_notification(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
     
-#     permission_classes = [IsAuthenticated]
-#     authentication_classes = [JWTAuthentication]
-    
-#     def get(self, request):
-#         # Get the employeeId from the request data
-#         name  = request.data.get('name')
+    def get(self, request):
+        employee_id = request.data.get('employee_id')
 
-#         if not name:
-#             return Response({"error": "Name is required"}, status=404)
+        if not employee_id:
+            return Response({"error": "employeeId is required"}, status=400)
 
-#         try:
-#             # Get the current date
-#             current_date = date.today()
+        try:
+            # Get the current and yesterday's date
+            current_date = date.today()
+            yesterday_date = current_date - timedelta(days=1)
 
-#             # Filter notifications
-#             notifications = notification_log.objects.filter(
-#                 employee_id=employee_id,
-#                 noti_click_time__isnull=True,
-#                 noti_receive_time__isnull = False,
-#                 slot_id__shift_date__gte=current_date
-#             ).exclude(
-#                 slot_id__in=UserSlotDetails.objects.filter(employee_id=employee_id).values_list('slot_id', flat=True)
-#             )
+            # Fetch sc_roster IDs where shift_date is today or yesterday
+            roster_ids = sc_roster.objects.filter(
+                shift_date__in=[current_date, yesterday_date],
+                employee_id=employee_id
+            ).values_list('id', flat=True)
 
-#             # If no notifications are found for that employee, return a message
-#             if not notifications.exists():
-#                 return Response({"message": "No notifications found for this employee"}, status=404)
+            # Check if roster IDs are found
+            if not roster_ids:
+                return Response({"message": "No roster data found for this employee"}, status=404)
 
-#             # Serialize the data
-#             serializer = UserNotificationLogSerializer(notifications, many=True)
+            # Fetch notifications based on the roster IDs
+            notifications = notification_log.objects.filter(
+                sc_roster_id__in=roster_ids,
+                notification_received__isnull=False,
+                notification_opened__isnull=True
+            )
 
-#             # Return the serialized data
-#             return Response(serializer.data, status=200)
+            # Check if notifications exist
+            if not notifications.exists():
+                return Response({"message": "No notifications found for this employee"})
 
-#         except Exception as e:
-#             return Response({"error": str(e)}, status=500)
+            # Serialize and return the notifications
+            serializer = NotificationLogSerializer(notifications, many=True)
+            return Response(serializer.data, status=200)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
 
         
     
-# class save_notification(APIView):
-#     permission_classes = [IsAuthenticated]
-#     authentication_classes = [JWTAuthentication]
+class save_notification(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
-#     def post(self, request):
-#         try:
-#             # Extract the notification ID from the request data
-#             notification_id = request.data.get('id')
-#             employee_id = request.data.get('employee_id')
+    def post(self, request):
+        try:
+            # Extract the notification ID from the request data
+            notification_id = request.data.get('id')
+            employee_id = request.data.get('employee_id')
 
-#             number = sc_employee_master.objects.get(employee_id=employee_id).mobile_no
-#             user = CustomUser.objects.get(phone=number).id
+            number = sc_employee_master.objects.get(employee_id=employee_id).mobile_no
+            user = CustomUser.objects.get(phone=number).id
             
 
             
-#             if not notification_id:
-#                 return Response({"error": "Notification ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+            if not notification_id:
+                return Response({"error": "Notification ID is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-#             # Fetch the specific notification log entry
-#             notification = notification_log.objects.filter(id=notification_id).first()
+            # Fetch the specific notification log entry
+            notification = notification_log.objects.filter(id=notification_id).first()
 
-#             if not notification:
-#                 return Response({"error": "Notification not found."}, status=status.HTTP_404_NOT_FOUND)
+            if not notification:
+                return Response({"error": "Notification not found."}, status=status.HTTP_404_NOT_FOUND)
 
-#             # Update the `noti_click_time` to the current time
-#             notification.noti_click_time = now()
-#             notification.updated_by = get_object_or_404(CustomUser, id = user)
-#             notification.save()
+            # Update the `noti_click_time` to the current time
+            notification.notification_opened = now()
+            notification.updated_by = get_object_or_404(CustomUser, id = user)
+            notification.save()
 
-#             return Response({"message": "Notification updated successfully."}, status=status.HTTP_200_OK)
+            return Response({"message": "Notification updated successfully."}, status=status.HTTP_200_OK)
 
-#         except Exception as e:
-#             return Response({"error": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+        except Exception as e:
+            return Response({"error": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
