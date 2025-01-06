@@ -21,33 +21,31 @@
 
         <!-- Earnings (Monthly) Card Example -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
+            <div class="card border-left-primary shadow h-100 py-2" style="height: 120px;">
+                <div class="card-body p-2">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                 Total Employees</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"> {{ roster_count.3 }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ roster_count.3 }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa fa-solid fa-users"></i>
+                            <i class="fas fa-users"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-
+        
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
+            <div class="card border-left-info shadow h-100 py-2" style="height: 120px;">
+                <div class="card-body p-2">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Confirmed Employees
-                            </div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Confirmed Employees</div>
                             <div class="row no-gutters align-items-center">
                                 <div class="col-auto">
-                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{roster_count.0}}</div>
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ roster_count.0 }}</div>
                                 </div>
                                 <div class="col">
                                     <div class="progress progress-sm mr-2">
@@ -58,107 +56,100 @@
                                         </div>
                                     </div>
                                 </div>
-                                                        
                             </div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-check-circle fa-2x text-gray-300"></i>
                         </div>
-                        
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Earnings (Monthly) Card Example -->
+        
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
+            <div class="card border-left-info shadow h-100 py-2" style="height: 120px;">
+                <div class="card-body p-2">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Absent Employees
-                            </div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Absent Employees</div>
                             <div class="row no-gutters align-items-center">
                                 <div class="col-auto">
-                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{roster_count.1}}</div>
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ roster_count.1 }}</div>
                                 </div>
                                 <div class="col">
                                     <div class="progress progress-sm mr-2">
                                         <div class="progress-bar bg-info" role="progressbar"
                                             style="width: {{ roster_count.5 }}%" 
-                                            aria-valuenow="{{roster_count.1}}" aria-valuemin="0"
+                                            aria-valuenow="{{ roster_count.1 }}" aria-valuemin="0"
                                             aria-valuemax="{{ roster_count.3 }}">
                                         </div>
                                     </div>
                                 </div>
-                                       
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-solid fa-ban fa-2x text-gray-300"></i>
+                            <i class="fas fa-ban fa-2x text-gray-300"></i>
                         </div>
-                                             
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Pending Requests Card Example -->
+        
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
+            <div class="card border-left-warning shadow h-100 py-2" style="height: 120px;">
+                <div class="card-body p-2">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Pending</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{roster_count.2}}</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ roster_count.2 }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-sharp fa-regular fa-clock fa-2x text-gray-300"></i>
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        
     </div>
-
 
 
     <div class="row">
         <div class="col-xl-12 col-lg-7">
-            <div class="card shadow mb-4">
-
-
-                <div class="row mb-3 align-items-center">
+            <div class="card shadow mb-3 p-3"> <!-- Reduced bottom margin and added smaller padding -->
+    
+                <div class="row mb-2 align-items-center"> <!-- Reduced bottom margin -->
+                    <!-- Company List -->
                     <div class="col-md-4 d-flex flex-column">
-                        <label for="company-dropdown" class="mb-2">Company List<span style="color:red;"> *</span>:</label>
-                        <select name="company_name" id="company_name" class="form-control form-control-sm" required>
+                        <label for="company-dropdown" class="mb-1">Company List<span style="color:red;"> *</span>:</label>
+                        <select name="company_name" id="company_name" class="form-control form-control-sm py-1" required>
                             {% for item in company_names %}
                                 <option value="{{ item.0 }}">{{ item.1 }}</option>
                             {% endfor %}
                         </select>
                     </div>
-                
+    
+                    <!-- Site List -->
                     <div class="col-md-4 d-flex flex-column">
-                        <label for="site-dropdown" class="mb-2">Site List<span style="color:red;"> *</span>:</label>
-                        <select name="site_name" id="site_name" class="form-control form-control-sm" required>
+                        <label for="site-dropdown" class="mb-1">Site List<span style="color:red;"> *</span>:</label>
+                        <select name="site_name" id="site_name" class="form-control form-control-sm py-1" required>
                             {% for item in site_names %}
                                 <option value="{{ item.0 }}">{{ item.1 }}</option>
                             {% endfor %}
                         </select>
                     </div>
-                
+    
+                    <!-- Date Input -->
                     <div class="col-md-4 d-flex flex-column">
-                        <label for="date-input" class="mb-2">Date<span style="color:red;"> *</span>:</label>
-                        <input type="date" name="date" id="dateInput" class="form-control form-control-sm" required>
+                        <label for="date-input" class="mb-1">Date<span style="color:red;"> *</span>:</label>
+                        <input type="date" name="date" id="dateInput" class="form-control form-control-sm py-1" required>
                     </div>
                 </div>
                 
-                           
-
             </div>
         </div>
-    </div> 
+    </div>
+    
 
     <div class="my-loader" id="cubeloader" style="display: none;">
         <div class="rubiks-cube">
