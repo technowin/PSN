@@ -106,7 +106,7 @@ def Login(request):
                     request.session.set_expiry(1209600)  # 2 weeks
                 else:
                     request.session.set_expiry(0)  # Browser close
-                return redirect('home') 
+                return redirect('newdashboard') 
             else:
                 Error=True
                 # Authentication failed
