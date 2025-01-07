@@ -272,5 +272,3 @@ def get_roster_data_tommorow(request):
         m.commit()
         m.close()
         Db.closeConnection()
-    
-    
