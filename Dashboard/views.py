@@ -166,7 +166,7 @@ def updateGraph(request):
                     # 'nxtless_than_8_hours_count': fetched_result[5]
                 }
 
-        cursor.callproc("stp_get_worksite_percent_count_pie_filter", [company_id,shift_date])
+        cursor.callproc("stp_get_worksite_percent_count_pie_filter", [company_id,site_name,shift_date])
         fetched_results = []
     
         for result in cursor.stored_results():
