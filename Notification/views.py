@@ -408,118 +408,119 @@ def process_notification(user, roster_record):
     # Example: processing each roster record and sending notification
     # send_notification(user, f"Attendance reminder for employee: {roster_record.employee_id} on date: {roster_record.shift_date}")
 
-class DefaultRecords(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
-
-    def get(self, request):
-        try:
-            # Step 1: Extract user from JWT token
-            user = request.user  # This gets the user from the JWT token if authenticated
-
-            # Step 2: Check if the user's role_id is 5
-            if user.role_id != 5:
-                return Response(
-                    {"error": "You are not authorized to access this resource."},
-                    status=status.HTTP_403_FORBIDDEN
-                )
-
-            # Step 3: Fetch all users with role_id = 5
-            users = CustomUser.objects.filter(role_id=5)
-
-            result = []
-
-            for custom_user in users:
-                try:
-                    # Step 4: Fetch the employee_id from sc_employee_master using custom_user
-                    employee_record = sc_employee_master.objects.filter(mobile_no=custom_user.phone).first()
-
-                    if not employee_record:
-                        # Skip this user if employee record doesn't exist
-                        continue
-
-                    # Step 5: Using the employee_id, fetch the sc_roster records with specified conditions
-                    employee_id = employee_record.employee_id
-                    roster_records = sc_roster.objects.filter(
-                        employee_id=employee_id,
-                        attendance_uploaded_date__isnull=True,  # attendance_date is not null
-                        confirmation=True,  # confirmation is true
-                        attendance_in__isnull=True # attendance_in is null
-                    )
-
-                    # Step 6: If roster records exist, serialize and add them to the result
-                    if roster_records.exists():
-                        data = ScRosterSerializer(roster_records, many=True)
-                        result.append(data.data)
-
-                except Exception as e:
-                    # Log any errors encountered while processing each user
-                    continue
-
-            if not result:
-                return Response(
-                    {"message": "No valid records found."},
-                    status=status.HTTP_404_NOT_FOUND
-                )
-
-            # Step 7: Return a success response with all results
-            return Response(result, status=status.HTTP_200_OK)
-
-        except Exception as e:
-            # Step 8: Return a generic error response for any unhandled exceptions
-            return Response(
-                {"error": f"An error occurred: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-        
-
 # class DefaultRecords(APIView):
 #     permission_classes = [IsAuthenticated]
 #     authentication_classes = [JWTAuthentication]
 
 #     def get(self, request):
 #         try:
-#             # Extract user from JWT token
+#             # Step 1: Extract user from JWT token
 #             user = request.user  # This gets the user from the JWT token if authenticated
 
-#             # Check if the user's role_id is 5
+#             # Step 2: Check if the user's role_id is 5
 #             if user.role_id != 5:
 #                 return Response(
 #                     {"error": "You are not authorized to access this resource."},
 #                     status=status.HTTP_403_FORBIDDEN
 #                 )
-            
-#             # Get employee_id from request parameters
-#             employee_id = request.data.get("employee_id")
-#             if not employee_id:
-#                 return Response(
-#                     {"error": "Employee ID is required."},
-#                     status=status.HTTP_400_BAD_REQUEST
-#                 )
-            
-#             # Fetch records from sc_roster where confirmation=True and attendance_in is NULL
-#             roster_records = sc_roster.objects.filter(
+
+#             # Step 3: Fetch all users with role_id = 5
+#             users = CustomUser.objects.filter(role_id=5)
+
+#             result = []
+
+#             for custom_user in users:
+#                 try:
+#                     # Step 4: Fetch the employee_id from sc_employee_master using custom_user
+#                     employee_record = sc_employee_master.objects.filter(mobile_no=custom_user.phone).first()
+
+#                     if not employee_record:
+#                         # Skip this user if employee record doesn't exist
+#                         continue
+                    
+
+#                     # Step 5: Using the employee_id, fetch the sc_roster records with specified conditions
+#                     employee_id = employee_record.employee_id
+#                     roster_records = sc_roster.objects.filter(
 #                         employee_id=employee_id,
 #                         attendance_uploaded_date__isnull=True,  # attendance_date is not null
 #                         confirmation=True,  # confirmation is true
 #                         attendance_in__isnull=True # attendance_in is null
 #                     )
-            
-#             if not roster_records.exists():
+
+#                     # Step 6: If roster records exist, serialize and add them to the result
+#                     if roster_records.exists():
+#                         data = ScRosterSerializer(roster_records, many=True)
+#                         result.append(data.data)
+
+#                 except Exception as e:
+#                     # Log any errors encountered while processing each user
+#                     continue
+
+#             if not result:
 #                 return Response(
 #                     {"message": "No valid records found."},
 #                     status=status.HTTP_404_NOT_FOUND
 #                 )
-            
-#             # Serialize and return the data
-#             data = ScRosterSerializer(roster_records, many=True)
-#             return Response(data.data, status=status.HTTP_200_OK)
+
+#             # Step 7: Return a success response with all results
+#             return Response(result, status=status.HTTP_200_OK)
 
 #         except Exception as e:
+#             # Step 8: Return a generic error response for any unhandled exceptions
 #             return Response(
 #                 {"error": f"An error occurred: {str(e)}"},
 #                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
 #             )
+        
+
+class DefaultRecords(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        try:
+            # Extract user from JWT token
+            user = request.user  # This gets the user from the JWT token if authenticated
+
+            # Check if the user's role_id is 5
+            if user.role_id != 5:
+                return Response(
+                    {"error": "You are not authorized to access this resource."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            # Get employee_id from request parameters
+            employee_id = request.data.get("employee_id")
+            if not employee_id:
+                return Response(
+                    {"error": "Employee ID is required."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Fetch records from sc_roster where confirmation=True and attendance_in is NULL
+            roster_records = sc_roster.objects.filter(
+                        employee_id=employee_id,
+                        attendance_uploaded_date__isnull=True,  # attendance_date is not null
+                        confirmation=True,  # confirmation is true
+                        attendance_in__isnull=True # attendance_in is null
+                    )
+            
+            if not roster_records.exists():
+                return Response(
+                    {"message": "No valid records found."},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            # Serialize and return the data
+            data = ScRosterSerializer(roster_records, many=True)
+            return Response(data.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {"error": f"An error occurred: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 
