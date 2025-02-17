@@ -437,8 +437,6 @@ class DefaultRecords(APIView):
                     if not employee_record:
                         # Skip this user if employee record doesn't exist
                         continue
-                    if custom_user.phone != '8291104778':
-                        continue
 
                     # Step 5: Using the employee_id, fetch the sc_roster records with specified conditions
                     employee_id = employee_record.employee_id
