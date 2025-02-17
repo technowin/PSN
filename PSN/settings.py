@@ -27,8 +27,8 @@ DATABASES = {
         'NAME': 'psn_db',      # Replace with your database name
         'USER': 'root',      # Replace with your database user
         'PASSWORD': 'Mysql_7319',  # Replace with your database password
-        'HOST': '13.202.157.7',       # IP FOR TEST
-        # 'HOST': '127.0.0.1',       # IP FOR LOCAL VM
+        # 'HOST': '13.202.157.7',       # IP FOR TEST
+        'HOST': '127.0.0.1',       # IP FOR LOCAL VM
         'PORT': '3306',            
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
