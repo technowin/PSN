@@ -11,6 +11,9 @@
 <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
 <script src="https://cdn.amcharts.com/lib/5/percent.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <!-- Include jQuery -->
 
 
@@ -367,75 +370,172 @@
             var clickedCategory = ev.target.dataItem.dataContext.category;
             var count = ev.target.dataItem.dataContext.value;
 
-            $.ajax({
-                url: "{% url 'get_roster_data' %}",
-                method: 'GET',
-                contentType: 'application/json', 
-                data: {
-                    company_id: company_id,
-                    site_name: site_name,
-                    shift_date:shift_date,
-                    clickedCategory:clickedCategory,
-                    csrfmiddlewaretoken: '{{ csrf_token }}'
-                },
-                success: function(response) {
-                    var content = `
-                    <div class="d-flex justify-content-between mb-3">
+          //  $.ajax({
+          //      url: "{% url 'get_roster_data' %}",
+          //      method: 'GET',
+          //      contentType: 'application/json', 
+          //      data: {
+          //          company_id: company_id,
+          //          site_name: site_name,
+          //          shift_date:shift_date,
+          //          clickedCategory:clickedCategory,
+          //          csrfmiddlewaretoken: '{{ csrf_token }}'
+          //      },
+          //      success: function(response) {
+          //          var content = `
+          //          <div class="d-flex justify-content-between mb-3">
+          //              <div class="shift-date">
+          //                  <strong>Shift Date: <span>${shift_date}</span> </strong>
+          //              </div>
+
+          //              <!-- Right side: Count -->
+          //              <div class="employee-count">
+          //                  <strong>Employee Count:${count} </strong></span> 
+          //              </div>
+          //          </div>
+          //          <div  class="table-container">
+          //              <table>
+          //                  <tr>
+          //                      <th>Sr No</th>
+          //                      <th>Employee No</th>
+          //                      <th>Employee Name</th>
+          //                      <th>Company Name</th>
+          //                      <th>Worksite</th>
+          //                  </tr>
+          //          `;
+          //          
+          //          response.data.forEach(function(item, index) {
+          //              content += `
+          //                  <tr>
+          //                     <td>${item[0]}</td>
+          //                     <td>${item[1]}</td>
+          //                     <td>${item[2]}</td>
+          //                     <td>${item[3]}</td>
+          //                     <td>${item[4]}</td>
+          //                  </tr>
+          //              `;
+          //          });
+          //          content += `</table></div>`;
+        
+          //          // Show SweetAlert
+          //          Swal.fire({
+          //              title: `Details of <span>${clickedCategory}</span>`,
+          //              html: content,
+          //              showCloseButton: true,
+          //              focusConfirm: false,
+          //              confirmButtonText: 'Close',
+          //              customClass: {
+          //                  popup: 'custom-popup' // Custom class for the popup
+          //              }
+          //          });
+          //      },
+          //      error: function(xhr, status, error) {
+          //          console.error('Error fetching data:', error);
+          //          Swal.fire({
+          //              title: 'Error!',
+          //              text: 'Could not retrieve data. Please try again.',
+          //              icon: 'error',
+          //              confirmButtonText: 'Close'
+          //          });
+          //      }
+          // });
+          $.ajax({
+            url: "{% url 'get_roster_data' %}",
+            method: 'GET',
+            contentType: 'application/json', 
+            data: {
+                company_id: company_id,
+                site_name: site_name,
+                shift_date: shift_date,
+                clickedCategory: clickedCategory,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                var content = `
+                <div id="pdf-content">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="shift-date">
                             <strong>Shift Date: <span>${shift_date}</span> </strong>
                         </div>
-
-                        <!-- Right side: Count -->
-                        <div class="employee-count">
-                            <strong>Employee Count:${count} </strong></span> 
+        
+                        <div>
+                            <strong>Employee Count: ${response.data.length}</strong>
                         </div>
                     </div>
-                    <div  class="table-container">
-                        <table>
+        
+                    <div class="table-container">
+                        <table border="1" cellspacing="0" cellpadding="5">
                             <tr>
                                 <th>Sr No</th>
                                 <th>Employee No</th>
                                 <th>Employee Name</th>
                                 <th>Company Name</th>
                                 <th>Worksite</th>
-                            </tr>
-                    `;
-                    
-                    response.data.forEach(function(item, index) {
-                        content += `
-                            <tr>
-                               <td>${item[0]}</td>
-                               <td>${item[1]}</td>
-                               <td>${item[2]}</td>
-                               <td>${item[3]}</td>
-                               <td>${item[4]}</td>
-                            </tr>
-                        `;
-                    });
-                    content += `</table></div>`;
+                            </tr>`;
         
-                    // Show SweetAlert
-                    Swal.fire({
-                        title: `Details of <span>${clickedCategory}</span>`,
-                        html: content,
-                        showCloseButton: true,
-                        focusConfirm: false,
-                        confirmButtonText: 'Close',
-                        customClass: {
-                            popup: 'custom-popup' // Custom class for the popup
+                response.data.forEach(function(item, index) {
+                    content += `
+                        <tr>
+                           <td>${item[0]}</td>
+                           <td>${item[1]}</td>
+                           <td>${item[2]}</td>
+                           <td>${item[3]}</td>
+                           <td>${item[4]}</td>
+                        </tr>`;
+                });
+        
+                content += `</table></div></div>`;
+        
+                // Show SweetAlert with PDF button beside the Close (X) button
+                Swal.fire({
+                    title: `Details of <span>${clickedCategory}</span>`,
+                    html: content,
+                    showCloseButton: true,
+                    focusConfirm: false,
+                    confirmButtonText: 'Close',
+                    customClass: {
+                        popup: 'custom-popup'
+                    },
+                    didOpen: () => {
+                        // Inject PDF button beside close button
+                        let closeBtn = document.querySelector('.swal2-close');
+                        let pdfBtn = document.createElement('button');
+                        pdfBtn.innerHTML = `<i class="fa fa-file-pdf-o"></i>`;
+                        pdfBtn.className = "swal2-pdf-btn";
+                        pdfBtn.onclick = generatePDF;
+                        
+                        if (closeBtn) {
+                            closeBtn.insertAdjacentElement('beforebegin', pdfBtn);
                         }
-                    });
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error fetching data:', error);
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Could not retrieve data. Please try again.',
-                        icon: 'error',
-                        confirmButtonText: 'Close'
-                    });
-                }
+                    }
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching data:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Could not retrieve data. Please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'Close'
+                });
+            }
+        });
+        
+        // Function to generate and download PDF
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+        
+            html2canvas(document.querySelector("#pdf-content")).then(canvas => {
+                const imgData = canvas.toDataURL("image/png");
+                const imgWidth = 190;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+                pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+                pdf.save("Roster_Details.pdf");
             });
+        }
+        
         });
         }
         )};
